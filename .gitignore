@@ -1,0 +1,157 @@
+# =========================================================
+# IIITD ERP Project - Cross-Platform .gitignore
+# Java + Maven + IntelliJ IDEA + PostgreSQL + macOS + Windows
+# =========================================================
+
+##########
+# OS Files
+##########
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+__MACOSX/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+##############
+# Build & IDE
+##############
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# VS Code (optional secondary editor)
+.vscode/
+
+# Eclipse (if ever opened there)
+.classpath
+.project
+.settings/
+
+#############
+# Java Output
+#############
+
+*.class
+*.jar
+*.war
+*.ear
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.old
+
+################
+# Test Artifacts
+################
+
+test-output/
+surefire-reports/
+target/surefire-reports/
+jacoco.exec
+/jacoco-report/
+.coverage/
+*.lcov
+*.hprof
+
+#################
+# Environment / Config
+#################
+
+# Local DB and environment credentials
+config.properties
+application.conf
+application.properties
+.env
+*.env
+
+# You can safely commit example configs if needed:
+# config.example.properties
+
+#################
+# Database Files
+#################
+
+# Local PostgreSQL dumps or test databases
+*.sql
+*.db
+*.dump
+*.backup
+
+# Keep sample data scripts (not ignored)
+!src/main/resources/sql/
+!src/main/resources/sample_data/
+!src/main/resources/db/
+
+##################
+# Build / Dist
+##################
+
+/build/
+/bin/
+/dist/
+/generated/
+
+##################
+# Logs / Debug
+##################
+
+*.log
+*.trace
+logs/
+debug.log
+error.log
+
+##################
+# OS / Misc Files
+##################
+
+*~
+*.kate-swp
+*.orig
+*.rej
+*.swp
+
+
+##################
+# JetBrains Cache
+##################
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/httpRequests/
+.idea/caches/
+
+##################
+# OS specific temp
+##################
+/$RECYCLE.BIN/
+/lost+found/
+
+# =========================================================
+# End of .gitignore
+# =========================================================
