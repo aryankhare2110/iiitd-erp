@@ -92,7 +92,6 @@ application.properties
 #################
 
 # Local PostgreSQL dumps or test databases
-*.sql
 *.db
 *.dump
 *.backup
