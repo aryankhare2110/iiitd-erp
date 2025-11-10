@@ -1,4 +1,4 @@
 package edu.univ.erp.util;
 
-public class dummy {
+public class Validator {
 }

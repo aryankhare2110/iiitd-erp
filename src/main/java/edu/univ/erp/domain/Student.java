@@ -1,4 +1,4 @@
 package edu.univ.erp.domain;
 
-public class dummy {
+public class Student {
 }

@@ -1,4 +1,4 @@
 package edu.univ.erp.service;
 
-public class dummy {
+public class AuthService {
 }
