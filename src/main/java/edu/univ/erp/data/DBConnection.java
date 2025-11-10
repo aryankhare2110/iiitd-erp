@@ -30,7 +30,7 @@ public class DBConnection {
         //erp_db connection config
         HikariConfig erpConfig = new HikariConfig();
         erpConfig.setJdbcUrl(url);
-        authConfig.setUsername(username);
+        erpConfig.setUsername(username);
         erpConfig.setPassword(password);
         erpConfig.setMaximumPoolSize(10);
         erpConfig.setPoolName("erpDBPool");
