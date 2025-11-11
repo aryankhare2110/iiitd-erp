@@ -107,12 +107,6 @@ public class LoginUI extends BaseFrame {
         splitPane.setDividerSize(0);
 
         loginUI.add(splitPane);
-        // set frame properties (kept visible and sized as before)
-        loginUI.setTitle("IIITD ERP - Login");
-        loginUI.setSize(1200, 700);
-        loginUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        loginUI.setResizable(false);
-        loginUI.setLocationRelativeTo(null);
         loginUI.setVisible(true);
     }
 
