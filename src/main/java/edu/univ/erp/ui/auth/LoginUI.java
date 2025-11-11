@@ -16,7 +16,6 @@ public class LoginUI extends BaseFrame {
     public static void main(String[] args) {
         FlatIntelliJLaf.setup();
 
-        // Direct creation on main thread (invokeLater removed as requested)
         LoginUI loginUI = new LoginUI();
 
         //Image Panel
