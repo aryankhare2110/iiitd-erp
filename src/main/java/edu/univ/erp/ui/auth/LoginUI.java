@@ -32,47 +32,59 @@ public class LoginUI extends BaseFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1.0;
 
         //Logo
         ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(
                 LoginUI.class.getResource("/Images/IIITD_Logo.png")));
         Image scaledLogo = logoIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        addComponent(loginPanel, new JLabel(new ImageIcon(scaledLogo)), gbc, 0);
+        gbc.insets = new Insets(10, 0, 10, 0);
+        loginPanel.add(new JLabel(new ImageIcon(scaledLogo)), gbc);
 
         //Title
+        gbc.gridy++;
         JLabel heading = new JLabel("Welcome Back", SwingConstants.CENTER);
         heading.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        addComponent(loginPanel, heading, gbc, 1);
+        loginPanel.add(heading, gbc);
 
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 30, 0);
         JLabel subheading = new JLabel("Sign in to IIITD ERP Portal", SwingConstants.CENTER);
         subheading.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subheading.setForeground(Color.GRAY);
-        gbc.insets = new Insets(0, 0, 30, 0);
-        addComponent(loginPanel, subheading, gbc, 2);
+        loginPanel.add(subheading, gbc);
 
         //Username
+        gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
-        addComponent(loginPanel, createLabel("Username"), gbc, 3);
+        loginPanel.add(createLabel("Username"), gbc);
 
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 20, 0);
         JTextField usernameField = new JTextField(20);
         usernameField.setPreferredSize(new Dimension(280, 42));
         usernameField.putClientProperty("JTextField.placeholderText", "Enter your username");
-        gbc.insets = new Insets(0, 0, 20, 0);
-        addComponent(loginPanel, usernameField, gbc, 4);
+        loginPanel.add(usernameField, gbc);
 
         //Password
+        gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
-        addComponent(loginPanel, createLabel("Password"), gbc, 5);
+        loginPanel.add(createLabel("Password"), gbc);
 
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 25, 0);
         JPasswordField passwordField = new JPasswordField(20);
         passwordField.setPreferredSize(new Dimension(280, 42));
         passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
-        gbc.insets = new Insets(0, 0, 25, 0);
-        addComponent(loginPanel, passwordField, gbc, 6);
+        loginPanel.add(passwordField, gbc);
 
         //Login Button
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 15, 0);
         JButton loginButton = createButton();
         loginButton.addActionListener(e -> {
             if (usernameField.getText().isEmpty() || passwordField.getPassword().length == 0) {
@@ -80,24 +92,25 @@ public class LoginUI extends BaseFrame {
                         "Login Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        gbc.insets = new Insets(0, 0, 15, 0);
-        addComponent(loginPanel, loginButton, gbc, 7);
+        loginPanel.add(loginButton, gbc);
 
         //Forgot Password
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 20, 0);
         JLabel forgotLabel = new JLabel("<html><u>Forgot Password?</u></html>", SwingConstants.CENTER);
         forgotLabel.setForeground(new Color(13, 110, 253));
         forgotLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         addHoverEffect(forgotLabel, new Color(13, 110, 253), new Color(10, 88, 202));
-        gbc.insets = new Insets(0, 0, 20, 0);
-        addComponent(loginPanel, forgotLabel, gbc, 8);
+        loginPanel.add(forgotLabel, gbc);
 
         //Support Info
+        gbc.gridy++;
+        gbc.insets = new Insets(15, 0, 0, 0);
         JLabel infoLabel = new JLabel("<html><center>Need help? Contact IT Support<br/>support@iiitd.ac.in</center></html>",
                 SwingConstants.CENTER);
         infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         infoLabel.setForeground(Color.GRAY);
-        gbc.insets = new Insets(15, 0, 0, 0);
-        addComponent(loginPanel, infoLabel, gbc, 9);
+        loginPanel.add(infoLabel, gbc);
 
         //Combine Panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel, loginPanel);
@@ -146,10 +159,5 @@ public class LoginUI extends BaseFrame {
                 }
             }
         });
-    }
-
-    private static void addComponent(JPanel panel, JComponent component, GridBagConstraints gbc, int row) {
-        gbc.gridy = row;
-        panel.add(component, gbc);
     }
 }
