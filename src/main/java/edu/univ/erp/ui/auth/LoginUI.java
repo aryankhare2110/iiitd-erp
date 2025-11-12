@@ -61,13 +61,13 @@ public class LoginUI extends BaseFrame {
         //Username
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
-        loginPanel.add(createLabel("Username"), gbc);
+        loginPanel.add(createLabel("Email"), gbc);
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 20, 0);
         JTextField usernameField = new JTextField(20);
         usernameField.setPreferredSize(new Dimension(280, 42));
-        usernameField.putClientProperty("JTextField.placeholderText", "Enter your username");
+        usernameField.putClientProperty("JTextField.placeholderText", "Enter your email");
         loginPanel.add(usernameField, gbc);
 
         //Password
