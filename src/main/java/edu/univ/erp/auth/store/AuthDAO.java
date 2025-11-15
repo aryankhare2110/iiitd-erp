@@ -80,4 +80,17 @@ public class AuthDAO {
         }
     }
 
+    public boolean updateLastLogin (String email) {
+        String sql = "UPDATE users_auth SET last_login = CURRENT_TIMESTAMP WHERE email = ?";
+        try (Connection c = DBConnection.getAuthConnection()) {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setString(1, email);
+            int rows = ps.executeUpdate();
+            return rows == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
