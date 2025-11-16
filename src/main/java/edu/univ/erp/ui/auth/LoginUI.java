@@ -47,7 +47,7 @@ public class LoginUI extends BaseFrame {
 
         //Title
         gbc.gridy++;
-        JLabel heading = new JLabel("Welcome Back", SwingConstants.CENTER);
+        JLabel heading = new JLabel("Welcome!", SwingConstants.CENTER);
         heading.setFont(new Font("Segoe UI", Font.BOLD, 28));
         loginPanel.add(heading, gbc);
 

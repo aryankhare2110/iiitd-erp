@@ -80,7 +80,7 @@ public class AuthDAO {
         }
     }
 
-    public boolean updateLastLogin (String email) {
+    public boolean updateLastLogin (String email) { //To update last_login
         String sql = "UPDATE users_auth SET last_login = CURRENT_TIMESTAMP WHERE email = ?";
         try (Connection c = DBConnection.getAuthConnection()) {
             PreparedStatement ps = c.prepareStatement(sql);
