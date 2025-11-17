@@ -1,4 +1,4 @@
 package edu.univ.erp.ui.instructor;
 
-public class dummy {
+public class InstrDashUI {
 }

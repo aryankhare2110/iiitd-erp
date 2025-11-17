@@ -59,10 +59,10 @@ CREATE TABLE students (
 
 -- Sample students
 INSERT INTO students (user_id, degree_level, branch, year, term, roll_no, full_name) VALUES
-    (4, 'B.Tech', 'CSE', 2, 'Monsoon', '2023CSB101', 'Aryan Khare'),
-    (5, 'B.Tech', 'CSAI', 2, 'Monsoon', '2023CSA102', 'Ananya Verma'),
-    (6, 'M.Tech', 'CSE', 1, 'Monsoon', '2022MTC103', 'Rohan Mehra'),
-    (7, 'PhD', 'ECE', 3, 'Winter', '2021PHB104', 'Sanya Gupta');
+    (4, 'B.Tech', 'CSD', 2, 'Monsoon', '2024124', 'Aryan Khare'),
+    (5, 'B.Tech', 'CSAI', 3, 'Monsoon', '2023102', 'Ananya Verma'),
+    (6, 'B.Tech', 'CSE', 4, 'Monsoon', '2022457', 'Rohan Mehra'),
+    (7, 'M.Tech', 'ECE', 2, 'Monsoon', 'MT24305', 'Sanya Gupta');
 
 
 -- COURSES

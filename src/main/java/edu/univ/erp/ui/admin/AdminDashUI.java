@@ -1,4 +1,4 @@
 package edu.univ.erp.ui.admin;
 
-public class dummy {
+public class AdminDashUI {
 }
