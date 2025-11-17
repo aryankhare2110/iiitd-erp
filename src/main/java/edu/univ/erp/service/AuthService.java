@@ -1,6 +1,7 @@
 package edu.univ.erp.service;
 
 import edu.univ.erp.auth.hash.PasswordHasher;
+import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.auth.store.AuthDAO;
 
 public class AuthService {
@@ -23,6 +24,8 @@ public class AuthService {
         if (!verified) {
             return null;
         }
+        int uid = authDAO.getUserId(email);
+        UserSession.startSession(uid, email, authDAO.getRole(email));
         authDAO.updateLastLogin(email);
         return authDAO.getRole(email);
     }

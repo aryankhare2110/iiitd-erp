@@ -20,6 +20,21 @@ public class AuthDAO {
         }
     }
 
+    public Integer getUserId(String email) {
+        String sql = "SELECT user_id FROM users_auth WHERE email = ?";
+        try (Connection c = DBConnection.getAuthConnection()) {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("user_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getStatus (String email) { //To enable and disable accounts
         String sql = "SELECT status FROM users_auth WHERE email = ?";
         try (Connection c = DBConnection.getAuthConnection()) {
