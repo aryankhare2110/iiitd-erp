@@ -20,6 +20,22 @@ public class AuthDAO {
         }
     }
 
+    public String getStatus (String email) { //To enable and disable accounts
+        String sql = "SELECT status FROM users_auth WHERE email = ?";
+        try (Connection c = DBConnection.getAuthConnection()) {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("status");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getHashedPassword (String email) { //To get the hashed password from db
         String sql = "SELECT password_hash FROM users_auth WHERE email = ?";
         try (Connection c = DBConnection.getAuthConnection()) {
@@ -37,7 +53,7 @@ public class AuthDAO {
     }
 
     public String getRole (String email) { //To get the role from db
-        String sql = "SELECT role FROM users_auth where email = ?";
+        String sql = "SELECT role FROM users_auth WHERE email = ?";
         try (Connection c = DBConnection.getAuthConnection()) {
             PreparedStatement ps = c.prepareStatement(sql);
             ps.setString(1, email);

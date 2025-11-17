@@ -1,31 +1,31 @@
 package edu.univ.erp.ui.auth;
 
+import edu.univ.erp.service.AuthService;
+import edu.univ.erp.ui.admin.AdminDashUI;
 import edu.univ.erp.ui.common.*;
 import com.formdev.flatlaf.*;
+import edu.univ.erp.ui.instructor.InstrDashUI;
+import edu.univ.erp.ui.student.StudentDashUI;
+
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.*;
+import java.util.Objects;
 
 public class LoginUI extends BaseFrame {
 
+    private final AuthService authService = new AuthService(); // LoginUI owns its backend
+
     public LoginUI() {
         super("IIITD - ERP Login");
-    }
 
-    public static void main(String[] args) {
-        FlatIntelliJLaf.setup();
-
-        LoginUI loginUI = new LoginUI();
-
-        //Image Panel
+        //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
-        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(
-                LoginUI.class.getResource("/Images/Login_Photo.jpg")));
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/Login_Photo.jpg")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
-        imagePanel.add(new JLabel(new ImageIcon(scaled)));
+        imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
 
-        //Login Panel
+        //Panel - Login
         JPanel loginPanel = new JPanel(new GridBagLayout());
         loginPanel.setBackground(Color.WHITE);
         loginPanel.setBorder(new EmptyBorder(40, 60, 40, 60));
@@ -39,8 +39,7 @@ public class LoginUI extends BaseFrame {
         gbc.weightx = 1.0;
 
         //Logo
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(
-                LoginUI.class.getResource("/Images/IIITD_Logo.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/IIITD_Logo.png")));
         Image scaledLogo = logoIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
         gbc.insets = new Insets(10, 0, 10, 0);
         loginPanel.add(new JLabel(new ImageIcon(scaledLogo)), gbc);
@@ -58,19 +57,19 @@ public class LoginUI extends BaseFrame {
         subheading.setForeground(Color.GRAY);
         loginPanel.add(subheading, gbc);
 
-        //Username
+        //Email Box
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         loginPanel.add(createLabel("Email"), gbc);
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 20, 0);
-        JTextField usernameField = new JTextField(20);
-        usernameField.setPreferredSize(new Dimension(280, 42));
-        usernameField.putClientProperty("JTextField.placeholderText", "Enter your email");
-        loginPanel.add(usernameField, gbc);
+        JTextField emailField = new JTextField(20);
+        emailField.setPreferredSize(new Dimension(280, 42));
+        emailField.putClientProperty("JTextField.placeholderText", "Enter your email");
+        loginPanel.add(emailField, gbc);
 
-        //Password
+        //Password Box
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         loginPanel.add(createLabel("Password"), gbc);
@@ -86,12 +85,44 @@ public class LoginUI extends BaseFrame {
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 15, 0);
         JButton loginButton = createButton();
+
         loginButton.addActionListener(e -> {
-            if (usernameField.getText().isEmpty() || passwordField.getPassword().length == 0) {
-                JOptionPane.showMessageDialog(loginUI, "Please enter both username and password.",
-                        "Login Error", JOptionPane.ERROR_MESSAGE);
+
+            String email = emailField.getText().trim().toLowerCase();
+            String password = new String(passwordField.getPassword()).trim();
+
+            if (email.isEmpty()) {
+                DialogUtils.errorDialog("Please Enter Your Email!");
+                return;
             }
+            if (password.isEmpty()) {
+                DialogUtils.errorDialog("Please Enter Your Password!");
+                return;
+            }
+
+            String role = authService.login(email, password);
+
+            if (role == null) {
+                DialogUtils.errorDialog("Invalid Email Or Password, Please Try Again!");
+                return;
+            }
+
+            if (role.equalsIgnoreCase("INACTIVE")) {
+                DialogUtils.errorDialog("Account Has Been Disabled, Please Contact Admin!");
+                return;
+            }
+
+            if (role.equalsIgnoreCase("STUDENT")) {
+                new StudentDashUI();
+            } else if (role.equalsIgnoreCase("INSTRUCTOR")) {
+                new InstrDashUI();
+            } else if (role.equalsIgnoreCase("ADMIN")) {
+                new AdminDashUI();
+            }
+
+            this.dispose();
         });
+
         loginPanel.add(loginButton, gbc);
 
         //Forgot Password
@@ -112,15 +143,15 @@ public class LoginUI extends BaseFrame {
         infoLabel.setForeground(Color.GRAY);
         loginPanel.add(infoLabel, gbc);
 
-        //Combine Panels
+        //Combine panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel, loginPanel);
         splitPane.setDividerLocation(800);
         splitPane.setEnabled(false);
         splitPane.setBorder(null);
         splitPane.setDividerSize(0);
 
-        loginUI.add(splitPane);
-        loginUI.setVisible(true);
+        add(splitPane);
+        setVisible(true);
     }
 
     private static JLabel createLabel(String text) {
@@ -159,5 +190,10 @@ public class LoginUI extends BaseFrame {
                 }
             }
         });
+    }
+
+    public static void main(String[] args) {
+        FlatIntelliJLaf.setup();
+        new LoginUI();
     }
 }

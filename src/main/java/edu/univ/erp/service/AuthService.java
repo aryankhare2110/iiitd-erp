@@ -11,6 +11,10 @@ public class AuthService {
         if (!authDAO.emailChecker(email)) {
             return null;
         }
+        String status = authDAO.getStatus(email);
+        if (status == null || status.equalsIgnoreCase("INACTIVE")) {
+            return "INACTIVE";
+        }
         String storedHash = authDAO.getHashedPassword(email);
         if (storedHash == null) {
             return null;

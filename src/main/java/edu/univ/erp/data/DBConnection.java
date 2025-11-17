@@ -10,7 +10,8 @@ public class DBConnection {
     //PostgreSQL details
     private static final String username = "postgres";
     private static final String password = "123456";
-    private static final String url = "jdbc:postgresql://localhost:5432/auth_db";
+    private static final String url1 = "jdbc:postgresql://localhost:5432/auth_db";
+    private static final String url2 = "jdbc:postgresql://localhost:5432/erp_db";
 
     //Actual connection pools (Separate)
     private static final HikariDataSource authDS; //Auth Data Source
@@ -20,7 +21,7 @@ public class DBConnection {
 
         //auth_db connection config
         HikariConfig authConfig = new HikariConfig();
-        authConfig.setJdbcUrl(url);
+        authConfig.setJdbcUrl(url1);
         authConfig.setUsername(username);
         authConfig.setPassword(password);
         authConfig.setMaximumPoolSize(10);
@@ -29,7 +30,7 @@ public class DBConnection {
 
         //erp_db connection config
         HikariConfig erpConfig = new HikariConfig();
-        erpConfig.setJdbcUrl(url);
+        erpConfig.setJdbcUrl(url2);
         erpConfig.setUsername(username);
         erpConfig.setPassword(password);
         erpConfig.setMaximumPoolSize(10);
@@ -56,15 +57,4 @@ public class DBConnection {
             erpDS.close();
         }
     }
-
-    //Test
-    public static void main(String[] args) {
-        try(Connection conn = getAuthConnection()) {
-            System.out.println("Connected to AuthDB: " + !conn.isClosed());
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
