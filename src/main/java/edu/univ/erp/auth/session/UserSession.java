@@ -33,4 +33,9 @@ public class UserSession {
     public static boolean isLoggedIn() {
         return userEmail != null;
     }
+
+    public static void logout() {
+        clear();
+    }
+
 }

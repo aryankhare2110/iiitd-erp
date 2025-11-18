@@ -25,9 +25,10 @@ public class AuthService {
             return null;
         }
         int uid = authDAO.getUserId(email);
-        UserSession.startSession(uid, email, authDAO.getRole(email));
+        String role = authDAO.getRole(email);
+        UserSession.startSession(uid, email, role);
         authDAO.updateLastLogin(email);
-        return authDAO.getRole(email);
+        return role;
     }
 
     public boolean register (String email, String role, String plainPassword) { //Registers new user
