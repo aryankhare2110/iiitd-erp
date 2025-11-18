@@ -1,6 +1,6 @@
 package edu.univ.erp.domain;
 
-public class Courses {
+public class Course {
 
     private int courseID;
     private String code;
@@ -8,7 +8,7 @@ public class Courses {
     private int credits;
     private String prerequisites;
 
-    public Courses(int courseID, String code, String title, int credits, String prerequisites) {
+    public Course(int courseID, String code, String title, int credits, String prerequisites) {
         this.courseID = courseID;
         this.code = code;
         this.title = title;
