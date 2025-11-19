@@ -1,76 +1,133 @@
 package edu.univ.erp.dao;
 
 import edu.univ.erp.data.DBConnection;
+import edu.univ.erp.domain.Section;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SectionDAO {
-    public static int getCapacity(int section_id) {
-        String sql = "SELECT capacity FROM sections WHERE section_id = ?";
-        try (Connection c = DBConnection.getErpConnection()){
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, section_id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("capacity");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0; // safe default: no capacity or error
-    }
-    public List<Map<String, Object>> viewTimeTable(int student_id) {
-        List<Integer> sections = EnrollmentDAO.enrolled(student_id);  // get all section IDs
-        List<Map<String, Object>> timetable = new ArrayList<>();
-        String sql = "SELECT s.section_id, c.name, s.day, s.start_time, s.end_time, t.room, FROM component_types c JOIN sections_components s ON c.type_id = s.type_id JOIN sections t ON s.section_id = t.section_id WHERE section_id = ? AND c.name IN ('LECTURE', 'TUTORIAL', 'LAB')";
+
+    public Section getSectionById(int sectionId) {
+        String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections WHERE section_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            for (int section_id : sections) {
-                ps.setInt(1, section_id);
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    row.put("section_id", rs.getInt("section_id"));
-                    row.put("component_type", rs.getString("name"));
-                    row.put("day", rs.getString("day"));
-                    row.put("start_time", rs.getString("start_time"));
-                    row.put("end_time", rs.getString("end_time"));
-                    row.put("room", rs.getString("room"));
-                    timetable.add(row);
+            ps.setInt(1, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Section(
+                            rs.getInt("section_id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("instructor_id"),
+                            rs.getString("term"),
+                            rs.getInt("year"),
+                            rs.getString("room"),
+                            rs.getInt("capacity")
+                    );
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return timetable; // empty if not enrolled in any courses
+        return null;
     }
 
-    public List<Map<String, Object>> viewMySections(int instructor_id) {
-        String sql = "SELECT c.code, c.title, s.term, s.year, s.room, s.capacity FROM sections s JOIN courses c ON s.course_id = c.course_id WHERE s.instructor_id = ?";
-        List<Map<String, Object>> list = new ArrayList<>();
+    public List<Section> getSectionsByCourse(int courseId) {
+        String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections WHERE course_id = ? ORDER BY term, year";
+        List<Section> list = new ArrayList<>();
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, instructor_id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("code", rs.getString("code"));
-                row.put("title", rs.getString("title"));
-                row.put("term", rs.getString("term"));
-                row.put("year", rs.getInt("year"));
-                row.put("room", rs.getString("room"));
-                row.put("capacity", rs.getInt("capacity"));
-                list.add(row);
+            ps.setInt(1, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Section(
+                            rs.getInt("section_id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("instructor_id"),
+                            rs.getString("term"),
+                            rs.getInt("year"),
+                            rs.getString("room"),
+                            rs.getInt("capacity")
+                    ));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list; // empty if instructor teaches no sections
+        return list;
     }
+
+    public List<Section> getSectionsByInstructor(int instructorId) {
+        String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections WHERE instructor_id = ? ORDER BY year DESC, term";
+        List<Section> list = new ArrayList<>();
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, instructorId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Section(
+                            rs.getInt("section_id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("instructor_id"),
+                            rs.getString("term"),
+                            rs.getInt("year"),
+                            rs.getString("room"),
+                            rs.getInt("capacity")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean insertSection(Section s) {
+        String sql = "INSERT INTO sections (course_id, instructor_id, term, year, room, capacity VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, s.getCourseID());
+            ps.setInt(2, s.getInstructorID());
+            ps.setString(3, s.getTerm());
+            ps.setInt(4, s.getYear());
+            ps.setString(5, s.getRoom());
+            ps.setInt(6, s.getCapacity());
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateSection(Section s) {
+        String sql = "UPDATE sections SET course_id = ?, instructor_id = ?, term = ?, year = ?, room = ?, capacity = ? WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, s.getCourseID());
+            ps.setInt(2, s.getInstructorID());
+            ps.setString(3, s.getTerm());
+            ps.setInt(4, s.getYear());
+            ps.setString(5, s.getRoom());
+            ps.setInt(6, s.getCapacity());
+            ps.setInt(7, s.getSectionID());
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteSection(int sectionId) {
+        String sql = "DELETE FROM sections WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, sectionId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

@@ -1,74 +1,133 @@
 package edu.univ.erp.dao;
 
 import edu.univ.erp.data.DBConnection;
+import edu.univ.erp.domain.Enrollment;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EnrollmentDAO {
-    public boolean checkCapacity(int section_id) {
-        int capacity = SectionDAO.getCapacity(section_id);
-        String sql = "SELECT COUNT(*) AS enrolled FROM enrollments WHERE section_id = ?";
-        try (Connection c = DBConnection.getErpConnection()){
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, section_id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int enrolled = rs.getInt("enrolled");
-                return enrolled < capacity; // true if seats available
+
+    public boolean isEnrolled(int studentId, int sectionId) {
+        String sql = "SELECT 1 FROM enrollments WHERE student_id = ? AND section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();   // true if duplicate exists
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false; // safe default: no capacity or error
+        return false;
     }
-    public boolean enroll(int student_id, int section_id) {
-        if (!checkCapacity(section_id)) {
-            return false; // no seats left
-        }
-        String sql = "INSERT INTO enrollments(student_id, section_id) VALUES (?, ?)";
-        try (Connection c = DBConnection.getErpConnection()) {
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, student_id);
-            ps.setInt(2, section_id);
-            int rows = ps.executeUpdate();
-            return rows > 0; // success if at least one row inserted
-        } catch (Exception e) {
+
+    public boolean enrollStudent(int studentId, int sectionId) {
+        String sql = "INSERT INTO enrollments (student_id, section_id, status) VALUES (?, ?, 'ENROLLED')";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, sectionId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            if (e.getMessage().contains("unique")) {
+                return false;
+            }
             e.printStackTrace();
+            return false;
         }
-        return false; // error inserting
     }
-    public boolean dropEnrollment(int student_id, int section_id) {
+
+    public boolean dropEnrollment(int studentId, int sectionId) {
         String sql = "DELETE FROM enrollments WHERE student_id = ? AND section_id = ?";
-        try (Connection c = DBConnection.getErpConnection()) {
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, student_id);
-            ps.setInt(2, section_id);
-            int rows = ps.executeUpdate();
-            return rows > 0;   // true only if a row was actually deleted
-
-        } catch (Exception e) {
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, sectionId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false; // deletion failed
     }
-    public static List<Integer> enrolled(int student_id) {
-        String sql = "SELECT section_id FROM enrollments WHERE student_id = ?";
-        List<Integer> list = new ArrayList<>();
 
-        try (Connection c = DBConnection.getErpConnection()) {
-            PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, student_id);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(rs.getInt("section_id"));
+    public List<Enrollment> getEnrollmentsByStudent(int studentId) {
+        String sql = "SELECT enrollment_id, student_id, section_id, status FROM enrollments WHERE student_id = ?";
+        List<Enrollment> list = new ArrayList<>();
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Enrollment(
+                            rs.getInt("enrollment_id"),
+                            rs.getInt("student_id"),
+                            rs.getInt("section_id"),
+                            rs.getString("status")
+                    ));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;  // empty if no enrollments
+        return list;
+    }
+
+    public List<Enrollment> getEnrollmentsBySection(int sectionId) {
+        String sql = "SELECT enrollment_id, student_id, section_id, status FROM enrollments WHERE section_id = ?";
+        List<Enrollment> list = new ArrayList<>();
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Enrollment(
+                            rs.getInt("enrollment_id"),
+                            rs.getInt("student_id"),
+                            rs.getInt("section_id"),
+                            rs.getString("status")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    public int countEnrollments(int sectionId) {
+        String sql = "SELECT COUNT(*) AS total FROM enrollments WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Integer getEnrollmentId(int studentId, int sectionId) {
+        String sql = "SELECT enrollment_id FROM enrollments WHERE student_id = ? AND section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, sectionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("enrollment_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
