@@ -101,6 +101,21 @@ public class SectionDAO {
         return list;
     }
 
+    public int getCapacity(int sectionId) {
+        String sql = "GET capacity FROM sections WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection()) {
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, sectionId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("capacity");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean insertSection(Section s) {
         String sql = "INSERT INTO sections (course_id, instructor_id, term, year, room, capacity VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection c = DBConnection.getErpConnection();
