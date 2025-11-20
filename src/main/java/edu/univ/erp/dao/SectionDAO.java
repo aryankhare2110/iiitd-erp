@@ -58,6 +58,24 @@ public class SectionDAO {
         return list;
     }
 
+    public boolean updateInstructor(int sectionId, int instructorId) {
+
+        String sql = "UPDATE sections SET instructor_id = ? WHERE section_id = ?";
+
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, instructorId);
+            ps.setInt(2, sectionId);
+
+            return ps.executeUpdate() == 1;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<Section> getSectionsByInstructor(int instructorId) {
         String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections WHERE instructor_id = ? ORDER BY year DESC, term";
         List<Section> list = new ArrayList<>();

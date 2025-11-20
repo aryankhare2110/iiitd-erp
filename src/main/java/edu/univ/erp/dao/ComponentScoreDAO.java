@@ -50,7 +50,6 @@ public class ComponentScoreDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 

@@ -1,5 +1,5 @@
 package edu.univ.erp.service;
 
-public class CourseService {
+public class FacultyService {
 
 }

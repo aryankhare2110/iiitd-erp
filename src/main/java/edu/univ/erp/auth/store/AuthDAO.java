@@ -124,4 +124,17 @@ public class AuthDAO {
         }
     }
 
+    public boolean updateStatus(int userId, String status) {
+        String sql = "UPDATE users_auth SET status = ? WHERE user_id = ?";
+        try (Connection c = DBConnection.getAuthConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

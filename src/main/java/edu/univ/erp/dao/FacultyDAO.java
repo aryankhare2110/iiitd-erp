@@ -74,11 +74,11 @@ public class FacultyDAO {
         return list;
     }
 
-    public boolean insertFaculty(Faculty f) {
+    public boolean insertFaculty(int userId, Faculty f) {
         String sql = "INSERT INTO faculty (user_id, department_id, designation, full_name) VALUES (?, ?, ?, ?)";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, f.getUserId());
+            ps.setInt(1, userId);
             ps.setInt(2, f.getDepartmentId());
             ps.setString(3, f.getDesignation());
             ps.setString(4, f.getFullName());

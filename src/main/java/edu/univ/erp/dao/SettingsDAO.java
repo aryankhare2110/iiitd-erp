@@ -10,11 +10,9 @@ public class SettingsDAO {
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             if (rs.next()) {
                 return rs.getString("value").equalsIgnoreCase("ON");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

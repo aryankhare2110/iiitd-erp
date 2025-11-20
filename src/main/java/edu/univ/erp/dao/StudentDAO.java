@@ -86,11 +86,11 @@ public class StudentDAO {
         return list;
     }
 
-    public boolean insertStudent(Student s) {
+    public boolean insertStudent(int userId, Student s) {
         String sql = "INSERT INTO students (user_id, degree_level, branch, year, term, roll_no, full_name) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, s.getUserId());
+            ps.setInt(1, userId);
             ps.setString(2, s.getDegreeLevel());
             ps.setString(3, s.getBranch());
             ps.setInt(4, s.getYear());
