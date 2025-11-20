@@ -12,7 +12,7 @@ import java.util.List;
 
 public class StudentDAO {
 
-    public Student getStudentByUserID(int userID) {
+    public Student getStudentByUserId(int userID) {
         String sql = "SELECT student_id, user_id, degree_level, branch, year, term, roll_no, full_name FROM students WHERE user_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {

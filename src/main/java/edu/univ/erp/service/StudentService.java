@@ -1,5 +1,6 @@
 package edu.univ.erp.service;
 
+import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
 import java.util.*;
@@ -15,6 +16,10 @@ public class StudentService {
     private FacultyDAO facultyDAO = new FacultyDAO();
     private ComponentTypeDAO componentTypeDAO = new ComponentTypeDAO();
     private SettingsDAO settingsDAO = new SettingsDAO();
+
+    public Student getMyProfile() {
+        return studentDAO.getStudentByUserId(UserSession.getUserID());
+    }
 
     public List<Course> browseCourses(){
         List<Course> list = courseDAO.getAllCourses();
