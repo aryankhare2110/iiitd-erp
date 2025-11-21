@@ -11,9 +11,7 @@ DROP TABLE IF EXISTS faculty CASCADE;
 DROP TABLE IF EXISTS departments CASCADE;
 DROP TABLE IF EXISTS settings CASCADE;
 
--- ===========================================================
 --  DEPARTMENTS
--- ===========================================================
 CREATE TABLE departments (
     department_id SERIAL PRIMARY KEY,
     code VARCHAR(10) UNIQUE NOT NULL,
@@ -28,9 +26,7 @@ INSERT INTO departments (code, name) VALUES
     ('HCD', 'Human Centred Design'),
     ('SSH', 'Social Science and Humanities');
 
--- ===========================================================
---  FACULTY  (matches auth_db user_ids = 2,3)
--- ===========================================================
+--  FACULTY
 CREATE TABLE faculty (
     faculty_id SERIAL PRIMARY KEY,
     user_id INT UNIQUE,   -- logical FK to auth_db.users_auth(user_id)
@@ -51,9 +47,7 @@ INSERT INTO faculty (user_id, department_id, designation, full_name) VALUES
     (2, 2, 'Department Head', 'Dr. Ravi Sharma'),
     (3, 5, 'Associate Professor', 'Dr. Meera Bansal');
 
--- ===========================================================
---  STUDENTS (matches auth_db user_ids = 4,5,6)
--- ===========================================================
+--  STUDENTS
 CREATE TABLE students (
     student_id SERIAL PRIMARY KEY,
     user_id INT UNIQUE,  -- logical FK to auth_db.users_auth(user_id)
@@ -70,9 +64,8 @@ INSERT INTO students (user_id, degree_level, branch, year, term, roll_no, full_n
     (5, 'B.Tech', 'CSAI', 3, 'Monsoon', '2023102', 'Ananya Verma'),
     (6, 'B.Tech', 'CSE', 4, 'Monsoon', '2022457', 'Rohan Mehra');
 
--- ===========================================================
+
 --  COURSES
--- ===========================================================
 CREATE TABLE courses (
     course_id SERIAL PRIMARY KEY,
     department_id INT REFERENCES departments(department_id) ON DELETE SET NULL,
@@ -87,9 +80,7 @@ INSERT INTO courses (department_id, code, title, credits, prerequisites) VALUES
     (2, 'CSE201', 'Advanced Programming', 4, 'CSE101, CSE102'),
     (5, 'DES201', 'Design Processes and Perspectives', 4, NULL);
 
--- ===========================================================
 --  SECTIONS
--- ===========================================================
 CREATE TABLE sections (
     section_id SERIAL PRIMARY KEY,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
@@ -105,9 +96,7 @@ INSERT INTO sections (course_id, instructor_id, term, year, room, capacity) VALU
     (2, 1, 'Monsoon', 2025, 'C-102', 35),
     (3, 2, 'Monsoon', 2025, 'B-105', 25);
 
--- ===========================================================
---  COMPONENT TYPES (Dynamic)
--- ===========================================================
+--  COMPONENT TYPES
 CREATE TABLE component_types (
     type_id SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL
@@ -123,18 +112,15 @@ INSERT INTO component_types (name) VALUES
     ('PROJECT'),
     ('ASSIGNMENT');
 
--- ===========================================================
 --  SECTION COMPONENTS
--- ===========================================================
--- rule: weight = 0 → not counted in grade
 CREATE TABLE section_components (
     component_id SERIAL PRIMARY KEY,
     section_id INT REFERENCES sections(section_id) ON DELETE CASCADE,
     type_id INT REFERENCES component_types(type_id) ON DELETE SET NULL,
-    day VARCHAR(10),              -- for scheduled components
+    day VARCHAR(10),
     start_time TIME,
     end_time TIME,
-    weight NUMERIC(5,2) DEFAULT 0,   -- percent of final grade
+    weight NUMERIC(5,2) DEFAULT 0,
     description TEXT
 );
 
@@ -148,9 +134,7 @@ VALUES
     (1, 6, NULL, NULL, NULL, 40, 'Endsem Exam'),
     (1, 7, NULL, NULL, NULL, 20, 'OS Project');
 
--- ===========================================================
 --  ENROLLMENTS
--- ===========================================================
 CREATE TABLE enrollments (
     enrollment_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
@@ -159,9 +143,7 @@ CREATE TABLE enrollments (
     UNIQUE (student_id, section_id)
 );
 
--- ===========================================================
 --  COMPONENT SCORES (per student × component)
--- ===========================================================
 CREATE TABLE component_scores (
     score_id SERIAL PRIMARY KEY,
     enrollment_id INT NOT NULL REFERENCES enrollments(enrollment_id) ON DELETE CASCADE,
@@ -171,9 +153,8 @@ CREATE TABLE component_scores (
     UNIQUE (enrollment_id, component_id)
 );
 
--- ===========================================================
+
 --  FINAL GRADES (aggregated)
--- ===========================================================
 CREATE TABLE grades (
     grade_id SERIAL PRIMARY KEY,
     enrollment_id INT UNIQUE NOT NULL REFERENCES enrollments(enrollment_id) ON DELETE CASCADE,
@@ -182,9 +163,8 @@ CREATE TABLE grades (
     computed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ===========================================================
+
 --  SETTINGS
--- ===========================================================
 CREATE TABLE settings (
     key VARCHAR(50) PRIMARY KEY,
     value VARCHAR(50)
@@ -192,11 +172,7 @@ CREATE TABLE settings (
 
 INSERT INTO settings (key, value) VALUES ('maintenance_mode', 'OFF');
 
--- ===========================================================
+
 --  NOTES
--- ===========================================================
--- - weight = 0 → component is NOT used in grade calculation
--- - Only user_ids (2,3 instructors, 4-6 students) are used
--- - component_types allows admin to add any assessment type (ATTENDANCE, JOURNAL, etc.)
--- - Fully consistent with auth_db
--- - Safe for grading, timetable, enrollments, dashboards
+-- weight = 0 → component is NOT used in grade calculation
+-- component_types allows admin to add any assessment type (ATTENDANCE, JOURNAL, etc.)
