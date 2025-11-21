@@ -21,7 +21,7 @@ public class LoginUI extends BaseFrame {
 
         //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
-        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/Login_Photo.jpg")));
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/LoginPage.png")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
         imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
 
@@ -38,11 +38,6 @@ public class LoginUI extends BaseFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.weightx = 1.0;
 
-        //Logo
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/IIITD_Logo.png")));
-        Image scaledLogo = logoIcon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH);
-        gbc.insets = new Insets(10, 0, 10, 0);
-        loginPanel.add(new JLabel(new ImageIcon(scaledLogo)), gbc);
 
         //Title
         gbc.gridy++;
@@ -125,19 +120,10 @@ public class LoginUI extends BaseFrame {
 
         loginPanel.add(loginButton, gbc);
 
-        //Forgot Password
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 20, 0);
-        JLabel forgotLabel = new JLabel("<html><u>Forgot Password?</u></html>", SwingConstants.CENTER);
-        forgotLabel.setForeground(new Color(13, 110, 253));
-        forgotLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addHoverEffect(forgotLabel, new Color(13, 110, 253), new Color(10, 88, 202));
-        loginPanel.add(forgotLabel, gbc);
-
         //Support Info
         gbc.gridy++;
         gbc.insets = new Insets(15, 0, 0, 0);
-        JLabel infoLabel = new JLabel("<html><center>Need help? Contact IT Support<br/>support@iiitd.ac.in</center></html>",
+        JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>",
                 SwingConstants.CENTER);
         infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         infoLabel.setForeground(Color.GRAY);
