@@ -22,33 +22,35 @@ public class AdminDashUI extends BaseFrame {
         super("IIITD ERP – Admin Dashboard");
         setLayout(new BorderLayout());
 
-        //Sidebar
+        // Sidebar
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(240, getHeight()));
         sidebar.setBackground(new Color(37, 47, 63));
 
+        // Logo Section
         JPanel logoPanel = new JPanel();
         logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
         logoPanel.setBackground(new Color(37, 47, 63));
         logoPanel.setBorder(new EmptyBorder(25, 20, 25, 20));
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(AdminDashUI.class.getResource("/Images/img.png")));
+        ImageIcon logoIcon = new ImageIcon(
+                Objects.requireNonNull(AdminDashUI.class.getResource("/Images/img.png"))
+        );
         Image scaledLogo = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
         JLabel logoLabel = new JLabel(new ImageIcon(scaledLogo));
         logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoPanel.add(logoLabel);
 
+        logoPanel.add(logoLabel);
         sidebar.add(logoPanel);
         sidebar.add(Box.createVerticalStrut(10));
 
-        //Menu Buttons
+        // Menu Buttons
         JButton btnDashboard = navButton("Dashboard");
         JButton btnStudent = navButton("Manage Students");
         JButton btnFaculty = navButton("Manage Faculty");
         JButton btnCourse = navButton("Manage Courses");
         JButton btnSection = navButton("Manage Sections");
-        JButton btnMaintenance = navButton("Maintenance");
         JButton btnLogout = navButton("Logout");
 
         sidebar.add(btnDashboard);
@@ -60,8 +62,6 @@ public class AdminDashUI extends BaseFrame {
         sidebar.add(btnCourse);
         sidebar.add(Box.createVerticalStrut(5));
         sidebar.add(btnSection);
-        sidebar.add(Box.createVerticalStrut(5));
-        sidebar.add(btnMaintenance);
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
@@ -69,7 +69,7 @@ public class AdminDashUI extends BaseFrame {
 
         add(sidebar, BorderLayout.WEST);
 
-        //Content Panels
+        // Content Panels
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(Color.WHITE);
@@ -79,11 +79,10 @@ public class AdminDashUI extends BaseFrame {
         contentPanel.add(new ManageFacultyPanel(adminService), "manageFaculty");
         contentPanel.add(new ManageCoursesPanel(adminService), "manageCourses");
         contentPanel.add(new ManageSectionsPanel(adminService), "manageSection");
-        contentPanel.add(new MaintenancePanel(adminService), "maintenance");
 
         add(contentPanel, BorderLayout.CENTER);
 
-        //Button Actions
+        // Button Actions
         btnDashboard.addActionListener(e -> {
             show("dashboard");
             setSelected(btnDashboard);
@@ -109,17 +108,12 @@ public class AdminDashUI extends BaseFrame {
             setSelected(btnSection);
         });
 
-        btnMaintenance.addActionListener(e -> {
-            show("maintenance");
-            setSelected(btnMaintenance);
-        });
-
         btnLogout.addActionListener(e -> {
             dispose();
             new LoginUI();
         });
 
-        //Default (Dashboard)
+        // Default (Dashboard)
         setSelected(btnDashboard);
         setVisible(true);
     }
@@ -134,8 +128,8 @@ public class AdminDashUI extends BaseFrame {
         b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         b.setBorder(new EmptyBorder(10, 20, 10, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        b.setContentAreaFilled(false);
         b.setOpaque(true);
+        b.setContentAreaFilled(false);
         return b;
     }
 
@@ -157,4 +151,5 @@ public class AdminDashUI extends BaseFrame {
         FlatIntelliJLaf.setup();
         SwingUtilities.invokeLater(AdminDashUI::new);
     }
+
 }

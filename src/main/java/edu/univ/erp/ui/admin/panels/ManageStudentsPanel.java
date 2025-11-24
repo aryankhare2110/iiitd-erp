@@ -67,6 +67,9 @@ public class ManageStudentsPanel extends JPanel {
         table.setRowHeight(32);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setBackground(Color.WHITE);
+
+        table.setAutoCreateRowSorter(true);
+
         table.setGridColor(new Color(230, 230, 230));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.getTableHeader().setBackground(new Color(248, 249, 250));
@@ -202,11 +205,18 @@ public class ManageStudentsPanel extends JPanel {
 
         Student s = new Student(0, 0, degree, branch, year, term, roll, name);
 
-        if (adminService.createStudent(email, pwd, s)) {
+        boolean created = adminService.createStudent(email, pwd, s);
+
+        if (created) {
             DialogUtils.infoDialog("Student created successfully!");
             loadStudents();
         } else {
-            DialogUtils.errorDialog("Failed to create student.");
+
+            if (authDAO.emailChecker(email)) {
+                DialogUtils.errorDialog("Email address already exists. Please use a different email.");
+            } else {
+                DialogUtils.errorDialog("Failed to create student. Please check all fields.");
+            }
         }
     }
 
