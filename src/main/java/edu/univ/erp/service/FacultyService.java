@@ -48,11 +48,24 @@ public class FacultyService {
         return gradesDAO.insertGrade(enrollmentId, score, gradeLabel);
     }
 
-//    public List<ComponentScore> viewScores(int sectionId){
-//        List<Enrollment> list = enrollmentDAO.getEnrollmentsBySection(sectionId);
-//        for(Enrollment enrollment : list){
-//            ComponentScore cs = componentScoreDAO.getScoresByEnrollment(enrollment.getEnrollmentId());
-//        }
-//    }
+    public List<List<ComponentScore>> viewScores(int sectionId){
+        List<List<ComponentScore>> L = new ArrayList<>();
+        List<Enrollment> list = enrollmentDAO.getEnrollmentsBySection(sectionId);
+        for(Enrollment enrollment : list){
+            List<ComponentScore> l = componentScoreDAO.getScoresByEnrollment(enrollment.getEnrollmentId());
+            L.add(l);
+        }
+        return L;
+    }
+
+    public Map<Integer, Double> classStatistics(int sectionId){
+        Map<Integer, Double> map = new HashMap<>();
+        List<Enrollment> list = enrollmentDAO.getEnrollmentsBySection(sectionId);
+        for(Enrollment enrollment : list){
+            Grade G = gradesDAO.getGradeByEnrollment(enrollment.getEnrollmentId());
+            map.put(G.getEnrollmentId(),G.getTotalScore());
+        }
+        return map;
+    }
 
 }
