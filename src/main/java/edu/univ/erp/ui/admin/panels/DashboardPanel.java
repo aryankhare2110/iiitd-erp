@@ -12,15 +12,14 @@ import java.time.format.DateTimeFormatter;
 
 public class DashboardPanel extends JPanel {
 
-    private final AdminService adminService;
+    private AdminService adminService;
+    public DashboardPanel() {
 
-    public DashboardPanel(AdminService adminService) {
-        this.adminService = adminService;
+        adminService = new AdminService();
 
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        // ===== HEADER =====
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setBackground(new Color(248, 249, 250));
@@ -40,13 +39,11 @@ public class DashboardPanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
-        // ===== CENTER =====
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(10, 50, 40, 50));
 
-        // ===== STAT CARDS =====
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 30, 0));
         cardsRow.setBackground(new Color(248, 249, 250));
 
@@ -57,7 +54,6 @@ public class DashboardPanel extends JPanel {
         center.add(cardsRow);
         center.add(Box.createVerticalStrut(30));
 
-        // ===== SYSTEM STATUS BOX =====
         JPanel statusSection = new JPanel();
         statusSection.setLayout(new BoxLayout(statusSection, BoxLayout.Y_AXIS));
         statusSection.setBackground(Color.WHITE);
@@ -73,7 +69,6 @@ public class DashboardPanel extends JPanel {
         statusSection.add(statusTitle);
         statusSection.add(Box.createVerticalStrut(20));
 
-        // Logged-in-as
         JPanel loginRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         loginRow.setBackground(Color.WHITE);
         loginRow.add(makeLabel("Logged in as:", false));
@@ -81,7 +76,6 @@ public class DashboardPanel extends JPanel {
         statusSection.add(loginRow);
         statusSection.add(Box.createVerticalStrut(20));
 
-        // Maintenance Mode
         boolean isOn = adminService.isMaintenanceMode();
         final JLabel statusBadge = makeStatusBadge(isOn);
 
@@ -94,16 +88,18 @@ public class DashboardPanel extends JPanel {
         toggle.addActionListener(e -> {
             boolean newState = toggle.isSelected();
 
-            String msg = newState
-                    ? "Are you sure you want to ENABLE maintenance mode?\nThis will restrict student & faculty access."
-                    : "Are you sure you want to DISABLE maintenance mode?";
+            String msg;
 
-            int choice = JOptionPane.showConfirmDialog(
-                    this, msg, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE
-            );
+            if (newState) {
+                msg = "Enable maintenance mode?\nThis will restrict student & faculty access.";
+            } else {
+                msg = "Disable maintenance mode?";
+            }
+
+            int choice = JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (choice != JOptionPane.YES_OPTION) {
-                toggle.setSelected(!newState); // revert
+                toggle.setSelected(!newState);
                 return;
             }
 
@@ -130,13 +126,10 @@ public class DashboardPanel extends JPanel {
         statusSection.add(maintenanceRow);
         statusSection.add(Box.createVerticalStrut(20));
 
-        // Logged-in-since
         JPanel timestampRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         timestampRow.setBackground(Color.WHITE);
-
         timestampRow.add(makeLabel("Logged in since:", false));
-        timestampRow.add(makeLabel(" " + LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
+        timestampRow.add(makeLabel(" " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
 
         statusSection.add(timestampRow);
 
@@ -144,7 +137,6 @@ public class DashboardPanel extends JPanel {
         add(center, BorderLayout.CENTER);
     }
 
-    // ===== HELPER METHODS =====
     private JLabel makeLabel(String text, boolean bold) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", bold ? Font.BOLD : Font.PLAIN, 14));
@@ -171,10 +163,7 @@ public class DashboardPanel extends JPanel {
     private JPanel statCard(String title, String count, Color accentColor) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
-                new EmptyBorder(20, 20, 20, 20)
-        ));
+        card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(222, 226, 230), 1), new EmptyBorder(20, 20, 20, 20)));
 
         JPanel accentBar = new JPanel();
         accentBar.setPreferredSize(new Dimension(5, 100));

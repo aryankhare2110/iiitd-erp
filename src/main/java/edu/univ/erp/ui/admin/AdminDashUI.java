@@ -22,21 +22,17 @@ public class AdminDashUI extends BaseFrame {
         super("IIITD ERP – Admin Dashboard");
         setLayout(new BorderLayout());
 
-        // Sidebar
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(240, getHeight()));
         sidebar.setBackground(new Color(37, 47, 63));
 
-        // Logo Section
         JPanel logoPanel = new JPanel();
         logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
         logoPanel.setBackground(new Color(37, 47, 63));
         logoPanel.setBorder(new EmptyBorder(25, 20, 25, 20));
 
-        ImageIcon logoIcon = new ImageIcon(
-                Objects.requireNonNull(AdminDashUI.class.getResource("/Images/img.png"))
-        );
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(AdminDashUI.class.getResource("/Images/img.png")));
         Image scaledLogo = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
         JLabel logoLabel = new JLabel(new ImageIcon(scaledLogo));
         logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -45,10 +41,10 @@ public class AdminDashUI extends BaseFrame {
         sidebar.add(logoPanel);
         sidebar.add(Box.createVerticalStrut(10));
 
-        // Menu Buttons
         JButton btnDashboard = navButton("Dashboard");
         JButton btnStudent = navButton("Manage Students");
         JButton btnFaculty = navButton("Manage Faculty");
+        JButton btnAdmins = navButton("Manage Admins");
         JButton btnCourse = navButton("Manage Courses");
         JButton btnSection = navButton("Manage Sections");
         JButton btnLogout = navButton("Logout");
@@ -58,6 +54,8 @@ public class AdminDashUI extends BaseFrame {
         sidebar.add(btnStudent);
         sidebar.add(Box.createVerticalStrut(5));
         sidebar.add(btnFaculty);
+        sidebar.add(Box.createVerticalStrut(5));
+        sidebar.add(btnAdmins);
         sidebar.add(Box.createVerticalStrut(5));
         sidebar.add(btnCourse);
         sidebar.add(Box.createVerticalStrut(5));
@@ -69,20 +67,20 @@ public class AdminDashUI extends BaseFrame {
 
         add(sidebar, BorderLayout.WEST);
 
-        // Content Panels
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(Color.WHITE);
 
-        contentPanel.add(new DashboardPanel(adminService), "dashboard");
+        contentPanel.add(new DashboardPanel(), "dashboard");
         contentPanel.add(new ManageStudentsPanel(), "manageStudents");
-        contentPanel.add(new ManageFacultyPanel(adminService), "manageFaculty");
+        contentPanel.add(new ManageFacultyPanel(), "manageFaculty");
+        contentPanel.add(new ManageAdminPanel(), "manageAdmins");
         contentPanel.add(new ManageCoursesPanel(adminService), "manageCourses");
         contentPanel.add(new ManageSectionsPanel(adminService), "manageSection");
 
         add(contentPanel, BorderLayout.CENTER);
 
-        // Button Actions
+        //Button Actions
         btnDashboard.addActionListener(e -> {
             show("dashboard");
             setSelected(btnDashboard);
@@ -96,6 +94,11 @@ public class AdminDashUI extends BaseFrame {
         btnFaculty.addActionListener(e -> {
             show("manageFaculty");
             setSelected(btnFaculty);
+        });
+
+        btnAdmins.addActionListener(e -> {
+            show("manageAdmins");
+            setSelected(btnAdmins);
         });
 
         btnCourse.addActionListener(e -> {
@@ -113,7 +116,7 @@ public class AdminDashUI extends BaseFrame {
             new LoginUI();
         });
 
-        // Default (Dashboard)
+        //Default (Dashboard)
         setSelected(btnDashboard);
         setVisible(true);
     }

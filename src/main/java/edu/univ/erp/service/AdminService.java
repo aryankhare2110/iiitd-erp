@@ -47,6 +47,17 @@ public class AdminService {
         return courseDAO.insertCourse(course);
     }
 
+    public boolean createAdmin(String email, String password) {
+        String hashed = PasswordHasher.hash(password);
+
+        boolean ok = authDAO.registerNewUser(email.toLowerCase(), "ADMIN", hashed);
+        if (!ok) {
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean updateCourse (Course course) {
         return courseDAO.updateCourse(course);
     }

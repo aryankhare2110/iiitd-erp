@@ -1,7 +1,10 @@
 package edu.univ.erp.auth.store;
 
 import edu.univ.erp.data.DBConnection;
+import edu.univ.erp.domain.Admin;
+
 import java.sql.*;
+import java.util.*;
 
 //authDAO is ONLY for auth_db SQL!!
 
@@ -138,6 +141,28 @@ public class AuthDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Admin> getAllAdmins() {
+        String sql = "SELECT user_id, email, status FROM users_auth WHERE role = 'ADMIN'";
+        List<Admin> list = new ArrayList<>();
+
+        try (Connection c = DBConnection.getAuthConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new Admin(
+                        rs.getInt("user_id"),
+                        rs.getString("email"),
+                        rs.getString("status")
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public String getStatusByUserId(int userId) {

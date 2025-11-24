@@ -122,15 +122,57 @@ public class FacultyDAO {
         }
     }
 
-    public boolean deleteFaculty(int facultyId) {
-        String sql = "DELETE FROM faculty WHERE faculty_id = ?";
+    public String getDepartmentNameById(int departmentId) {
+        String sql = "SELECT name FROM departments WHERE department_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, facultyId);
-            return ps.executeUpdate() == 1;
-        } catch (SQLException e) {
+
+            ps.setInt(1, departmentId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("name");
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return null;
     }
+
+    public List<String> getAllDepartmentNames() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT name FROM departments ORDER BY name";
+
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(rs.getString("name"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public int getDepartmentIdByName(String name) {
+        String sql = "SELECT department_id FROM departments WHERE name = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("department_id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
 }
