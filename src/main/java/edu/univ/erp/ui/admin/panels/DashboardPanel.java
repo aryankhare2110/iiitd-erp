@@ -2,6 +2,7 @@ package edu.univ.erp.ui.admin.panels;
 
 import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.service.AdminService;
+import edu.univ.erp.ui.common.DialogUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -19,7 +20,7 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        //Header
+        // ===== HEADER =====
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setBackground(new Color(248, 249, 250));
@@ -28,12 +29,10 @@ public class DashboardPanel extends JPanel {
         JLabel title = new JLabel("Admin Dashboard");
         title.setFont(new Font("Segoe UI", Font.BOLD, 32));
         title.setForeground(new Color(33, 37, 41));
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel("Overview of the IIITD ERP System");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         subtitle.setForeground(new Color(108, 117, 125));
-        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         header.add(title);
         header.add(Box.createVerticalStrut(8));
@@ -41,28 +40,24 @@ public class DashboardPanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
+        // ===== CENTER =====
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(10, 50, 40, 50));
 
-        //Stats
+        // ===== STAT CARDS =====
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 30, 0));
         cardsRow.setBackground(new Color(248, 249, 250));
-        cardsRow.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel studentCard = statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253));
-        JPanel facultyCard = statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193));
-        JPanel courseCard = statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20));
-
-        cardsRow.add(studentCard);
-        cardsRow.add(facultyCard);
-        cardsRow.add(courseCard);
+        cardsRow.add(statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253)));
+        cardsRow.add(statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193)));
+        cardsRow.add(statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20)));
 
         center.add(cardsRow);
         center.add(Box.createVerticalStrut(30));
 
-        //System Status
+        // ===== SYSTEM STATUS BOX =====
         JPanel statusSection = new JPanel();
         statusSection.setLayout(new BoxLayout(statusSection, BoxLayout.Y_AXIS));
         statusSection.setBackground(Color.WHITE);
@@ -70,79 +65,107 @@ public class DashboardPanel extends JPanel {
                 BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
                 new EmptyBorder(25, 25, 25, 25)
         ));
-        statusSection.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel statusTitle = new JLabel("System Status");
         statusTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         statusTitle.setForeground(new Color(33, 37, 41));
         statusTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         statusSection.add(statusTitle);
         statusSection.add(Box.createVerticalStrut(20));
 
-        //Logged-in-as
+        // Logged-in-as
         JPanel loginRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         loginRow.setBackground(Color.WHITE);
-
-        JLabel loggedLabel = new JLabel("Logged in as:");
-        loggedLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        loggedLabel.setForeground(new Color(73, 80, 87));
-
-        JLabel loggedUser = new JLabel(" " + UserSession.getUserEmail());
-        loggedUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        loggedUser.setForeground(new Color(33, 37, 41));
-
-        loginRow.add(loggedLabel);
-        loginRow.add(loggedUser);
-
+        loginRow.add(makeLabel("Logged in as:", false));
+        loginRow.add(makeLabel(" " + UserSession.getUserEmail(), true));
         statusSection.add(loginRow);
         statusSection.add(Box.createVerticalStrut(20));
 
-        //Maintenance Mode
+        // Maintenance Mode
         boolean isOn = adminService.isMaintenanceMode();
+        final JLabel statusBadge = makeStatusBadge(isOn);
+
+        final JCheckBox toggle = new JCheckBox();
+        toggle.setSelected(isOn);
+        toggle.setOpaque(false);
+        toggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        toggle.setToolTipText("Toggle maintenance mode");
+
+        toggle.addActionListener(e -> {
+            boolean newState = toggle.isSelected();
+
+            String msg = newState
+                    ? "Are you sure you want to ENABLE maintenance mode?\nThis will restrict student & faculty access."
+                    : "Are you sure you want to DISABLE maintenance mode?";
+
+            int choice = JOptionPane.showConfirmDialog(
+                    this, msg, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE
+            );
+
+            if (choice != JOptionPane.YES_OPTION) {
+                toggle.setSelected(!newState); // revert
+                return;
+            }
+
+            boolean ok = adminService.setMaintenanceMode(newState);
+            if (!ok) {
+                toggle.setSelected(!newState);
+                DialogUtils.errorDialog("Failed to update maintenance mode.");
+                return;
+            }
+
+            updateBadge(statusBadge, newState);
+            DialogUtils.infoDialog("Maintenance mode is now " + (newState ? "ON" : "OFF") + ".");
+        });
 
         JPanel maintenanceRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         maintenanceRow.setBackground(Color.WHITE);
 
-        JLabel maintenanceText = new JLabel("Maintenance Mode:");
-        maintenanceText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        maintenanceText.setForeground(new Color(73, 80, 87));
-
-        JLabel statusBadge = new JLabel(isOn ? "  ON  " : "  OFF  ");
-        statusBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        statusBadge.setForeground(Color.WHITE);
-        statusBadge.setOpaque(true);
-        statusBadge.setBackground(isOn ? new Color(40, 167, 69) : new Color(220, 53, 69));
-        statusBadge.setBorder(BorderFactory.createEmptyBorder(4, 12, 4, 12));
-
-        maintenanceRow.add(maintenanceText);
+        maintenanceRow.add(makeLabel("Maintenance Mode:", false));
+        maintenanceRow.add(Box.createHorizontalStrut(10));
+        maintenanceRow.add(toggle);
         maintenanceRow.add(Box.createHorizontalStrut(10));
         maintenanceRow.add(statusBadge);
 
         statusSection.add(maintenanceRow);
         statusSection.add(Box.createVerticalStrut(20));
 
-        //Logged in since
+        // Logged-in-since
         JPanel timestampRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         timestampRow.setBackground(Color.WHITE);
 
-        JLabel timestampLabel = new JLabel("Logged in since:");
-        timestampLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        timestampLabel.setForeground(new Color(73, 80, 87));
+        timestampRow.add(makeLabel("Logged in since:", false));
+        timestampRow.add(makeLabel(" " + LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
 
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        JLabel timestampValue = new JLabel(" " + now.format(formatter));
-        timestampValue.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        timestampValue.setForeground(new Color(108, 117, 125));
-
-        timestampRow.add(timestampLabel);
-        timestampRow.add(timestampValue);
         statusSection.add(timestampRow);
-        center.add(statusSection);
 
+        center.add(statusSection);
         add(center, BorderLayout.CENTER);
+    }
+
+    // ===== HELPER METHODS =====
+    private JLabel makeLabel(String text, boolean bold) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", bold ? Font.BOLD : Font.PLAIN, 14));
+        label.setForeground(bold ? new Color(33, 37, 41) : new Color(73, 80, 87));
+        return label;
+    }
+
+    private JLabel makeStatusBadge(boolean on) {
+        JLabel badge = new JLabel(on ? "  ON  " : "  OFF  ");
+        badge.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        badge.setForeground(Color.WHITE);
+        badge.setOpaque(true);
+        badge.setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
+        badge.setBorder(BorderFactory.createEmptyBorder(4, 12, 4, 12));
+        return badge;
+    }
+
+    private void updateBadge(JLabel badge, boolean on) {
+        badge.setText(on ? "  ON  " : "  OFF  ");
+        badge.setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
+        badge.repaint();
     }
 
     private JPanel statCard(String title, String count, Color accentColor) {
@@ -176,7 +199,6 @@ public class DashboardPanel extends JPanel {
         content.add(countLabel);
 
         card.add(content, BorderLayout.CENTER);
-
         return card;
     }
 }
