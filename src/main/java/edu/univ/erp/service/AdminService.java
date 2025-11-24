@@ -11,9 +11,9 @@ import edu.univ.erp.domain.Student;
 public class AdminService {
 
     private AuthDAO authDAO = new AuthDAO();
-    private CourseDAO courseDAO = new CourseDAO();
-    private StudentDAO studentDAO = new StudentDAO();
-    private FacultyDAO facultyDAO = new FacultyDAO();
+    public CourseDAO courseDAO = new CourseDAO();
+    public StudentDAO studentDAO = new StudentDAO();
+    public FacultyDAO facultyDAO = new FacultyDAO();
     private SectionDAO sectionDAO = new SectionDAO();
     private SettingsDAO settingsDAO = new SettingsDAO();
 
@@ -65,6 +65,22 @@ public class AdminService {
 
     public boolean setMaintenanceMode(boolean on) {
         return settingsDAO.setMaintenanceMode(on);
+    }
+
+    public int getStudentCount() {
+        return studentDAO.countStudents();
+    }
+
+    public int getFacultyCount() {
+        return facultyDAO.countFaculty();
+    }
+
+    public int getCourseCount() {
+        return courseDAO.countCourses();
+    }
+
+    public boolean isMaintenanceMode() {
+        return settingsDAO.isMaintenanceMode();
     }
 
 }

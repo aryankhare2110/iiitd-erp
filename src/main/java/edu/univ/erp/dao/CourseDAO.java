@@ -32,6 +32,20 @@ public class CourseDAO {
         return list;
     }
 
+    public int countCourses() {
+        String sql = "SELECT COUNT(*) FROM courses";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Course getCourseById(int courseId) {
         String sql = "SELECT course_id, department_id, code, title, credits, prerequisites FROM courses WHERE course_id = ?";
         try (Connection c = DBConnection.getErpConnection();

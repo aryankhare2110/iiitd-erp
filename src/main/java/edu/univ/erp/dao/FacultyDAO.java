@@ -31,6 +31,20 @@ public class FacultyDAO {
         return null;
     }
 
+    public int countFaculty() {
+        String sql = "SELECT COUNT(*) FROM faculty";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Faculty getFacultyById(int facultyId) {
         String sql = "SELECT faculty_id, user_id, department_id, designation, full_name FROM faculty WHERE faculty_id = ?";
         try (Connection c = DBConnection.getErpConnection();

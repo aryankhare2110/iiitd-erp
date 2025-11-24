@@ -124,6 +124,38 @@ public class AuthDAO {
         }
     }
 
+    public String getEmailByUserId(int userId) {
+        String sql = "SELECT email FROM users_auth WHERE user_id = ?";
+        try (Connection c = DBConnection.getAuthConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("email");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getStatusByUserId(int userId) {
+        String sql = "SELECT status FROM users_auth WHERE user_id = ?";
+        try (Connection c = DBConnection.getAuthConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("status");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean updateStatus(int userId, String status) {
         String sql = "UPDATE users_auth SET status = ? WHERE user_id = ?";
         try (Connection c = DBConnection.getAuthConnection();

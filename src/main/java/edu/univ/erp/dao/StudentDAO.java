@@ -37,6 +37,20 @@ public class StudentDAO {
         return null;
     }
 
+    public int countStudents() {
+        String sql = "SELECT COUNT(*) FROM students";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Student getStudentById(int studentId) {
         String sql = "SELECT student_id, user_id, degree_level, branch, year, term, roll_no, full_name FROM students WHERE student_id = ?";
         try (Connection c = DBConnection.getErpConnection();
@@ -119,18 +133,6 @@ public class StudentDAO {
             ps.setString(5, s.getRollNo());
             ps.setString(6, s.getFullName());
             ps.setInt(7, s.getStudentId());
-            return ps.executeUpdate() == 1;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean deleteStudent(int studentId) {
-        String sql = "DELETE FROM students WHERE student_id = ?";
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, studentId);
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();

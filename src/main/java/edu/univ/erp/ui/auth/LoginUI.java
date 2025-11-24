@@ -14,13 +14,14 @@ import java.util.Objects;
 
 public class LoginUI extends BaseFrame {
 
-    private final AuthService authService = new AuthService(); // LoginUI owns its backend
+    private final AuthService authService = new AuthService();
 
     public LoginUI() {
         super("IIITD - ERP Login");
 
         //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
+        imagePanel.setBackground(new Color(248, 249, 250));
         ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/LoginPage.png")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
         imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
@@ -38,18 +39,18 @@ public class LoginUI extends BaseFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.weightx = 1.0;
 
-
         //Title
         gbc.gridy++;
         JLabel heading = new JLabel("Welcome!", SwingConstants.CENTER);
         heading.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        heading.setForeground(new Color(33, 37, 41));
         loginPanel.add(heading, gbc);
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 30, 0);
         JLabel subheading = new JLabel("Sign in to IIITD ERP Portal", SwingConstants.CENTER);
         subheading.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subheading.setForeground(Color.GRAY);
+        subheading.setForeground(new Color(108, 117, 125));
         loginPanel.add(subheading, gbc);
 
         //Email Box
@@ -61,6 +62,7 @@ public class LoginUI extends BaseFrame {
         gbc.insets = new Insets(0, 0, 20, 0);
         JTextField emailField = new JTextField(20);
         emailField.setPreferredSize(new Dimension(280, 42));
+        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         emailField.putClientProperty("JTextField.placeholderText", "Enter your email");
         loginPanel.add(emailField, gbc);
 
@@ -73,6 +75,7 @@ public class LoginUI extends BaseFrame {
         gbc.insets = new Insets(0, 0, 25, 0);
         JPasswordField passwordField = new JPasswordField(20);
         passwordField.setPreferredSize(new Dimension(280, 42));
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
         loginPanel.add(passwordField, gbc);
 
@@ -126,7 +129,7 @@ public class LoginUI extends BaseFrame {
         JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>",
                 SwingConstants.CENTER);
         infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        infoLabel.setForeground(Color.GRAY);
+        infoLabel.setForeground(new Color(108, 117, 125));
         loginPanel.add(infoLabel, gbc);
 
         //Combine panels
