@@ -117,11 +117,7 @@ public class DashboardPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         btnPanel.setBackground(Color.WHITE);
-        JButton changePwdBtn = new JButton("Change Password");
-        changePwdBtn.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        changePwdBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        changePwdBtn.setFocusPainted(false);
-        changePwdBtn.addActionListener(e -> openPasswordDialog());
+        JButton changePwdBtn = UIUtils.secondaryButton("Change Password", e -> openPasswordDialog());
         btnPanel.add(changePwdBtn);
         statusSection.add(btnPanel, BorderLayout.SOUTH);
 
@@ -149,16 +145,16 @@ public class DashboardPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(notifArea);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1));
         notifSection.add(scrollPane, BorderLayout.CENTER);
-
-        JButton sendBtn = new JButton("Send");
-        sendBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
-        sendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        sendBtn.setFocusPainted(false);
-        sendBtn.setBackground(new Color(13, 110, 253));
-        sendBtn.setForeground(Color.WHITE);
-        sendBtn.setPreferredSize(new Dimension(100, 35));
-
         JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JButton sendBtn = UIUtils.primaryButton("Send", e -> {
+            String text = notifArea.getText().trim();
+            if (text.isEmpty()) {
+                DialogUtils.errorDialog("Notification cannot be empty.");
+                return;
+            }
+            DialogUtils.infoDialog("Notification sent!");
+        });
+        sendPanel.add(sendBtn);
         sendPanel.setBackground(Color.WHITE);
         sendPanel.add(sendBtn);
         notifSection.add(sendPanel, BorderLayout.SOUTH);

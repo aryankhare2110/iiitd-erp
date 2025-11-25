@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ManageSectionsPanel extends JPanel {
-
     private final AdminService adminService = new AdminService();
 
     private final JTable table;
@@ -25,15 +24,9 @@ public class ManageSectionsPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeader(
-                "Manage Sections",
-                "Create, update and remove course sections"
-        ), BorderLayout.NORTH);
+        add(UIUtils.createHeader("Manage Sections", "Add, view and manage sections"), BorderLayout.NORTH);
 
-        model = new DefaultTableModel(
-                new String[]{"Course", "Instructor", "Term", "Year", "Room", "Capacity"},
-                0
-        ) {
+        model = new DefaultTableModel(new String[]{"Course", "Instructor", "Term", "Year", "Room", "Capacity"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
@@ -65,22 +58,11 @@ public class ManageSectionsPanel extends JPanel {
 
         for (Section s : sections) {
             sectionList.add(s);
-
-            Course course = courses.stream()
-                    .filter(c -> c.getCourseID() == s.getCourseID())
-                    .findFirst().orElse(null);
-
-            Faculty faculty = facultyList.stream()
-                    .filter(f -> f.getFacultyId() == s.getInstructorID())
-                    .findFirst().orElse(null);
-
+            Course course = courses.stream().filter(c -> c.getCourseID() == s.getCourseID()).findFirst().orElse(null);
+            Faculty faculty = facultyList.stream().filter(f -> f.getFacultyId() == s.getInstructorID()).findFirst().orElse(null);
             String courseCode = (course != null) ? course.getCode() : "Unknown";
             String instructor = (faculty != null) ? faculty.getFullName() : "Unknown";
-
-            model.addRow(new Object[]{
-                    courseCode, instructor, s.getTerm(), s.getYear(),
-                    s.getRoom(), s.getCapacity()
-            });
+            model.addRow(new Object[]{courseCode, instructor, s.getTerm(), s.getYear(), s.getRoom(), s.getCapacity()});
         }
     }
 
@@ -104,7 +86,7 @@ public class ManageSectionsPanel extends JPanel {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
             return;
 
-        FormData data = extractFormData(panel, courses, faculties);
+        FormData data = extractFormData(panel, courses, faculties, -1);
         if (data == null) return;
 
         Section s = new Section(0, data.courseId, data.facultyId, data.term, data.year, data.room, data.capacity);
@@ -137,7 +119,7 @@ public class ManageSectionsPanel extends JPanel {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
             return;
 
-        FormData data = extractFormData(panel, courses, faculties);
+        FormData data = extractFormData(panel, courses, faculties, s.getSectionID());
         if (data == null) return;
 
         Section updated = new Section(
@@ -175,7 +157,6 @@ public class ManageSectionsPanel extends JPanel {
             DialogUtils.errorDialog("Cannot delete section. Students may be enrolled.");
         }
     }
-
 
     private static class FormData {
         int courseId, facultyId, year, capacity;
@@ -224,7 +205,7 @@ public class ManageSectionsPanel extends JPanel {
         return panel;
     }
 
-    private FormData extractFormData(JPanel panel, List<Course> courses, List<Faculty> faculties) {
+    private FormData extractFormData(JPanel panel, List<Course> courses, List<Faculty> faculties, int existingSectionId) {
         Component[] comps = panel.getComponents();
 
         JComboBox<?> courseF = (JComboBox<?>) comps[1];
@@ -241,8 +222,21 @@ public class ManageSectionsPanel extends JPanel {
         String room = roomF.getText().trim();
         int cap = (Integer) capF.getValue();
 
-        if (!yearStr.matches("\\d{4}")) {
-            DialogUtils.errorDialog("Year must be a valid 4-digit number.");
+        int year;
+        try {
+            year = Integer.parseInt(yearStr);
+        } catch (NumberFormatException ex) {
+            DialogUtils.errorDialog("Year must be a valid number.");
+            return null;
+        }
+
+        if (year < 2000 || year >= 2100) {
+            DialogUtils.errorDialog("Year must be between 2000 and 2099.");
+            return null;
+        }
+
+        if (cap < 1 || cap > 750) {
+            DialogUtils.errorDialog("Capacity must be between 1 and 750.");
             return null;
         }
 
@@ -251,6 +245,14 @@ public class ManageSectionsPanel extends JPanel {
             return null;
         }
 
-        return new FormData(courseId, facultyId, term, Integer.parseInt(yearStr), room, cap);
+        for (Section sec : sectionList) {
+            if (existingSectionId != -1 && sec.getSectionID() == existingSectionId) continue;
+            if (sec.getCourseID() == courseId && sec.getInstructorID() == facultyId) {
+                DialogUtils.errorDialog("This faculty is already assigned to another section of the same course.");
+                return null;
+            }
+        }
+
+        return new FormData(courseId, facultyId, term, year, room, cap);
     }
 }

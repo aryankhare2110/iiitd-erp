@@ -28,7 +28,7 @@ public class ManageCoursesPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeader("Manage Courses", "Add, edit, and delete course information"), BorderLayout.NORTH);
+        add(UIUtils.createHeader("Manage Courses", "Add, view and manage courses"), BorderLayout.NORTH);
 
         model = new DefaultTableModel(new String[]{"Code", "Title", "Department", "Credits", "Prerequisites"}, 0) {
             @Override public boolean isCellEditable(int r, int c) {
@@ -207,7 +207,7 @@ public class ManageCoursesPanel extends JPanel {
         }
 
         if (!adminService.deleteCourse(existing.getCourseID())) {
-            DialogUtils.errorDialog("Cannot delete course because enrollments exist.");
+            DialogUtils.errorDialog("Cannot delete course because enrollments/sections exist.");
             return;
         }
 

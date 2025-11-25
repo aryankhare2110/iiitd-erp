@@ -49,6 +49,7 @@ public class AdminService {
 
     public boolean deleteCourse(int courseId) {
         if (courseDAO.hasEnrollments(courseId)) return false;
+        if (courseDAO.hasSections(courseId)) return false;
         return courseDAO.deleteCourse(courseId);
     }
 
