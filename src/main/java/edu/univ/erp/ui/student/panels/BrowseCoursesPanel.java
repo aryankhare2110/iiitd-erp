@@ -1,9 +1,9 @@
 package edu.univ.erp.ui.student.panels;
 
+import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.domain.Course;
 import edu.univ.erp.domain.Faculty;
 import edu.univ.erp.domain.Section;
-import edu.univ.erp.domain.Student;
 import edu.univ.erp.service.StudentService;
 import edu.univ.erp.ui.common.DialogUtils;
 import edu.univ.erp.ui.common.UIUtils;
@@ -12,126 +12,75 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 public class BrowseCoursesPanel extends JPanel {
 
     private final StudentService studentService = new StudentService();
-    private final JTable table;
-    private final DefaultTableModel model;
-    private final List<Course> courseList = new ArrayList<>();
+    private JTable table;
+    private DefaultTableModel model;
+    private List<Course> courses;
 
     public BrowseCoursesPanel() {
 
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeader("Browse Courses", "View available courses and register for sections"), BorderLayout.NORTH);
+        LocalDate ddl = studentService.getAddDropDeadline();
+        boolean showBadge = ddl != null;
+        String badgeText = "";
 
-        model = new DefaultTableModel(new String[]{"Code", "Title", "Credits"}, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+        if (showBadge) {
+            boolean closed = LocalDate.now().isAfter(ddl);
+            badgeText = closed
+                    ? " Add/Drop Closed "
+                    : " Add/Drop until " + ddl + " ";
+        }
+
+        add(UIUtils.createHeaderWithBadge("Browse Courses", "Select a course and register for sections", showBadge, badgeText), BorderLayout.NORTH);
+
+        JPanel center = new JPanel(new BorderLayout());
+        center.setBackground(new Color(248, 249, 250));
+        center.setBorder(new EmptyBorder(20, 50, 20, 50));
+
+        model = new DefaultTableModel(new String[]{"Code", "Title", "Credits", "Department"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
 
         table = UIUtils.createStyledTable(model);
-
-        JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(new EmptyBorder(10, 50, 20, 50));
-        center.setBackground(new Color(248, 249, 250));
         center.add(new JScrollPane(table), BorderLayout.CENTER);
 
         add(center, BorderLayout.CENTER);
 
-        JPanel bottom = UIUtils.createButtonRow(UIUtils.primaryButton("Show Info", e -> openInfoDialog()), UIUtils.primaryButton("Register", e -> openRegistrationDialog()));
-        add(bottom, BorderLayout.SOUTH);
+        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()));
+        add(btnRow, BorderLayout.SOUTH);
 
         loadCourses();
     }
 
     private void loadCourses() {
         model.setRowCount(0);
-        courseList.clear();
+        courses = studentService.browseCourses();
 
-        List<Course> courses = studentService.browseCourses();
         for (Course c : courses) {
-            courseList.add(c);
+            String deptName = studentService.getDepartmentName(c.getDepartmentID());
             model.addRow(new Object[]{
-                    c.getCode(), c.getTitle(), c.getCredits()
+                    c.getCode(), c.getTitle(), c.getCredits(), deptName
             });
         }
     }
 
-    private void openInfoDialog() {
-        int r = table.getSelectedRow();
-        if (r == -1) {
+    private void openRegisterDialog() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
             DialogUtils.errorDialog("Please select a course first.");
             return;
         }
 
-        Course selected = courseList.get(r);
-        List<Section> sections = studentService.getSectionsForCourse(selected.getCourseID());
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        JLabel title = new JLabel(selected.getCode() + " – " + selected.getTitle());
-        title.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel credit = new JLabel("Credits: " + selected.getCredits());
-        credit.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        credit.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel prereq = new JLabel("Prerequisites: " + (selected.getPrerequisites() == null ? "None" : selected.getPrerequisites()));
-        prereq.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        prereq.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        panel.add(title);
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(credit);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(prereq);
-        panel.add(Box.createVerticalStrut(20));
-
-        JLabel secTitle = new JLabel("Available Sections:");
-        secTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 15));
-        secTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(secTitle);
-        panel.add(Box.createVerticalStrut(10));
-
-        if (sections.isEmpty()) {
-            JLabel none = new JLabel("No sections available.");
-            none.setFont(new Font("Helvetica Neue", Font.ITALIC, 13));
-            none.setForeground(new Color(108, 117, 125));
-            none.setAlignmentX(Component.LEFT_ALIGNMENT);
-            panel.add(none);
-        } else {
-            for (Section s : sections) {
-                Faculty f = studentService.getFacultyForSection(s.getInstructorID());
-                String instructor = (f == null) ? "TBA" : f.getFullName();
-
-                JLabel sec = new JLabel("• " + s.getTerm() + " " + s.getYear() + " | Instructor: " + instructor + " | Room: " + s.getRoom() + " | Capacity: " + s.getCapacity());
-                sec.setFont(new Font("Helvetica Neue", Font.PLAIN, 13));
-                sec.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                panel.add(sec);
-                panel.add(Box.createVerticalStrut(6));
-            }
-        }
-
-        JOptionPane.showMessageDialog(this, panel, "Course Information", JOptionPane.PLAIN_MESSAGE);
-    }
-
-    private void openRegistrationDialog() {
-        int r = table.getSelectedRow();
-        if (r == -1) {
-            DialogUtils.errorDialog("Select a course first.");
-            return;
-        }
-
-        Course selected = courseList.get(r);
+        Course selected = courses.get(row);
         List<Section> sections = studentService.getSectionsForCourse(selected.getCourseID());
 
         if (sections.isEmpty()) {
@@ -139,38 +88,75 @@ public class BrowseCoursesPanel extends JPanel {
             return;
         }
 
-        String[] names = sections.stream()
-                .map(s -> {
-                    Faculty f = studentService.getFacultyForSection(s.getInstructorID());
-                    String prof = (f == null) ? "TBA" : f.getFullName();
-                    return selected.getCode() + " – " + prof;
-                })
-                .toArray(String[]::new);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        JComboBox<String> box = new JComboBox<>(names);
+        JLabel title = new JLabel(selected.getCode() + " – " + selected.getTitle());
+        title.setFont(new Font("Helvetica Neue", Font.BOLD, 17));
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JPanel p = new JPanel(new GridLayout(0, 1, 10, 10));
-        p.add(new JLabel("Select Section:"));
-        p.add(box);
+        JLabel credits = new JLabel("Credits: " + selected.getCredits());
+        credits.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        credits.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        if (JOptionPane.showConfirmDialog(this, p, "Register", JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+        String prereqText = (selected.getPrerequisites() == null) ? "None" : selected.getPrerequisites();
+        JLabel prereq = new JLabel("Prerequisites: " + prereqText);
+        prereq.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        prereq.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(credits);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(prereq);
+        panel.add(Box.createVerticalStrut(20));
+
+        String[] sectionOptions = new String[sections.size()];
+        for (int i = 0; i < sections.size(); i++) {
+            Section s = sections.get(i);
+            Faculty f = studentService.getFacultyForSection(s.getInstructorID());
+            String instructor = (f != null) ? f.getFullName() : "TBA";
+
+            int enrolled = studentService.getEnrollmentCount(s.getSectionID());
+            String seats = enrolled + "/" + s.getCapacity();
+
+            sectionOptions[i] = String.format("%s %d | %s | Seats: %s", s.getTerm(), s.getYear(), instructor, seats
+            );
+        }
+
+        JLabel secLabel = new JLabel("Select Section:");
+        secLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        secLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JComboBox<String> sectionCombo = new JComboBox<>(sectionOptions);
+        sectionCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        sectionCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(secLabel);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(sectionCombo);
+
+        int res = JOptionPane.showConfirmDialog(this, panel, "Register for " + selected.getCode(), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (res != JOptionPane.OK_OPTION){
             return;
         }
 
+        Section chosen = sections.get(sectionCombo.getSelectedIndex());
+        int studentId = UserSession.getUserID();
 
-        int idx = box.getSelectedIndex();
-        Section chosen = sections.get(idx);
+        LocalDate ddl = studentService.getAddDropDeadline();
+        if (ddl != null && LocalDate.now().isAfter(ddl)) {
+            DialogUtils.errorDialog("Add/Drop deadline has passed.");
+            return;
+        }
 
-        Student me = studentService.getMyProfile();
-
-        boolean ok = studentService.registerForSection(me.getStudentId(), chosen.getSectionID());
-
-        if (ok) {
+        if (studentService.registerForSection(studentId, chosen.getSectionID())) {
             DialogUtils.infoDialog("Registered successfully!");
+        } else {
+            DialogUtils.errorDialog("Registration failed. Already enrolled, full, or add/drop closed.");
         }
-        else {
-            DialogUtils.errorDialog("Could not register.\nAlready enrolled, full, or maintenance mode.");
-        }
-
     }
 }

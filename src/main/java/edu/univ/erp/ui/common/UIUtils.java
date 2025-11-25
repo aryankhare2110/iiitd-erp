@@ -247,54 +247,5 @@ public final class UIUtils {
         return row;
     }
 
-    public static JPanel createAddDropBanner(LocalDate deadline) {
-        LocalDate today = LocalDate.now();
-        boolean closed = today.isAfter(deadline);
-
-        Color bg = closed ? new Color(252, 228, 228) : new Color(255, 243, 205);
-        Color border = closed ? new Color(222, 98, 98) : new Color(255, 193, 7);
-        Color textColor = closed ? new Color(132, 32, 32) : new Color(133, 100, 4);
-
-        JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        banner.setBackground(bg);
-        banner.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(border, 1),
-                new EmptyBorder(8, 12, 8, 12)
-        ));
-
-        JLabel icon = new JLabel("⚠");
-        icon.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-        icon.setForeground(textColor);
-        JLabel text = new JLabel(closed ? "Add/Drop period has ended. No further course changes are allowed." : "Add/Drop open until " + deadline + ". You may add or drop courses.");
-        text.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        text.setForeground(textColor);
-
-        banner.add(icon);
-        banner.add(text);
-
-        return banner;
-    }
-
-    public static JPanel createDeadlineBanner(String message) {
-
-        JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
-        banner.setBackground(new Color(255, 243, 205));   // warning yellow
-        banner.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(255, 193, 7), 1),
-                new EmptyBorder(8, 12, 8, 12)
-        ));
-
-        JLabel icon = new JLabel("⚠");
-        icon.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-        icon.setForeground(new Color(133, 100, 4));
-
-        JLabel text = new JLabel(message);
-        text.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        text.setForeground(new Color(133, 100, 4));
-
-        banner.add(icon);
-        banner.add(text);
-        return banner;
-    }
 
 }

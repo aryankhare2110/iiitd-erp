@@ -160,4 +160,8 @@ public class StudentService {
         }
         return grades;
     }
+
+    public LocalDate getAddDropDeadline() {
+        return settingsDAO. getAddDropDeadline();
+    }
 }
