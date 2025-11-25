@@ -140,4 +140,35 @@ public class CourseDAO {
         }
     }
 
+    public boolean hasEnrollments(int courseId) {
+        String sql = "SELECT COUNT(*) FROM enrollments e JOIN sections s ON e.section_id = s.section_id WHERE s.course_id = ?";
+
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, courseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean hasSections(int courseId) {
+        String sql = "SELECT COUNT(*) FROM sections WHERE course_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, courseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

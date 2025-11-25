@@ -3,6 +3,7 @@ package edu.univ.erp.service;
 import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
+
 import java.util.*;
 
 public class StudentService {
@@ -21,21 +22,19 @@ public class StudentService {
         return studentDAO.getStudentByUserId(UserSession.getUserID());
     }
 
-    public List<Course> browseCourses(){
-        List<Course> list = courseDAO.getAllCourses();
-        return list;
+    public List<Course> browseCourses() {
+        return courseDAO.getAllCourses();
     }
 
-    public List<Section> getSectionsForCourse(int courseId){
-        List<Section> list = sectionDAO.getSectionsByCourse(courseId);
-        return list;
+    public List<Section> getSectionsForCourse(int courseId) {
+        return sectionDAO.getSectionsByCourse(courseId);
     }
 
-    public boolean registerForSection(int studentId, int sectionId){
+    public boolean registerForSection(int studentId, int sectionId) {
         if (settingsDAO.isMaintenanceMode()) {
             return false;
         }
-        if(enrollmentDAO.isEnrolled(studentId, sectionId)) {
+        if (enrollmentDAO.isEnrolled(studentId, sectionId)) {
             return false;
         }
         int capacity = sectionDAO.getCapacity(sectionId);
@@ -46,7 +45,7 @@ public class StudentService {
         return enrollmentDAO.enrollStudent(studentId, sectionId);
     }
 
-    public boolean dropSection(int studentId, int sectionId){
+    public boolean dropSection(int studentId, int sectionId) {
         if (settingsDAO.isMaintenanceMode()) {
             return false;
         }
@@ -59,40 +58,37 @@ public class StudentService {
     public List<TimetableEntry> getTimetable(int studentId) {
         List<TimetableEntry> list = new ArrayList<>();
         List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(studentId);
-        for (Enrollment enrollment : enrollments) {
-            int secID = enrollment.getSectionId();
-            Section section = sectionDAO.getSectionById(secID);
+        for (Enrollment e : enrollments) {
+            Section section = sectionDAO.getSectionById(e.getSectionId());
+            if (section == null) continue;
             Course course = courseDAO.getCourseById(section.getCourseID());
+            if (course == null) continue;
             Faculty faculty = facultyDAO.getFacultyById(section.getInstructorID());
-            List<SectionComponent> secComponents = sectionComponentDAO.getComponentsBySection(secID);
-            for (SectionComponent sc : secComponents) {
-                String typeName = componentTypeDAO.getComponentTypeName(sc.getTypeID());
-                if (!"LECTURE".equals(typeName) && !"TUTORIAL".equals(typeName) && !"LAB".equals(typeName)) {
+            List<SectionComponent> components = sectionComponentDAO.getComponentsBySection(e.getSectionId());
+            for (SectionComponent sc : components) {
+                String type = componentTypeDAO.getComponentTypeName(sc.getTypeID());
+                if (!"LECTURE".equals(type) && !"TUTORIAL".equals(type) && !"LAB".equals(type)) {
                     continue;
                 }
-                String instructorName;
-                if (faculty == null) {
-                    instructorName = "TBA";
-                } else {
-                    instructorName = faculty.getFullName();
-                }
-                TimetableEntry entry = new TimetableEntry(course.getCode(), typeName, instructorName, section.getRoom(), sc.getDay(), sc.getStartTime(), sc.getEndTime(), sc.getDescription());
-                list.add(entry);
+                String instructor = (faculty == null) ? "TBA" : faculty.getFullName();
+                list.add(new TimetableEntry(
+                        course.getCode(), type, instructor,
+                        section.getRoom(), sc.getDay(),
+                        sc.getStartTime(), sc.getEndTime(),
+                        sc.getDescription()
+                ));
             }
         }
         return list;
     }
 
-    public List <Grade> getGrades(int studentId) {
-        List <Grade> list = new ArrayList<>();
-        List <Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(studentId);
-        for (Enrollment enrollment : enrollments) {
-            Grade grade = gradesDAO.getGradeByEnrollment(enrollment.getEnrollmentId());
-            if (grade != null) {
-                list.add(grade);
-            }
+    public List<Grade> getGrades(int studentId) {
+        List<Grade> grades = new ArrayList<>();
+        List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(studentId);
+        for (Enrollment e : enrollments) {
+            Grade g = gradesDAO.getGradeByEnrollment(e.getEnrollmentId());
+            if (g != null) grades.add(g);
         }
-        return list;
+        return grades;
     }
-
 }

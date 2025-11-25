@@ -1,10 +1,12 @@
 package edu.univ.erp.ui.admin.panels;
 
 import edu.univ.erp.auth.store.AuthDAO;
+import edu.univ.erp.dao.DepartmentDAO;
 import edu.univ.erp.dao.FacultyDAO;
 import edu.univ.erp.domain.Faculty;
 import edu.univ.erp.service.AdminService;
 import edu.univ.erp.ui.common.DialogUtils;
+import edu.univ.erp.ui.common.UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,117 +18,47 @@ public class ManageFacultyPanel extends JPanel {
 
     private final FacultyDAO facultyDAO = new FacultyDAO();
     private final AuthDAO authDAO = new AuthDAO();
+    private final DepartmentDAO departmentDAO = new DepartmentDAO();
     private final AdminService adminService = new AdminService();
 
-    private JTable table;
-    private DefaultTableModel model;
+    private final JTable table;
+    private final DefaultTableModel model;
 
     public ManageFacultyPanel() {
-
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        // ===== HEADER =====
-        JPanel header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        header.setBackground(new Color(248, 249, 250));
-        header.setBorder(new EmptyBorder(40, 50, 20, 50));
+        add(UIUtils.createHeader("Manage Faculty", "Add, view, and manage faculty accounts"), BorderLayout.NORTH);
 
-        JLabel title = new JLabel("Manage Faculty");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        title.setForeground(new Color(33, 37, 41));
-
-        JLabel subtitle = new JLabel("Add, view, and manage faculty accounts");
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        subtitle.setForeground(new Color(108, 117, 125));
-
-        header.add(title);
-        header.add(Box.createVerticalStrut(8));
-        header.add(subtitle);
-
-        add(header, BorderLayout.NORTH);
-
-        // ===== TABLE SECTION =====
-        JPanel center = new JPanel(new BorderLayout());
-        center.setBackground(new Color(248, 249, 250));
-        center.setBorder(new EmptyBorder(10, 50, 20, 50));
-
-        model = new DefaultTableModel(
-                new String[]{"Name", "Email", "Department", "Designation", "Status"},
-                0
-        ) {
+        model = new DefaultTableModel(new String[]{"Name", "Email", "Department", "Designation", "Status"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        table = new JTable(model);
-        table.setRowHeight(32);
-        table.setBackground(Color.WHITE);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.setAutoCreateRowSorter(true);
-        table.setGridColor(new Color(230, 230, 230));
+        table = UIUtils.createStyledTable(model);
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(222, 226, 230), 1));
-        center.add(scroll, BorderLayout.CENTER);
-
+        JPanel center = new JPanel(new BorderLayout());
+        center.setBackground(new Color(248, 249, 250));
+        center.setBorder(new EmptyBorder(10, 50, 20, 50));
+        center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout.CENTER);
 
-        // ===== BUTTON ROW =====
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        bottom.setBackground(new Color(248, 249, 250));
-        bottom.setBorder(new EmptyBorder(0, 50, 40, 50));
-
-        JButton btnAdd = primaryButton("Add Faculty");
-        JButton btnToggle = secondaryButton("Enable / Disable");
-
-        bottom.add(btnAdd);
-        bottom.add(Box.createHorizontalStrut(15));
-        bottom.add(btnToggle);
-
+        JPanel bottom = UIUtils.createButtonRow(
+                UIUtils.primaryButton("Add Faculty", e -> openCreateDialog()),
+                UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus())
+        );
         add(bottom, BorderLayout.SOUTH);
 
-        // Load faculty
         loadFaculty();
-
-        // Actions
-        btnAdd.addActionListener(e -> openCreateDialog());
-        btnToggle.addActionListener(e -> toggleStatus());
-    }
-
-    private JButton primaryButton(String text) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        b.setBackground(new Color(13, 110, 253));
-        b.setForeground(Color.WHITE);
-        b.setBorder(new EmptyBorder(10, 20, 10, 20));
-        b.setFocusPainted(false);
-        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return b;
-    }
-
-    private JButton secondaryButton(String text) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        b.setBackground(new Color(248, 249, 250));
-        b.setForeground(new Color(73, 80, 87));
-        b.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
-                new EmptyBorder(9, 19, 9, 19)
-        ));
-        b.setFocusPainted(false);
-        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return b;
     }
 
     private void loadFaculty() {
         model.setRowCount(0);
-
         List<Faculty> list = facultyDAO.getAllFaculty();
         for (Faculty f : list) {
             model.addRow(new Object[]{
                     f.getFullName(),
                     authDAO.getEmailByUserId(f.getUserId()),
-                    facultyDAO.getDepartmentNameById(f.getDepartmentId()),
+                    departmentDAO.getDepartmentNameById(f.getDepartmentId()),
                     f.getDesignation(),
                     authDAO.getStatusByUserId(f.getUserId())
             });
@@ -134,7 +66,6 @@ public class ManageFacultyPanel extends JPanel {
     }
 
     private void openCreateDialog() {
-
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -142,7 +73,7 @@ public class ManageFacultyPanel extends JPanel {
         JPasswordField pwdF = new JPasswordField();
         JTextField nameF = new JTextField();
 
-        JComboBox<String> deptF = new JComboBox<>(facultyDAO.getAllDepartmentNames().toArray(new String[0]));
+        JComboBox<String> deptF = new JComboBox<>(departmentDAO.getAllDepartmentNames().toArray(new String[0]));
         JComboBox<String> desigF = new JComboBox<>(new String[]{
                 "Professor", "Associate Professor", "Assistant Professor",
                 "Visiting Professor", "Adjunct Faculty", "Emeritus Professor", "Department Head"
@@ -154,34 +85,24 @@ public class ManageFacultyPanel extends JPanel {
         panel.add(new JLabel("Department:")); panel.add(deptF);
         panel.add(new JLabel("Designation:")); panel.add(desigF);
 
-        if (JOptionPane.showConfirmDialog(this, panel, "Create Faculty",
-                JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION)
-            return;
+        if (JOptionPane.showConfirmDialog(this, panel, "Create Faculty", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
 
         String email = emailF.getText().trim().toLowerCase();
         String pwd = new String(pwdF.getPassword()).trim();
         String name = nameF.getText().trim();
+        int deptId = departmentDAO.getDepartmentIdByName((String) deptF.getSelectedItem());
+        String desig = (String) desigF.getSelectedItem();
 
         if (email.isEmpty() || pwd.isEmpty() || name.isEmpty()) {
             DialogUtils.errorDialog("All fields must be filled.");
             return;
         }
 
-        if (authDAO.emailChecker(email)) {
-            DialogUtils.errorDialog("Email already exists.");
-            return;
-        }
-
-        int deptId = facultyDAO.getDepartmentIdByName((String) deptF.getSelectedItem());
-        String desig = (String) desigF.getSelectedItem();
-
-        Faculty f = new Faculty(0, 0, deptId, desig, name);
-
-        if (adminService.createFaculty(email, pwd, f)) {
+        if (adminService.createFaculty(email, pwd, new Faculty(0, 0, deptId, desig, name))) {
             DialogUtils.infoDialog("Faculty created successfully!");
             loadFaculty();
         } else {
-            DialogUtils.errorDialog("Failed to create faculty.");
+            DialogUtils.errorDialog(authDAO.emailChecker(email) ? "Email already exists." : "Failed to create faculty.");
         }
     }
 
@@ -191,15 +112,16 @@ public class ManageFacultyPanel extends JPanel {
             DialogUtils.errorDialog("Select a faculty member first.");
             return;
         }
-
         String email = model.getValueAt(r, 1).toString();
         String status = model.getValueAt(r, 4).toString();
-
-        int userId = authDAO.getUserId(email);
-        boolean active = status.equalsIgnoreCase("ACTIVE");
-
+        Integer userId = authDAO.getUserId(email);
+        if (userId == null) {
+            DialogUtils.errorDialog("Could not resolve user id for selected faculty.");
+            return;
+        }
+        boolean active = "ACTIVE".equalsIgnoreCase(status);
         if (adminService.setUserStatus(userId, !active)) {
-            DialogUtils.infoDialog("Status updated successfully.");
+            DialogUtils.infoDialog("Status updated.");
             loadFaculty();
         } else {
             DialogUtils.errorDialog("Failed to update status.");

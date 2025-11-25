@@ -58,24 +58,6 @@ public class SectionDAO {
         return list;
     }
 
-    public boolean updateInstructor(int sectionId, int instructorId) {
-
-        String sql = "UPDATE sections SET instructor_id = ? WHERE section_id = ?";
-
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-
-            ps.setInt(1, instructorId);
-            ps.setInt(2, sectionId);
-
-            return ps.executeUpdate() == 1;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public List<Section> getSectionsByInstructor(int instructorId) {
         String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections WHERE instructor_id = ? ORDER BY year DESC, term";
         List<Section> list = new ArrayList<>();
@@ -101,15 +83,50 @@ public class SectionDAO {
         return list;
     }
 
+    public List<Section> getAllSections() {
+        String sql = "SELECT section_id, course_id, instructor_id, term, year, room, capacity FROM sections ORDER BY year DESC, term";
+        List<Section> list = new ArrayList<>();
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new Section(
+                        rs.getInt("section_id"),
+                        rs.getInt("course_id"),
+                        rs.getInt("instructor_id"),
+                        rs.getString("term"),
+                        rs.getInt("year"),
+                        rs.getString("room"),
+                        rs.getInt("capacity")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean updateInstructor(int sectionId, int instructorId) {
+        String sql = "UPDATE sections SET instructor_id = ? WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, instructorId);
+            ps.setInt(2, sectionId);
+            return ps.executeUpdate() == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public int getCapacity(int sectionId) {
-        String sql = "GET capacity FROM sections WHERE section_id = ?";
-        try (Connection c = DBConnection.getErpConnection()) {
-            PreparedStatement ps = c.prepareStatement(sql);
+        String sql = "SELECT capacity FROM sections WHERE section_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, sectionId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("capacity");
-            }
+            if (rs.next()) return rs.getInt("capacity");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -117,16 +134,19 @@ public class SectionDAO {
     }
 
     public boolean insertSection(Section s) {
-        String sql = "INSERT INTO sections (course_id, instructor_id, term, year, room, capacity VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO sections (course_id, instructor_id, term, year, room, capacity) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
+
             ps.setInt(1, s.getCourseID());
             ps.setInt(2, s.getInstructorID());
             ps.setString(3, s.getTerm());
             ps.setInt(4, s.getYear());
             ps.setString(5, s.getRoom());
             ps.setInt(6, s.getCapacity());
+
             return ps.executeUpdate() == 1;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -137,6 +157,7 @@ public class SectionDAO {
         String sql = "UPDATE sections SET course_id = ?, instructor_id = ?, term = ?, year = ?, room = ?, capacity = ? WHERE section_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
+
             ps.setInt(1, s.getCourseID());
             ps.setInt(2, s.getInstructorID());
             ps.setString(3, s.getTerm());
@@ -144,7 +165,9 @@ public class SectionDAO {
             ps.setString(5, s.getRoom());
             ps.setInt(6, s.getCapacity());
             ps.setInt(7, s.getSectionID());
+
             return ps.executeUpdate() == 1;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -162,5 +185,4 @@ public class SectionDAO {
             return false;
         }
     }
-
 }
