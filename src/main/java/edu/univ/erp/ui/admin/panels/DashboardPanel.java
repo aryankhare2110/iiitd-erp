@@ -29,17 +29,22 @@ public class DashboardPanel extends JPanel {
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBackground(new Color(248, 249, 250));
-        center.setBorder(new EmptyBorder(10, 50, 40, 50));
+        center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        JPanel cardsRow = new JPanel(new GridLayout(1, 3, 30, 0));
+        JPanel cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
         cardsRow.setBackground(new Color(248, 249, 250));
+        cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
         cardsRow.add(statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253)));
         cardsRow.add(statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193)));
         cardsRow.add(statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20)));
         center.add(cardsRow);
-        center.add(Box.createVerticalStrut(30));
+        center.add(Box.createVerticalStrut(35));
 
-        JPanel statusSection = new JPanel(new BorderLayout());
+        JPanel twoCol = new JPanel(new GridLayout(1, 2, 30, 0));
+        twoCol.setBackground(new Color(248, 249, 250));
+        twoCol.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+        JPanel statusSection = new JPanel(new BorderLayout(0, 15));
         statusSection.setBackground(Color.WHITE);
         statusSection.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
@@ -51,34 +56,31 @@ public class DashboardPanel extends JPanel {
         statusContent.setBackground(Color.WHITE);
 
         JLabel statusTitle = new JLabel("System Status");
-        statusTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        statusTitle.setForeground(new Color(33, 37, 41));
+        statusTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
         statusTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         statusContent.add(statusTitle);
         statusContent.add(Box.createVerticalStrut(20));
 
         JPanel loginRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         loginRow.setBackground(Color.WHITE);
+        loginRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         loginRow.add(UIUtils.makeLabel("Logged in as:", false));
         loginRow.add(UIUtils.makeLabel(" " + UserSession.getUserEmail(), true));
-        loginRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         statusContent.add(loginRow);
-        statusContent.add(Box.createVerticalStrut(20));
+        statusContent.add(Box.createVerticalStrut(12));
 
         boolean isOn = adminService.isMaintenanceMode();
-        final JLabel statusBadge = makeStatusBadge(isOn);
+        JLabel statusBadge = makeStatusBadge(isOn);
 
-        final JCheckBox toggle = new JCheckBox();
+        JCheckBox toggle = new JCheckBox();
         toggle.setSelected(isOn);
         toggle.setOpaque(false);
         toggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        toggle.setToolTipText("Toggle maintenance mode");
 
         toggle.addActionListener(e -> {
             boolean newState = toggle.isSelected();
             String msg = newState ? "Enable maintenance mode?\nThis will restrict student & faculty access." : "Disable maintenance mode?";
-            int choice = JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            int choice = JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION);
             if (choice != JOptionPane.YES_OPTION) {
                 toggle.setSelected(!newState);
                 return;
@@ -93,41 +95,78 @@ public class DashboardPanel extends JPanel {
             DialogUtils.infoDialog("Maintenance mode is now " + (newState ? "ON" : "OFF") + ".");
         });
 
-        JPanel maintenanceRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel maintenanceRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
         maintenanceRow.setBackground(Color.WHITE);
-        maintenanceRow.add(UIUtils.makeLabel("Maintenance Mode:", false));
+        maintenanceRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        maintenanceRow.add(UIUtils.makeLabel("Maintenance:", false));
         maintenanceRow.add(Box.createHorizontalStrut(10));
         maintenanceRow.add(toggle);
         maintenanceRow.add(Box.createHorizontalStrut(10));
         maintenanceRow.add(statusBadge);
-        maintenanceRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         statusContent.add(maintenanceRow);
-        statusContent.add(Box.createVerticalStrut(20));
+        statusContent.add(Box.createVerticalStrut(12));
 
         JPanel timestampRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         timestampRow.setBackground(Color.WHITE);
+        timestampRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         timestampRow.add(UIUtils.makeLabel("Logged in since:", false));
         timestampRow.add(UIUtils.makeLabel(" " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
-        timestampRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         statusContent.add(timestampRow);
 
         statusSection.add(statusContent, BorderLayout.CENTER);
 
-        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        btnRow.setBackground(Color.WHITE);
-        btnRow.setBorder(new EmptyBorder(10, 0, 0, 0));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        btnPanel.setBackground(Color.WHITE);
         JButton changePwdBtn = new JButton("Change Password");
-        changePwdBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        changePwdBtn.setBackground(new Color(248, 249, 250));
-        changePwdBtn.setForeground(new Color(13, 110, 253));
+        changePwdBtn.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         changePwdBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         changePwdBtn.setFocusPainted(false);
-        changePwdBtn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(13, 110, 253), 1), new EmptyBorder(8, 16, 8, 16)));
         changePwdBtn.addActionListener(e -> openPasswordDialog());
-        btnRow.add(changePwdBtn);
-        statusSection.add(btnRow, BorderLayout.SOUTH);
+        btnPanel.add(changePwdBtn);
+        statusSection.add(btnPanel, BorderLayout.SOUTH);
 
-        center.add(statusSection);
+        twoCol.add(statusSection);
+
+        JPanel notifSection = new JPanel(new BorderLayout(0, 15));
+        notifSection.setBackground(Color.WHITE);
+        notifSection.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(25, 25, 25, 25)
+        ));
+
+        JLabel notifTitle = new JLabel("Send Notification");
+        notifTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        notifSection.add(notifTitle, BorderLayout.NORTH);
+
+        JTextArea notifArea = new JTextArea(6, 20);
+        notifArea.setLineWrap(true);
+        notifArea.setWrapStyleWord(true);
+        notifArea.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        notifArea.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(206, 212, 218), 1),
+                new EmptyBorder(8, 8, 8, 8)
+        ));
+        JScrollPane scrollPane = new JScrollPane(notifArea);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1));
+        notifSection.add(scrollPane, BorderLayout.CENTER);
+
+        JButton sendBtn = new JButton("Send");
+        sendBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        sendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        sendBtn.setFocusPainted(false);
+        sendBtn.setBackground(new Color(13, 110, 253));
+        sendBtn.setForeground(Color.WHITE);
+        sendBtn.setPreferredSize(new Dimension(100, 35));
+
+        JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        sendPanel.setBackground(Color.WHITE);
+        sendPanel.add(sendBtn);
+        notifSection.add(sendPanel, BorderLayout.SOUTH);
+
+        twoCol.add(notifSection);
+
+        center.add(twoCol);
+
         add(center, BorderLayout.CENTER);
     }
 
@@ -136,31 +175,31 @@ public class DashboardPanel extends JPanel {
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
-                new EmptyBorder(20, 20, 20, 20)
+                new EmptyBorder(25, 20, 25, 20)
         ));
 
         JPanel accentBar = new JPanel();
-        accentBar.setPreferredSize(new Dimension(5, 100));
+        accentBar.setPreferredSize(new Dimension(4, 100));
         accentBar.setBackground(accentColor);
         card.add(accentBar, BorderLayout.WEST);
 
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(Color.WHITE);
-        content.setBorder(new EmptyBorder(10, 20, 10, 20));
+        content.setBorder(new EmptyBorder(0, 20, 0, 0));
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         titleLabel.setForeground(new Color(108, 117, 125));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel countLabel = new JLabel(count);
-        countLabel.setFont(new Font("Segoe UI", Font.BOLD, 52));
+        countLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 48));
         countLabel.setForeground(new Color(33, 37, 41));
         countLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         content.add(titleLabel);
-        content.add(Box.createVerticalStrut(15));
+        content.add(Box.createVerticalStrut(10));
         content.add(countLabel);
 
         card.add(content, BorderLayout.CENTER);
@@ -168,17 +207,18 @@ public class DashboardPanel extends JPanel {
     }
 
     private JLabel makeStatusBadge(boolean on) {
-        JLabel badge = new JLabel(on ? "  ON  " : "  OFF  ");
-        badge.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JLabel badge = new JLabel(on ? "ON" : "OFF");
+        badge.setFont(new Font("Helvetica Neue", Font.BOLD, 11));
         badge.setForeground(Color.WHITE);
         badge.setOpaque(true);
         badge.setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
-        badge.setBorder(BorderFactory.createEmptyBorder(4, 12, 4, 12));
+        badge.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        badge.setHorizontalAlignment(SwingConstants.CENTER);
         return badge;
     }
 
     private void updateBadge(JLabel badge, boolean on) {
-        badge.setText(on ? "  ON  " : "  OFF  ");
+        badge.setText(on ? "ON" : "OFF");
         badge.setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
         badge.repaint();
     }
@@ -210,8 +250,9 @@ public class DashboardPanel extends JPanel {
             return;
         }
 
-        if(authService.login(UserSession.getUserEmail(), oldPass) == null) {
+        if (authService.login(UserSession.getUserEmail(), oldPass) == null) {
             DialogUtils.errorDialog("Old password is incorrect.");
+            return;
         }
 
         if (!newPass.equals(confirm)) {
@@ -219,9 +260,7 @@ public class DashboardPanel extends JPanel {
             return;
         }
 
-        String email = UserSession.getUserEmail();
-        boolean ok = authService.resetPassword(email, newPass);
-
+        boolean ok = authService.resetPassword(UserSession.getUserEmail(), newPass);
         if (ok) DialogUtils.infoDialog("Password changed successfully!");
         else DialogUtils.errorDialog("Incorrect old password or update failed.");
     }

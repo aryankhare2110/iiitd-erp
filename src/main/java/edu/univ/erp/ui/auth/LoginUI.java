@@ -42,14 +42,14 @@ public class LoginUI extends BaseFrame {
         //Title
         gbc.gridy++;
         JLabel heading = new JLabel("Welcome!", SwingConstants.CENTER);
-        heading.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        heading.setFont(new Font("Helvetica Neue", Font.BOLD, 28));
         heading.setForeground(new Color(33, 37, 41));
         loginPanel.add(heading, gbc);
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 30, 0);
         JLabel subheading = new JLabel("Sign in to IIITD ERP Portal", SwingConstants.CENTER);
-        subheading.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subheading.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         subheading.setForeground(new Color(108, 117, 125));
         loginPanel.add(subheading, gbc);
 
@@ -62,7 +62,7 @@ public class LoginUI extends BaseFrame {
         gbc.insets = new Insets(0, 0, 20, 0);
         JTextField emailField = new JTextField(20);
         emailField.setPreferredSize(new Dimension(280, 42));
-        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        emailField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         emailField.putClientProperty("JTextField.placeholderText", "Enter your email");
         loginPanel.add(emailField, gbc);
 
@@ -75,7 +75,7 @@ public class LoginUI extends BaseFrame {
         gbc.insets = new Insets(0, 0, 25, 0);
         JPasswordField passwordField = new JPasswordField(20);
         passwordField.setPreferredSize(new Dimension(280, 42));
-        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        passwordField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
         loginPanel.add(passwordField, gbc);
 
@@ -128,7 +128,7 @@ public class LoginUI extends BaseFrame {
         gbc.insets = new Insets(15, 0, 0, 0);
         JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>",
                 SwingConstants.CENTER);
-        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        infoLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 11));
         infoLabel.setForeground(new Color(108, 117, 125));
         loginPanel.add(infoLabel, gbc);
 
@@ -145,14 +145,14 @@ public class LoginUI extends BaseFrame {
 
     private static JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
         label.setForeground(new Color(73, 80, 87));
         return label;
     }
 
     private static JButton createButton() {
         JButton button = new JButton("Sign In");
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         button.setPreferredSize(new Dimension(280, 45));
         button.setBackground(new Color(13, 110, 253));
         button.setForeground(Color.WHITE);

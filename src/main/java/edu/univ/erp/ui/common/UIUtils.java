@@ -16,12 +16,12 @@ public final class UIUtils {
         header.setBorder(new EmptyBorder(40, 50, 20, 50));
 
         JLabel title = new JLabel(titleText);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        title.setFont(new Font("Helvetica Neue", Font.BOLD, 32));
         title.setForeground(new Color(33, 37, 41));
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel subtitle = new JLabel(subtitleText);
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitle.setFont(new Font("Helvetica Neue", Font.PLAIN, 15));
         subtitle.setForeground(new Color(108, 117, 125));
         subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -34,7 +34,7 @@ public final class UIUtils {
 
     public static JButton primaryButton(String text, ActionListener onClick) {
         JButton b = new JButton(text);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         b.setBackground(new Color(13, 110, 253));
         b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
@@ -46,7 +46,7 @@ public final class UIUtils {
 
     public static JButton secondaryButton(String text, ActionListener onClick) {
         JButton b = new JButton(text);
-        b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        b.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         b.setBackground(new Color(248, 249, 250));
         b.setForeground(new Color(73, 80, 87));
         b.setFocusPainted(false);
@@ -62,13 +62,13 @@ public final class UIUtils {
     public static JTable createStyledTable(DefaultTableModel model) {
         JTable t = new JTable(model);
         t.setRowHeight(32);
-        t.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        t.setFont(new Font("Helvetica Neue", Font.PLAIN, 13));
         t.setBackground(Color.WHITE);
         t.setAutoCreateRowSorter(true);
         t.setGridColor(new Color(230, 230, 230));
 
         JTableHeader h = t.getTableHeader();
-        h.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        h.setFont(new Font("Helvetica Neue", Font.BOLD, 13));
         h.setBackground(new Color(248, 249, 250));
         h.setForeground(new Color(33, 37, 41));
         h.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(222, 226, 230)));
@@ -89,7 +89,7 @@ public final class UIUtils {
 
     public static JLabel makeLabel(String text, boolean bold) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", bold ? Font.BOLD : Font.PLAIN, 14));
+        label.setFont(new Font("Helvetica Neue", bold ? Font.BOLD : Font.PLAIN, 14));
         label.setForeground(bold ? new Color(33, 37, 41) : new Color(73, 80, 87));
         return label;
     }
@@ -101,7 +101,7 @@ public final class UIUtils {
         b.setMaximumSize(new Dimension(220, 42));
         b.setBackground(new Color(37, 47, 63));
         b.setForeground(new Color(180, 190, 210));
-        b.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        b.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         b.setBorder(new EmptyBorder(10, 20, 10, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         b.setOpaque(true);
