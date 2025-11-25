@@ -138,21 +138,25 @@ public class DashboardPanel extends JPanel {
         notifArea.setLineWrap(true);
         notifArea.setWrapStyleWord(true);
         notifArea.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        notifArea.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(206, 212, 218), 1),
-                new EmptyBorder(8, 8, 8, 8)
-        ));
+        notifArea.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1), new EmptyBorder(8, 8, 8, 8)));
         JScrollPane scrollPane = new JScrollPane(notifArea);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1));
         notifSection.add(scrollPane, BorderLayout.CENTER);
         JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         JButton sendBtn = UIUtils.primaryButton("Send", e -> {
-            String text = notifArea.getText().trim();
-            if (text.isEmpty()) {
+            String message = notifArea.getText().trim();
+            if (message.isEmpty()) {
                 DialogUtils.errorDialog("Notification cannot be empty.");
                 return;
             }
-            DialogUtils.infoDialog("Notification sent!");
+
+            boolean ok = adminService.sendNotification(message, UserSession.getUserEmail());
+            if (ok) {
+                DialogUtils.infoDialog("Notification sent successfully!");
+                notifArea.setText("");
+            } else {
+                DialogUtils.errorDialog("Failed to send notification.");
+            }
         });
         sendPanel.add(sendBtn);
         sendPanel.setBackground(Color.WHITE);

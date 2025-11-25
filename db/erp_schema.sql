@@ -172,6 +172,14 @@ CREATE TABLE settings (
 
 INSERT INTO settings (key, value) VALUES ('maintenance_mode', 'OFF');
 
+-- NOTIFICATIONS
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    message TEXT NOT NULL,
+    sent_by_email VARCHAR(200) NOT NULL,
+    sent_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 
 --  NOTES
 -- weight = 0 → component is NOT used in grade calculation

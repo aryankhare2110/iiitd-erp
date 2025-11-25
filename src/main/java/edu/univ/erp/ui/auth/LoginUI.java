@@ -5,7 +5,7 @@ import edu.univ.erp.ui.admin.AdminUI;
 import edu.univ.erp.ui.common.*;
 import com.formdev.flatlaf.*;
 import edu.univ.erp.ui.faculty.FacultyUI;
-import edu.univ.erp.ui.student.StudentDashUI;
+import edu.univ.erp.ui.student.StudentUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -111,7 +111,7 @@ public class LoginUI extends BaseFrame {
             }
 
             if (role.equalsIgnoreCase("STUDENT")) {
-                new StudentDashUI();
+                new StudentUI();
             } else if (role.equalsIgnoreCase("INSTRUCTOR")) {
                 new FacultyUI();
             } else if (role.equalsIgnoreCase("ADMIN")) {

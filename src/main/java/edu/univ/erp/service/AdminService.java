@@ -1,6 +1,7 @@
 package edu.univ.erp.service;
 
 import edu.univ.erp.auth.hash.PasswordHasher;
+import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.auth.store.AuthDAO;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
@@ -15,6 +16,7 @@ public class AdminService {
     private FacultyDAO facultyDAO = new FacultyDAO();
     private SectionDAO sectionDAO = new SectionDAO();
     private SettingsDAO settingsDAO = new SettingsDAO();
+    private NotificationDAO notificationDAO = new NotificationDAO();
 
     public boolean createStudent(String email, String password, Student student) {
         String hashed = PasswordHasher.hash(password);
@@ -105,5 +107,13 @@ public class AdminService {
 
     public boolean isMaintenanceMode() {
         return settingsDAO.isMaintenanceMode();
+    }
+
+    public boolean sendNotification(String message, String adminEmail) {
+        return notificationDAO.insertNotification(message, adminEmail);
+    }
+
+    public List<Notification> getNotifications() {
+        return notificationDAO.getAllNotifications();
     }
 }

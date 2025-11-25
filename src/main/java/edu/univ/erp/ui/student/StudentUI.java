@@ -1,4 +1,4 @@
 package edu.univ.erp.ui.student;
 
-public class StudentDashUI {
+public class StudentUI {
 }
