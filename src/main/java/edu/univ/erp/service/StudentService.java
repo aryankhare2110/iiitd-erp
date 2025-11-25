@@ -4,6 +4,7 @@ import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class StudentService {
@@ -31,27 +32,28 @@ public class StudentService {
     }
 
     public boolean registerForSection(int studentId, int sectionId) {
-        if (settingsDAO.isMaintenanceMode()) {
+        if (settingsDAO.isMaintenanceMode())
             return false;
-        }
-        if (enrollmentDAO.isEnrolled(studentId, sectionId)) {
+        LocalDate deadline = settingsDAO.getAddDropDeadline();
+        if (deadline != null && LocalDate.now().isAfter(deadline))
             return false;
-        }
-        int capacity = sectionDAO.getCapacity(sectionId);
+        if (enrollmentDAO.isEnrolled(studentId, sectionId))
+            return false;
+        int cap = sectionDAO.getCapacity(sectionId);
         int filled = enrollmentDAO.countEnrollments(sectionId);
-        if (filled >= capacity) {
+        if (filled >= cap)
             return false;
-        }
         return enrollmentDAO.enrollStudent(studentId, sectionId);
     }
 
     public boolean dropSection(int studentId, int sectionId) {
-        if (settingsDAO.isMaintenanceMode()) {
+        if (settingsDAO.isMaintenanceMode())
             return false;
-        }
-        if (!enrollmentDAO.isEnrolled(studentId, sectionId)) {
+        LocalDate deadline = settingsDAO.getAddDropDeadline();
+        if (deadline != null && LocalDate.now().isAfter(deadline))
             return false;
-        }
+        if (!enrollmentDAO.isEnrolled(studentId, sectionId))
+            return false;
         return enrollmentDAO.dropEnrollment(studentId, sectionId);
     }
 
@@ -80,6 +82,73 @@ public class StudentService {
             }
         }
         return list;
+    }
+
+    public int getEnrolledCoursesCount() {
+        Student student = getMyProfile();
+        if (student == null) return 0;
+        return enrollmentDAO.getEnrolledCoursesCount(student.getStudentId());
+    }
+
+    public int getTotalCredits() {
+        Student student = getMyProfile();
+        if (student == null) return 0;
+
+        int totalCredits = 0;
+        List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(student.getStudentId());
+
+        for (Enrollment e : enrollments) {
+            Section section = sectionDAO.getSectionById(e.getSectionId());
+            if (section != null) {
+                Course course = courseDAO.getCourseById(section.getCourseID());
+                if (course != null) {
+                    totalCredits += course.getCredits();
+                }
+            }
+        }
+        return totalCredits;
+    }
+
+    public List<Notification> getRecentNotifications(int limit) {
+        NotificationDAO notificationDAO = new NotificationDAO();
+        return notificationDAO.getRecentNotifications(limit);
+    }
+
+    public boolean isMaintenanceMode() {
+        return settingsDAO.isMaintenanceMode();
+    }
+
+    public boolean changePassword(String oldPassword, String newPassword) {
+        AuthService authService = new AuthService();
+        String email = UserSession.getUserEmail();
+
+        if (authService.login(email, oldPassword) == null) {
+            return false;
+        }
+        return authService.resetPassword(email, newPassword);
+    }
+
+    public boolean isEnrolled(int studentId, int sectionId) {
+        return enrollmentDAO.isEnrolled(studentId, sectionId);
+    }
+
+    public int getEnrollmentCount(int sectionId) {
+        return enrollmentDAO.countEnrollments(sectionId);
+    }
+
+    public Faculty getFacultyForSection(int facultyId) {
+        if (facultyId <= 0) return null;
+        return facultyDAO.getFacultyById(facultyId);
+    }
+
+    public int getMyStudentId() {
+        Student s = getMyProfile();
+        return (s == null) ? -1 : s.getStudentId();
+    }
+
+    public String getDepartmentName(int deptId) {
+        DepartmentDAO deptDAO = new DepartmentDAO();
+        return deptDAO.getDepartmentNameById(deptId);
     }
 
     public List<Grade> getGrades(int studentId) {

@@ -26,9 +26,11 @@ public class ManageStudentsPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeader("Manage Students", "Add, view, and manage student accounts"), BorderLayout.NORTH);
+        add(UIUtils.createHeader("Manage Students", "Add, edit, and manage student accounts"), BorderLayout.NORTH);
 
-        model = new DefaultTableModel(new String[]{"Roll No", "Name", "Email", "Branch", "Year", "Term", "Status"}, 0) {
+        model = new DefaultTableModel(
+                new String[]{"Roll No", "Name", "Email", "Branch", "Year", "Term", "Status"}, 0
+        ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
@@ -42,6 +44,7 @@ public class ManageStudentsPanel extends JPanel {
 
         JPanel bottom = UIUtils.createButtonRow(
                 UIUtils.primaryButton("Add Student", e -> openCreateDialog()),
+                UIUtils.primaryButton("Edit Student", e -> openEditDialog()),
                 UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus())
         );
         add(bottom, BorderLayout.SOUTH);
@@ -75,9 +78,10 @@ public class ManageStudentsPanel extends JPanel {
         JPasswordField pwdF = new JPasswordField();
         JTextField rollF = new JTextField();
         JTextField nameF = new JTextField();
-
         JComboBox<String> degreeF = new JComboBox<>(new String[]{"B.Tech", "M.Tech", "PhD"});
-        JComboBox<String> branchF = new JComboBox<>(new String[]{"CSE", "CSD", "CSAI", "CSAM", "CSECON", "CSB", "ECE", "EVE", "CSSS"});
+        JComboBox<String> branchF = new JComboBox<>(new String[]{
+                "CSE", "CSD", "CSAI", "CSAM", "CSECON", "CSB", "ECE", "EVE", "CSSS"
+        });
         JSpinner yearF = new JSpinner(new SpinnerNumberModel(1, 1, 6, 1));
         JComboBox<String> termF = new JComboBox<>(new String[]{"Monsoon", "Winter", "Summer"});
 
@@ -90,9 +94,8 @@ public class ManageStudentsPanel extends JPanel {
         panel.add(new JLabel("Year:")); panel.add(yearF);
         panel.add(new JLabel("Term:")); panel.add(termF);
 
-        if (JOptionPane.showConfirmDialog(this, panel, "Create Student", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
-            return;
-        }
+        if (JOptionPane.showConfirmDialog(this, panel, "Create Student",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
 
         String email = emailF.getText().trim().toLowerCase();
         String pwd = new String(pwdF.getPassword()).trim();
@@ -108,15 +111,90 @@ public class ManageStudentsPanel extends JPanel {
             return;
         }
 
-        if (adminService.createStudent(email, pwd, new Student(0, 0, degree, branch, year, term, roll, name))) {
+        boolean ok = adminService.createStudent(email, pwd,
+                new Student(0, 0, degree, branch, year, term, roll, name));
+
+        if (ok) {
             DialogUtils.infoDialog("Student created successfully!");
             loadStudents();
         } else {
-            if (authDAO.emailChecker(email)) {
-                DialogUtils.errorDialog("Email address already exists. Please use a different email.");
-            } else {
-                DialogUtils.errorDialog("Failed to create student. Please check all fields.");
-            }
+            DialogUtils.errorDialog("Failed to create student.");
+        }
+    }
+
+    private void openEditDialog() {
+        int r = table.getSelectedRow();
+        if (r == -1) {
+            DialogUtils.errorDialog("Select a student first.");
+            return;
+        }
+
+        String roll = model.getValueAt(r, 0).toString();
+        Student existing = studentDAO.getStudentByRollNo(roll);
+        String email = authDAO.getEmailByUserId(existing.getUserId());
+
+        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JTextField emailF = new JTextField(email);
+        emailF.setEnabled(false);
+
+        JTextField rollF = new JTextField(existing.getRollNo());
+        JTextField nameF = new JTextField(existing.getFullName());
+
+        JComboBox<String> degreeF = new JComboBox<>(new String[]{"B.Tech", "M.Tech", "PhD"});
+        degreeF.setSelectedItem(existing.getDegreeLevel());
+
+        JComboBox<String> branchF = new JComboBox<>(new String[]{
+                "CSE", "CSD", "CSAI", "CSAM", "CSECON", "CSB", "ECE", "EVE", "CSSS"
+        });
+        branchF.setSelectedItem(existing.getBranch());
+
+        JSpinner yearF = new JSpinner(new SpinnerNumberModel(existing.getYear(), 1, 6, 1));
+        JComboBox<String> termF = new JComboBox<>(new String[]{"Monsoon", "Winter", "Summer"});
+        termF.setSelectedItem(existing.getTerm());
+
+        panel.add(new JLabel("Email:")); panel.add(emailF);
+        panel.add(new JLabel("Roll No:")); panel.add(rollF);
+        panel.add(new JLabel("Full Name:")); panel.add(nameF);
+        panel.add(new JLabel("Degree:")); panel.add(degreeF);
+        panel.add(new JLabel("Branch:")); panel.add(branchF);
+        panel.add(new JLabel("Year:")); panel.add(yearF);
+        panel.add(new JLabel("Term:")); panel.add(termF);
+
+        if (JOptionPane.showConfirmDialog(this, panel, "Edit Student",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
+
+        String newRoll = rollF.getText().trim();
+        String newName = nameF.getText().trim();
+        String newDegree = (String) degreeF.getSelectedItem();
+        String newBranch = (String) branchF.getSelectedItem();
+        int newYear = (Integer) yearF.getValue();
+        String newTerm = (String) termF.getSelectedItem();
+
+        if (newRoll.isEmpty() || newName.isEmpty()) {
+            DialogUtils.errorDialog("Fields cannot be empty.");
+            return;
+        }
+
+        Student updated = new Student(
+                existing.getStudentId(),
+                existing.getUserId(),
+                newDegree,
+                newBranch,
+                newYear,
+                newTerm,
+                newRoll,
+                newName
+        );
+
+        boolean ok = adminService.updateStudent(updated);
+
+        if (ok) {
+            DialogUtils.infoDialog("Student updated successfully!");
+            loadStudents();
+        } else {
+            DialogUtils.errorDialog("Failed to update student. Roll no may already exist.");
         }
     }
 
@@ -128,17 +206,15 @@ public class ManageStudentsPanel extends JPanel {
         }
         String email = model.getValueAt(r, 2).toString();
         String status = model.getValueAt(r, 6).toString();
+
         Integer userId = authDAO.getUserId(email);
-        if (userId == null) {
-            DialogUtils.errorDialog("Could not resolve user id for selected student.");
-            return;
-        }
         boolean active = "ACTIVE".equalsIgnoreCase(status);
+
         if (adminService.setUserStatus(userId, !active)) {
-            DialogUtils.infoDialog("Status updated successfully.");
+            DialogUtils.infoDialog("Status updated.");
             loadStudents();
         } else {
-            DialogUtils.errorDialog("Error updating status.");
+            DialogUtils.errorDialog("Failed to update status.");
         }
     }
 }

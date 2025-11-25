@@ -140,5 +140,31 @@ public class StudentDAO {
         }
     }
 
+    public Student getStudentByRollNo(String rollNo) {
+        String sql = "SELECT * FROM students WHERE roll_no = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, rollNo);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Student(
+                        rs.getInt("student_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("degree_level"),
+                        rs.getString("branch"),
+                        rs.getInt("year"),
+                        rs.getString("term"),
+                        rs.getString("roll_no"),
+                        rs.getString("full_name")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
 

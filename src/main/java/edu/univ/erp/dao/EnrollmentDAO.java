@@ -114,6 +114,22 @@ public class EnrollmentDAO {
         return 0;
     }
 
+    public int getEnrolledCoursesCount(int studentId) {
+        String sql = "SELECT COUNT(*) FROM enrollments WHERE student_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Integer getEnrollmentId(int studentId, int sectionId) {
         String sql = "SELECT enrollment_id FROM enrollments WHERE student_id = ? AND section_id = ?";
         try (Connection c = DBConnection.getErpConnection();

@@ -22,6 +22,29 @@ public class NotificationDAO {
         }
     }
 
+    public List<Notification> getRecentNotifications(int limit) {
+        List<Notification> list = new ArrayList<>();
+        String sql = "SELECT notification_id, message, sent_by_email, sent_at FROM notifications ORDER BY sent_at DESC LIMIT ?";
+
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Notification(
+                            rs.getInt("notification_id"),
+                            rs.getString("message"),
+                            rs.getString("sent_by_email"),
+                            rs.getString("sent_at")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public List<Notification> getAllNotifications() {
         List<Notification> list = new ArrayList<>();
         String sql = "SELECT notification_id, message, sent_by_email, sent_at FROM notifications ORDER BY sent_at DESC";

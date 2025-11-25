@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 
 public final class UIUtils {
 
@@ -137,6 +138,163 @@ public final class UIUtils {
         }
         newBtn.setBackground(new Color(13, 110, 253));
         newBtn.setForeground(Color.WHITE);
+    }
+
+    public static JPanel createHeaderWithBadge(String titleText, String subtitleText, boolean showBadge, String badgeText) {
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(248, 249, 250));
+        header.setBorder(new EmptyBorder(40, 50, 20, 50));
+
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBackground(new Color(248, 249, 250));
+
+        JLabel title = new JLabel(titleText);
+        title.setFont(new Font("Helvetica Neue", Font.BOLD, 32));
+        title.setForeground(new Color(33, 37, 41));
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        leftPanel.add(title);
+        leftPanel.add(Box.createVerticalStrut(8));
+
+        JLabel subtitle = new JLabel(subtitleText);
+        subtitle.setFont(new Font("Helvetica Neue", Font.PLAIN, 15));
+        subtitle.setForeground(new Color(108, 117, 125));
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        leftPanel.add(subtitle);
+
+        header.add(leftPanel, BorderLayout.WEST);
+
+        if (showBadge) {
+            JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+            rightPanel.setBackground(new Color(248, 249, 250));
+            rightPanel.add(createWarningBadge(badgeText));
+            header.add(rightPanel, BorderLayout.EAST);
+        }
+
+        return header;
+    }
+
+    public static JLabel createWarningBadge(String text) {
+        JLabel badge = new JLabel(text);
+        badge.setFont(new Font("Helvetica Neue", Font.BOLD, 11));
+        badge.setForeground(new Color(133, 100, 4));
+        badge.setBackground(new Color(255, 243, 205));
+        badge.setOpaque(true);
+        badge.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 193, 7), 1),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
+        return badge;
+    }
+
+    public static JPanel createStatCard(String title, String count, Color accentColor) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(25, 20, 25, 20)
+        ));
+
+        JPanel accentBar = new JPanel();
+        accentBar.setPreferredSize(new Dimension(4, 100));
+        accentBar.setBackground(accentColor);
+        card.add(accentBar, BorderLayout.WEST);
+
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(Color.WHITE);
+        content.setBorder(new EmptyBorder(0, 20, 0, 0));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        titleLabel.setForeground(new Color(108, 117, 125));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel countLabel = new JLabel(count);
+        countLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 36));
+        countLabel.setForeground(new Color(33, 37, 41));
+        countLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        content.add(titleLabel);
+        content.add(Box.createVerticalStrut(10));
+        content.add(countLabel);
+
+        card.add(content, BorderLayout.CENTER);
+        return card;
+    }
+
+    public static JPanel createInfoCard(String title) {
+        JPanel card = new JPanel(new BorderLayout(0, 15));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(25, 25, 25, 25)
+        ));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        return card;
+    }
+
+    public static JPanel createInfoRow(String label, String value) {
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        row.setBackground(Color.WHITE);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.add(makeLabel(label, false));
+        row.add(makeLabel(" " + value, true));
+        return row;
+    }
+
+    public static JPanel createAddDropBanner(LocalDate deadline) {
+        LocalDate today = LocalDate.now();
+        boolean closed = today.isAfter(deadline);
+
+        Color bg = closed ? new Color(252, 228, 228) : new Color(255, 243, 205);
+        Color border = closed ? new Color(222, 98, 98) : new Color(255, 193, 7);
+        Color textColor = closed ? new Color(132, 32, 32) : new Color(133, 100, 4);
+
+        JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        banner.setBackground(bg);
+        banner.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(border, 1),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+
+        JLabel icon = new JLabel("⚠");
+        icon.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+        icon.setForeground(textColor);
+        JLabel text = new JLabel(closed ? "Add/Drop period has ended. No further course changes are allowed." : "Add/Drop open until " + deadline + ". You may add or drop courses.");
+        text.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        text.setForeground(textColor);
+
+        banner.add(icon);
+        banner.add(text);
+
+        return banner;
+    }
+
+    public static JPanel createDeadlineBanner(String message) {
+
+        JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
+        banner.setBackground(new Color(255, 243, 205));   // warning yellow
+        banner.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 193, 7), 1),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+
+        JLabel icon = new JLabel("⚠");
+        icon.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+        icon.setForeground(new Color(133, 100, 4));
+
+        JLabel text = new JLabel(message);
+        text.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        text.setForeground(new Color(133, 100, 4));
+
+        banner.add(icon);
+        banner.add(text);
+        return banner;
     }
 
 }

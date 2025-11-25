@@ -6,6 +6,7 @@ import edu.univ.erp.auth.store.AuthDAO;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class AdminService {
@@ -39,6 +40,28 @@ public class AdminService {
     public boolean createAdmin(String email, String pwd) {
         String hashed = PasswordHasher.hash(pwd);
         return authDAO.registerNewUser(email.toLowerCase(), "ADMIN", hashed);
+    }
+
+    public boolean updateFaculty(Faculty updated) {
+        if (updated == null) return false;
+
+        if (updated.getFullName() == null || updated.getFullName().trim().isEmpty())
+            return false;
+
+        if (updated.getDepartmentId() <= 0)
+            return false;
+
+        if (updated.getDesignation() == null || updated.getDesignation().trim().isEmpty())
+            return false;
+
+        return facultyDAO.updateFaculty(updated);
+    }
+
+    public boolean updateStudent(Student s) {
+        if (s == null) return false;
+        if (s.getFullName() == null || s.getFullName().trim().isEmpty()) return false;
+        if (s.getYear() < 1 || s.getYear() > 6) return false;
+        return studentDAO.updateStudent(s);
     }
 
     public boolean createCourse(Course course) {
@@ -81,8 +104,9 @@ public class AdminService {
         return sectionDAO.deleteSection(sectionId);
     }
 
-    public boolean assignInstructor(int sectionId, int instructorId) {
-        return sectionDAO.updateInstructor(sectionId, instructorId);
+    public boolean setAddDropDeadline(LocalDate date) {
+        SettingsDAO dao = new SettingsDAO();
+        return dao.setAddDropDeadline(date);
     }
 
     public int getStudentCount() {

@@ -115,10 +115,15 @@ public class DashboardPanel extends JPanel {
 
         statusSection.add(statusContent, BorderLayout.CENTER);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btnPanel.setBackground(Color.WHITE);
+
         JButton changePwdBtn = UIUtils.secondaryButton("Change Password", e -> openPasswordDialog());
+        JButton changeDeadlineBtn = UIUtils.secondaryButton("Set Add/Drop Deadline", e -> openDeadlineDialog());
+
         btnPanel.add(changePwdBtn);
+        btnPanel.add(changeDeadlineBtn);
+
         statusSection.add(btnPanel, BorderLayout.SOUTH);
 
         twoCol.add(statusSection);
@@ -263,5 +268,42 @@ public class DashboardPanel extends JPanel {
         boolean ok = authService.resetPassword(UserSession.getUserEmail(), newPass);
         if (ok) DialogUtils.infoDialog("Password changed successfully!");
         else DialogUtils.errorDialog("Incorrect old password or update failed.");
+    }
+
+    private void openDeadlineDialog() {
+        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JTextField dateField = new JTextField();
+        dateField.setText("2025-01-31"); // optional default format
+
+        panel.add(new JLabel("Add/Drop Deadline (YYYY-MM-DD):"));
+        panel.add(dateField);
+
+        if (JOptionPane.showConfirmDialog(this, panel, "Set Add/Drop Deadline",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        String dateStr = dateField.getText().trim();
+
+        if (!dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            DialogUtils.errorDialog("Please enter date in format YYYY-MM-DD.");
+            return;
+        }
+
+        try {
+            java.time.LocalDate parsed = java.time.LocalDate.parse(dateStr);
+
+            boolean ok = new AdminService().setAddDropDeadline(parsed);
+            if (ok) {
+                DialogUtils.infoDialog("Add/Drop Deadline updated successfully!");
+            } else {
+                DialogUtils.errorDialog("Failed to update deadline.");
+            }
+
+        } catch (Exception ex) {
+            DialogUtils.errorDialog("Invalid date format.");
+        }
     }
 }
