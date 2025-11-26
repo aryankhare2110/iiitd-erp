@@ -32,17 +32,24 @@ public class StudentService {
     }
 
     public boolean registerForSection(int studentId, int sectionId) {
-        if (settingsDAO.isMaintenanceMode())
+        if (settingsDAO.isMaintenanceMode()) {
             return false;
+        }
         LocalDate deadline = settingsDAO.getAddDropDeadline();
-        if (deadline != null && LocalDate.now().isAfter(deadline))
+        if (deadline != null && LocalDate.now().isAfter(deadline)) {
             return false;
-        if (enrollmentDAO.isEnrolled(studentId, sectionId))
+        }
+        if (enrollmentDAO.isEnrolledInSection(studentId, sectionId)) {
             return false;
+        }
+        if (enrollmentDAO.isEnrolled(studentId, sectionId)){
+            return false;
+        }
         int cap = sectionDAO.getCapacity(sectionId);
         int filled = enrollmentDAO.countEnrollments(sectionId);
-        if (filled >= cap)
+        if (filled >= cap) {
             return false;
+        }
         return enrollmentDAO.enrollStudent(studentId, sectionId);
     }
 
@@ -86,7 +93,9 @@ public class StudentService {
 
     public int getEnrolledCoursesCount() {
         Student student = getMyProfile();
-        if (student == null) return 0;
+        if (student == null) {
+            return 0;
+        }
         return enrollmentDAO.getEnrolledCoursesCount(student.getStudentId());
     }
 
@@ -128,8 +137,8 @@ public class StudentService {
         return authService.resetPassword(email, newPassword);
     }
 
-    public boolean isEnrolled(int studentId, int sectionId) {
-        return enrollmentDAO.isEnrolled(studentId, sectionId);
+    public boolean isEnrolled(int studentId, int courseId) {
+        return enrollmentDAO.isEnrolled(studentId, courseId);
     }
 
     public int getEnrollmentCount(int sectionId) {

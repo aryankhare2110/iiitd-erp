@@ -61,11 +61,18 @@ public class StudentUI extends BaseFrame {
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(Color.WHITE);
 
-        contentPanel.add(new DashboardPanel(), "dashboard");
-        contentPanel.add(new BrowseCoursesPanel(), "courses");
-        contentPanel.add(new EnrollmentPanel(), "enrollments");
-        contentPanel.add(new TimetablePanel(), "timetable");
-        contentPanel.add(new GradesPanel(), "grades");
+        dashboardPanel = new DashboardPanel();
+        browseCoursesPanel = new BrowseCoursesPanel();
+        enrollmentPanel = new EnrollmentPanel();
+        timetablePanel = new TimetablePanel();
+        gradesPanel = new GradesPanel();
+
+        contentPanel.add(dashboardPanel, "dashboard");
+        contentPanel.add(browseCoursesPanel, "courses");
+        contentPanel.add(enrollmentPanel, "enrollments");
+        contentPanel.add(timetablePanel, "timetable");
+        contentPanel.add(gradesPanel, "grades");
+
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -100,7 +107,7 @@ public class StudentUI extends BaseFrame {
                 browseCoursesPanel.refresh();
                 break;
             case "enrollments":
-                enrollmentPanel.refresh();
+                //enrollmentPanel.refresh();
                 break;
             case "timetable":
                 //timetablePanel.refresh();

@@ -9,14 +9,31 @@ import java.util.List;
 
 public class EnrollmentDAO {
 
-    public boolean isEnrolled(int studentId, int sectionId) {
+    public boolean isEnrolled(int studentId, int courseId) {
+        String sql = "SELECT 1 FROM enrollments e " +
+                "JOIN sections s ON e.section_id = s.section_id " +
+                "WHERE e.student_id = ? AND s.course_id = ?";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            ps.setInt(2, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isEnrolledInSection(int studentId, int sectionId) {
         String sql = "SELECT 1 FROM enrollments WHERE student_id = ? AND section_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, studentId);
             ps.setInt(2, sectionId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();   // true if duplicate exists
+                return rs.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();

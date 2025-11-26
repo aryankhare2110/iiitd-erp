@@ -56,7 +56,6 @@ public class DashboardPanel extends JPanel {
         center.add(cardsRow);
         center.add(Box.createVerticalStrut(35));
 
-        // Profile and Notifications
         JPanel twoCol = new JPanel(new GridLayout(1, 2, 30, 0));
         twoCol.setBackground(new Color(248, 249, 250));
         twoCol.setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
@@ -105,16 +104,14 @@ public class DashboardPanel extends JPanel {
 
     private JPanel createNotificationPreview() {
         JPanel card = UIUtils.createInfoCard("Recent Notifications");
-
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.WHITE);
-
         List<Notification> notifications = getNotifications();
 
         if (notifications.isEmpty()) {
             JLabel noNotif = new JLabel("No recent notifications");
-            noNotif.setFont(new Font("Helvetica Neue", Font.ITALIC, 14));
+            noNotif.setFont(new Font("Helvetica Neue", Font.ITALIC, 16));
             noNotif.setForeground(new Color(108, 117, 125));
             listPanel.add(noNotif);
         } else {
@@ -211,8 +208,7 @@ public class DashboardPanel extends JPanel {
                 for (Component innerComp : panel.getComponents()) {
                     if (innerComp instanceof JLabel) {
                         JLabel label = (JLabel) innerComp;
-                        // The count label has a large bold font
-                        if (label.getFont().getSize() >= 36) {  // Adjust size if needed
+                        if (label.getFont().getSize() >= 36) {
                             return label;
                         }
                     }
@@ -223,7 +219,6 @@ public class DashboardPanel extends JPanel {
     }
 
     public void refresh() {
-        // Update enrollment counts
         if (enrolledCountLabel != null) {
             int enrolledCount = getValueOrZero(() -> studentService.getEnrolledCoursesCount());
             enrolledCountLabel.setText(String.valueOf(enrolledCount));
@@ -232,8 +227,6 @@ public class DashboardPanel extends JPanel {
             int totalCredits = getValueOrZero(() -> studentService.getTotalCredits());
             totalCreditsLabel.setText(String.valueOf(totalCredits));
         }
-
-        // Refresh profile in case data changed
         student = studentService.getMyProfile();
 
         revalidate();

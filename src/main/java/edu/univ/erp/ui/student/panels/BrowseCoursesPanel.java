@@ -55,7 +55,9 @@ public class BrowseCoursesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()));
+        JPanel btnRow = UIUtils.createButtonRow(
+                UIUtils.primaryButton("Register", e -> openRegisterDialog())
+        );
         add(btnRow, BorderLayout.SOUTH);
 
         loadCourses();
@@ -81,6 +83,13 @@ public class BrowseCoursesPanel extends JPanel {
         }
 
         Course selected = courses.get(row);
+        int studentId = UserSession.getUserID();
+
+        if (studentService.isEnrolled(studentId, selected.getCourseID())) {
+            DialogUtils.errorDialog("You are already enrolled in this course.");
+            return;
+        }
+
         List<Section> sections = studentService.getSectionsForCourse(selected.getCourseID());
 
         if (sections.isEmpty()) {
@@ -122,8 +131,7 @@ public class BrowseCoursesPanel extends JPanel {
             int enrolled = studentService.getEnrollmentCount(s.getSectionID());
             String seats = enrolled + "/" + s.getCapacity();
 
-            sectionOptions[i] = String.format("%s %d | %s | Seats: %s", s.getTerm(), s.getYear(), instructor, seats
-            );
+            sectionOptions[i] = String.format("%s %d | %s | Seats: %s", s.getTerm(), s.getYear(), instructor, seats);
         }
 
         JLabel secLabel = new JLabel("Select Section:");
@@ -145,7 +153,6 @@ public class BrowseCoursesPanel extends JPanel {
         }
 
         Section chosen = sections.get(sectionCombo.getSelectedIndex());
-        int studentId = UserSession.getUserID();
 
         LocalDate ddl = studentService.getAddDropDeadline();
         if (ddl != null && LocalDate.now().isAfter(ddl)) {
