@@ -14,10 +14,14 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * ScoresPanel (improved):
- * - component dropdown shows a placeholder when empty
- * - components load reliably when section changes or when refresh is pressed
- * - finalize grade dialog now accepts total score and a grade selected from a dropdown (A,B,C,D,F)
+ * ScoresPanel runs inside FacultyUI. It provides:
+ * - a section selector (faculty's sections)
+ * - list of enrolled students
+ * - component selector (section components)
+ * - ability to save a score for selected student × component
+ * - finalize grade for selected student
+ *
+ * Constructed without parameters so FacultyUI can instantiate it and show it in the cards.
  */
 public class ScoresPanel extends JPanel {
     private final FacultyService facultyService = new FacultyService();
@@ -60,7 +64,7 @@ public class ScoresPanel extends JPanel {
         add(top, BorderLayout.NORTH);
 
         // Left: students list
-        studentsModel = new DefaultTableModel(new String[]{"Enrollment ID", "Roll", "Name", "Status"}, 0) {
+        studentsModel = new DefaultTableModel(new String[]{"Roll", "Name", "Status"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         studentsTable = UIUtils.createStyledTable(studentsModel);
@@ -125,16 +129,12 @@ public class ScoresPanel extends JPanel {
             List<Section> my = facultyService.mySections(me.getFacultyId());
             for (Section s : my) {
                 facultySections.add(s);
+                // show "<sectionId> — CODE (Term Year)"
                 Course c = new CourseDAO().getCourseById(s.getCourseID());
                 String label = String.format("%d — %s (%s %d)", s.getSectionID(), c != null ? c.getCode() : "Unknown", s.getTerm(), s.getYear());
                 sectionCombo.addItem(label);
             }
             if (sectionCombo.getItemCount() > 0) sectionCombo.setSelectedIndex(0);
-            else {
-                // no sections
-                sectionCombo.addItem("— No sections assigned —");
-                sectionCombo.setSelectedIndex(0);
-            }
         } catch (Exception ex) {
             ex.printStackTrace();
             DialogUtils.errorDialog("Failed to load sections: " + ex.getMessage());
@@ -143,14 +143,7 @@ public class ScoresPanel extends JPanel {
 
     private void onSectionChanged() {
         int idx = sectionCombo.getSelectedIndex();
-        if (idx < 0 || idx >= facultySections.size()) {
-            // clear lists
-            studentsModel.setRowCount(0);
-            componentCombo.removeAllItems();
-            componentCombo.addItem("— No components available —");
-            componentCombo.setSelectedIndex(0);
-            return;
-        }
+        if (idx < 0 || idx >= facultySections.size()) return;
         int sectionId = facultySections.get(idx).getSectionID();
         loadStudents(sectionId);
         loadComponents(sectionId);
@@ -174,34 +167,20 @@ public class ScoresPanel extends JPanel {
     }
 
     private void loadComponents(int sectionId) {
-        components = new ArrayList<>();
+        components = componentDAO.getComponentsBySection(sectionId);
         componentCombo.removeAllItems();
-        try {
-            List<SectionComponent> list = componentDAO.getComponentsBySection(sectionId);
-            if (list == null || list.isEmpty()) {
-                componentCombo.addItem("— No components available —");
-                componentCombo.setSelectedIndex(0);
-                return;
-            }
-            components = list;
-            for (SectionComponent sc : components) {
-                String t = new ComponentTypeDAO().getComponentTypeName(sc.getTypeID());
-                String times = (sc.getDay()!=null?sc.getDay():"") + (sc.getStartTime()!=null ? " " + sc.getStartTime() + "-" + sc.getEndTime() : "");
-                String desc = sc.getDescription() != null ? sc.getDescription() : "";
-                componentCombo.addItem(String.format("%s — %s (id:%d)", t, desc, sc.getComponentID()) + (times.isEmpty() ? "" : " " + times));
-            }
-            if (componentCombo.getItemCount() > 0) componentCombo.setSelectedIndex(0);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            componentCombo.addItem("— No components available —");
-            componentCombo.setSelectedIndex(0);
-            DialogUtils.errorDialog("Failed to load components: " + ex.getMessage());
+        for (SectionComponent sc : components) {
+            String t = new ComponentTypeDAO().getComponentTypeName(sc.getTypeID());
+            String times = (sc.getDay()!=null?sc.getDay():"") + (sc.getStartTime()!=null ? " " + sc.getStartTime() + "-" + sc.getEndTime() : "");
+            String desc = sc.getDescription() != null ? sc.getDescription() : "";
+            componentCombo.addItem(String.format("%s — %s (id:%d)", t, desc, sc.getComponentID()) + (times.isEmpty() ? "" : " " + times));
         }
+        if (componentCombo.getItemCount() > 0) componentCombo.setSelectedIndex(0);
     }
 
     private void loadSelectedComponentScore() {
         int compIdx = componentCombo.getSelectedIndex();
-        if (compIdx < 0 || components.isEmpty() || compIdx >= components.size()) {
+        if (compIdx < 0 || compIdx >= components.size()) {
             currentScoreLabel.setText("Current score: -");
             return;
         }
@@ -223,7 +202,7 @@ public class ScoresPanel extends JPanel {
         int enrollmentId = (int) studentsModel.getValueAt(studentsTable.convertRowIndexToModel(sel), 0);
 
         int compIdx = componentCombo.getSelectedIndex();
-        if (compIdx < 0 || components.isEmpty() || compIdx >= components.size()) { DialogUtils.errorDialog("Select a component first."); return; }
+        if (compIdx < 0 || compIdx >= components.size()) { DialogUtils.errorDialog("Select a component first."); return; }
         int componentId = components.get(compIdx).getComponentID();
 
         String txt = scoreField.getText().trim();
@@ -234,11 +213,8 @@ public class ScoresPanel extends JPanel {
         ComponentScore cs = new ComponentScore(0, enrollmentId, componentId, val);
         boolean ok = false;
         try {
-            // try commonly-named DAO method
-            ok = scoreDAO.insertScore(cs);
-        } catch (Throwable ignored) {}
-        if (!ok) {
-            try { ok = scoreDAO.insertScore(cs); } catch (Throwable ignored) {}
+            ok = scoreDAO.insertScore(cs); // preferred DAO method
+        } catch (Throwable ignored) {
         }
         if (!ok) {
             try { ok = facultyService.enterScore(cs); } catch (Throwable ignored) {}
@@ -251,62 +227,25 @@ public class ScoresPanel extends JPanel {
         }
     }
 
-    /**
-     * Finalize grade now shows a dialog where the faculty can enter the final total score
-     * (pre-filled with computed total if available) and choose the grade label from a dropdown
-     * limited to A, B, C, D, F.
-     */
     private void finalizeGradeForSelectedStudent() {
         int sel = studentsTable.getSelectedRow();
         if (sel == -1) { DialogUtils.errorDialog("Select a student first."); return; }
         int enrollmentId = (int) studentsModel.getValueAt(studentsTable.convertRowIndexToModel(sel), 0);
-
-        Double computedTotal = null;
         try {
-            computedTotal = gradesDAO.getGradeByEnrollment(enrollmentId).getTotalScore();
-        } catch (Throwable ignored) {}
-
-        JPanel panel = new JPanel(new GridLayout(0, 2, 8, 8));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        JTextField totalField = new JTextField(computedTotal != null ? String.format("%.2f", computedTotal) : "");
-        String[] grades = {"A", "B", "C", "D", "F"};
-        JComboBox<String> gradeBox = new JComboBox<>(grades);
-
-        panel.add(new JLabel("Total score:"));
-        panel.add(totalField);
-        panel.add(new JLabel("Grade:"));
-        panel.add(gradeBox);
-
-        int res = JOptionPane.showConfirmDialog(this, panel, "Finalize Grade", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (res != JOptionPane.OK_OPTION) return;
-
-        String totalTxt = totalField.getText().trim();
-        double totalVal;
-        try {
-            totalVal = Double.parseDouble(totalTxt);
-        } catch (Exception ex) {
-            DialogUtils.errorDialog("Enter a valid numeric total score.");
-            return;
-        }
-
-        String gradeLabel = (String) gradeBox.getSelectedItem();
-        if (gradeLabel == null || gradeLabel.isBlank()) {
-            DialogUtils.errorDialog("Select a grade label.");
-            return;
-        }
-
-        try {
-            boolean ok = facultyService.finalizeGrade(enrollmentId, totalVal, gradeLabel);
+            Double total = gradesDAO.getGradeByEnrollment(enrollmentId).getTotalScore();
+            if (total == null) total = 0.0;
+            String grade = JOptionPane.showInputDialog(this, "Computed total: " + total + "\nEnter grade label (e.g. A, B+):");
+            if (grade == null || grade.trim().isEmpty()) return;
+            boolean ok = facultyService.finalizeGrade(enrollmentId, total, grade.trim());
             if (ok) {
-                DialogUtils.infoDialog("Grade finalized: " + gradeLabel + " (" + totalVal + ")");
+                DialogUtils.infoDialog("Grade finalized.");
                 refresh();
             } else {
-                DialogUtils.errorDialog("Failed to finalize grade. Check DAO/service implementation.");
+                DialogUtils.errorDialog("Failed to finalize grade.");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            DialogUtils.errorDialog("Error finalizing grade: " + ex.getMessage());
+            DialogUtils.errorDialog("Failed to compute/submit grade: " + ex.getMessage());
         }
     }
 
@@ -332,6 +271,7 @@ public class ScoresPanel extends JPanel {
 
     public void refresh() {
         loadSections();
+        // reload students & components for selected section
         onSectionChanged();
     }
 }
