@@ -33,8 +33,6 @@ public class TimetablePanel extends JPanel {
         scrollPane.getVerticalScrollBar(). setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        add(UIUtils.createButtonRow(UIUtils.secondaryButton("Refresh", e -> loadTimetable())), BorderLayout.SOUTH);
-
         loadTimetable();
     }
 

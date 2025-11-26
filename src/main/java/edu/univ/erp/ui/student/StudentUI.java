@@ -111,10 +111,10 @@ public class StudentUI extends BaseFrame {
                 enrollmentPanel.refresh();
                 break;
             case "timetable":
-                //timetablePanel.refresh();
+                timetablePanel.refresh();
                 break;
             case "grades":
-                //gradesPanel.refresh();
+                gradesPanel.refresh();
                 break;
         }
 

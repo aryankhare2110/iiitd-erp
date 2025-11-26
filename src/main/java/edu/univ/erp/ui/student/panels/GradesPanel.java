@@ -1,10 +1,10 @@
-package edu.univ.erp.ui. student. panels;
+package edu.univ.erp.ui.student.panels;
 
-import edu.univ. erp.dao.*;
+import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
 import edu.univ.erp.service.StudentService;
 import edu.univ.erp.ui.common.DialogUtils;
-import edu.univ.erp.ui.common. UIUtils;
+import edu.univ.erp.ui.common.UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,8 +12,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
-import java. util.List;
-import org.apache.commons.csv. CSVFormat;
+import java.util.List;
+
+import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 public class GradesPanel extends JPanel {
@@ -29,17 +30,19 @@ public class GradesPanel extends JPanel {
 
     private final JTable table;
     private final DefaultTableModel model;
-    private JLabel cgpaLabel;
+    private JLabel sgpaLabel;
     private List<Enrollment> enrollments;
 
     public GradesPanel() {
+
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
         add(UIUtils.createHeader("My Grades", "View your academic performance"), BorderLayout.NORTH);
 
         model = new DefaultTableModel(
-                new String[]{"Course Code", "Course Title", "Credits", "Grade", "Grade Points"}, 0) {
+                new String[]{"Course Code", "Course Title", "Credits", "Grade", "Grade Points"}, 0
+        ) {
             @Override
             public boolean isCellEditable(int r, int c) {
                 return false;
@@ -50,33 +53,26 @@ public class GradesPanel extends JPanel {
 
         JPanel center = new JPanel(new BorderLayout());
         center.setBorder(new EmptyBorder(10, 50, 20, 50));
-        center. setBackground(new Color(248, 249, 250));
+        center.setBackground(new Color(248, 249, 250));
         center.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // CGPA Display
-        JPanel cgpaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        cgpaPanel.setBackground(new Color(248, 249, 250));
-        cgpaPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        JPanel sgpaPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        sgpaPanel.setBackground(new Color(248, 249, 250));
+        sgpaPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        JLabel cgpaLabelText = new JLabel("CGPA: ");
-        cgpaLabelText. setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        sgpaLabel = new JLabel("sgpa: 0.00");
+        sgpaLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+        sgpaLabel.setForeground(new Color(13, 110, 253));
 
-        cgpaLabel = new JLabel("0.00");
-        cgpaLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
-        cgpaLabel.setForeground(new Color(13, 110, 253));
+        sgpaPanel.add(sgpaLabel);
+        center.add(sgpaPanel, BorderLayout.SOUTH);
 
-        cgpaPanel.add(cgpaLabelText);
-        cgpaPanel.add(cgpaLabel);
+        add(center, BorderLayout.CENTER);
 
-        center.add(cgpaPanel, BorderLayout.SOUTH);
-        add(center, BorderLayout. CENTER);
-
-        JPanel bottom = UIUtils.createButtonRow(
+        add(UIUtils.createButtonRow(
                 UIUtils.primaryButton("View Component Scores", e -> viewComponentScores()),
-                UIUtils.secondaryButton("Download Transcript", e -> downloadTranscript()),
-                UIUtils.secondaryButton("Refresh", e -> loadGrades())
-        );
-        add(bottom, BorderLayout.SOUTH);
+                UIUtils.secondaryButton("Download Transcript", e -> downloadTranscript())
+        ), BorderLayout.SOUTH);
 
         loadGrades();
     }
@@ -90,51 +86,51 @@ public class GradesPanel extends JPanel {
             return;
         }
 
-        enrollments = enrollmentDAO. getEnrollmentsByStudent(student.getStudentId());
+        enrollments = enrollmentDAO.getEnrollmentsByStudent(student.getStudentId());
 
         if (enrollments.isEmpty()) {
             model.addRow(new Object[]{"No grades available", "", "", "", ""});
-            cgpaLabel.setText("0.00");
-        } else {
-            double totalGradePoints = 0;
-            int totalCredits = 0;
-
-            for (Enrollment enrollment : enrollments) {
-                Section section = sectionDAO.getSectionById(enrollment.getSectionId());
-                if (section == null) continue;
-
-                Course course = courseDAO. getCourseById(section.getCourseID());
-                if (course == null) continue;
-
-                Grade grade = gradesDAO.getGradeByEnrollment(enrollment. getEnrollmentId());
-
-                String gradeLabel = (grade != null) ? grade.getGradeLabel() : "N/A";
-                double gradePoint = getGradePoint(gradeLabel);
-                int credits = course.getCredits();
-
-                model.addRow(new Object[]{
-                        course.getCode(),
-                        course.getTitle(),
-                        credits,
-                        gradeLabel,
-                        gradeLabel. equals("N/A") ? "N/A" : String.format("%.2f", gradePoint)
-                });
-
-                if (!gradeLabel.equals("N/A")) {
-                    totalGradePoints += gradePoint * credits;
-                    totalCredits += credits;
-                }
-            }
-
-            // Calculate CGPA
-            double cgpa = (totalCredits > 0) ? (totalGradePoints / totalCredits) : 0.0;
-            cgpaLabel.setText(String.format("%. 2f", cgpa));
+            sgpaLabel.setText("sgpa: 0.00");
+            return;
         }
+
+        double totalGradePoints = 0;
+        int totalCredits = 0;
+
+        for (Enrollment e : enrollments) {
+
+            Section section = sectionDAO.getSectionById(e.getSectionId());
+            if (section == null) continue;
+
+            Course course = courseDAO.getCourseById(section.getCourseID());
+            if (course == null) continue;
+
+            Grade grade = gradesDAO.getGradeByEnrollment(e.getEnrollmentId());
+            String gradeLabel = (grade != null) ? grade.getGradeLabel() : "N/A";
+            double gradePoint = getGradePoint(gradeLabel);
+
+            model.addRow(new Object[]{
+                    course.getCode(),
+                    course.getTitle(),
+                    course.getCredits(),
+                    gradeLabel,
+                    gradeLabel.equals("N/A") ? "N/A" : String.format("%.2f", gradePoint)
+            });
+
+            if (!gradeLabel.equals("N/A")) {
+                totalGradePoints += gradePoint * course.getCredits();
+                totalCredits += course.getCredits();
+            }
+        }
+
+        double sgpa = (totalCredits > 0) ? (totalGradePoints / totalCredits) : 0.0;
+        sgpaLabel.setText("sgpa: " + String.format("%.2f", sgpa));
     }
 
     private void viewComponentScores() {
         int r = table.getSelectedRow();
-        if (r == -1 || model.getValueAt(r, 0). toString().equals("No grades available")) {
+
+        if (r == -1 || model.getValueAt(r, 0).toString().equals("No grades available")) {
             DialogUtils.errorDialog("Please select a course first.");
             return;
         }
@@ -145,67 +141,40 @@ public class GradesPanel extends JPanel {
 
         if (course == null) return;
 
-        // Create dialog
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Component Scores - " + course.getCode(), true);
+        JDialog dialog = new JDialog(
+                (Frame) SwingUtilities.getWindowAncestor(this),
+                "Component Scores - " + course.getCode(),
+                true
+        );
+
         dialog.setLayout(new BorderLayout());
         dialog.setSize(700, 500);
 
-        // Table for component scores
         DefaultTableModel scoreModel = new DefaultTableModel(
-                new String[]{"Component", "Weight (%)", "Score", "Weighted Score"}, 0) {
+                new String[]{"Component", "Weight (%)", "Score", "Weighted Score"}, 0
+        ) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
+
         JTable scoreTable = UIUtils.createStyledTable(scoreModel);
 
-        // Load component scores
-        List<SectionComponent> components = sectionComponentDAO.getComponentsBySection(section. getSectionID());
-        double totalWeightedScore = 0;
-        double totalWeight = 0;
+        for (SectionComponent sc : sectionComponentDAO.getComponentsBySection(section.getSectionID())) {
 
-        for (SectionComponent sc : components) {
-            if (sc.getWeight() == 0) continue; // Skip non-grading components (LECTURE, etc.)
+            if (sc.getWeight() == 0) continue;
 
             String typeName = componentTypeDAO.getComponentTypeName(sc.getTypeID());
-            ComponentScore score = componentScoreDAO.getScore(
-                    enrollment.getEnrollmentId(), sc.getComponentID());
+            ComponentScore score = componentScoreDAO.getScore(enrollment.getEnrollmentId(), sc.getComponentID());
 
-            String scoreStr = (score != null) ? String.format("%.2f", score.getScore()) : "N/A";
-            double weightedScore = (score != null) ? (score.getScore() * sc.getWeight() / 100) : 0;
+            double weighted = (score != null) ? (score.getScore() * sc.getWeight() / 100) : 0;
 
             scoreModel.addRow(new Object[]{
                     typeName + (sc.getDescription() != null ? " - " + sc.getDescription() : ""),
-                    String.format("%.0f", sc.getWeight()),
-                    scoreStr,
-                    score != null ? String.format("%.2f", weightedScore) : "N/A"
-            });
-
-            if (score != null) {
-                totalWeightedScore += weightedScore;
-                totalWeight += sc.getWeight();
-            }
-        }
-
-        // Add total row
-        scoreModel.addRow(new Object[]{"", "", "", ""});
-        scoreModel.addRow(new Object[]{
-                "TOTAL",
-                String.format("%.0f", totalWeight),
-                "",
-                String.format("%.2f", totalWeightedScore)
-        });
-
-        // Get final grade
-        Grade finalGrade = gradesDAO. getGradeByEnrollment(enrollment.getEnrollmentId());
-        if (finalGrade != null) {
-            scoreModel.addRow(new Object[]{
-                    "FINAL GRADE",
-                    "",
-                    finalGrade.getGradeLabel(),
-                    String.format("%.2f", finalGrade. getTotalScore())
+                    sc.getWeight(),
+                    score != null ? String.format("%.2f", score.getScore()) : "N/A",
+                    score != null ? String.format("%.2f", weighted) : "N/A"
             });
         }
 
@@ -213,90 +182,84 @@ public class GradesPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnPanel.add(UIUtils.secondaryButton("Close", e -> dialog.dispose()));
-        dialog.add(btnPanel, BorderLayout.SOUTH);
 
-        dialog. setLocationRelativeTo(this);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+        dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
     private void downloadTranscript() {
+
         Student student = studentService.getMyProfile();
         if (student == null) {
             DialogUtils.errorDialog("Unable to load student profile.");
             return;
         }
 
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save Transcript");
-        fileChooser.setSelectedFile(new File("Transcript_" + student.getRollNo() + ".csv"));
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new File("Transcript_" + student.getRollNo() + ".csv"));
 
-        if (fileChooser. showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
+        if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
-        File file = fileChooser.getSelectedFile();
+        try (
+                FileWriter writer = new FileWriter(chooser.getSelectedFile());
+                CSVPrinter csv = new CSVPrinter(writer,
+                        CSVFormat.DEFAULT.withHeader("Course Code", "Course Title", "Component Scores", "Final Score", "Letter Grade"))
+        ) {
+            for (Enrollment e : enrollments) {
 
-        try (FileWriter writer = new FileWriter(file);
-             CSVPrinter csvPrinter = new CSVPrinter(writer,
-                     CSVFormat.DEFAULT.withHeader("Course Code", "Course Title", "Component Scores", "Final Score", "Letter Grade"))) {
-
-            for (Enrollment enrollment : enrollments) {
-                Section section = sectionDAO.getSectionById(enrollment.getSectionId());
+                Section section = sectionDAO.getSectionById(e.getSectionId());
                 if (section == null) continue;
 
                 Course course = courseDAO.getCourseById(section.getCourseID());
                 if (course == null) continue;
 
-                // Get component scores
-                List<SectionComponent> components = sectionComponentDAO.getComponentsBySection(section.getSectionID());
-                StringBuilder componentScores = new StringBuilder();
+                StringBuilder compStr = new StringBuilder();
 
-                for (SectionComponent sc : components) {
-                    if (sc.getWeight() == 0) continue; // Skip non-grading components
+                for (SectionComponent sc : sectionComponentDAO.getComponentsBySection(section.getSectionID())) {
 
-                    String typeName = componentTypeDAO.getComponentTypeName(sc.getTypeID());
-                    ComponentScore score = componentScoreDAO.getScore(
-                            enrollment.getEnrollmentId(), sc.getComponentID());
+                    if (sc.getWeight() == 0) continue;
+
+                    ComponentScore score = componentScoreDAO.getScore(e.getEnrollmentId(), sc.getComponentID());
 
                     if (score != null) {
-                        componentScores.append(typeName). append(": ").append(String.format("%.2f", score.getScore())).append("; ");
+                        compStr.append(componentTypeDAO.getComponentTypeName(sc.getTypeID()))
+                                .append(": ").append(String.format("%.2f", score.getScore())).append("; ");
                     }
                 }
 
-                // Get final grade
-                Grade finalGrade = gradesDAO.getGradeByEnrollment(enrollment.getEnrollmentId());
-                String finalScore = (finalGrade != null) ? String.format("%.2f", finalGrade.getTotalScore()) : "N/A";
-                String letterGrade = (finalGrade != null) ? finalGrade.getGradeLabel() : "N/A";
+                Grade grade = gradesDAO.getGradeByEnrollment(e.getEnrollmentId());
 
-                csvPrinter.printRecord(
+                csv.printRecord(
                         course.getCode(),
                         course.getTitle(),
-                        componentScores.length() > 0 ? componentScores.toString() : "N/A",
-                        finalScore,
-                        letterGrade
+                        compStr.length() > 0 ? compStr.toString() : "N/A",
+                        grade != null ? String.format("%.2f", grade.getTotalScore()) : "N/A",
+                        grade != null ? grade.getGradeLabel() : "N/A"
                 );
             }
 
-            DialogUtils.infoDialog("Transcript saved successfully!\n" + file.getAbsolutePath());
+            DialogUtils.infoDialog("Transcript saved!\n" + chooser.getSelectedFile().getAbsolutePath());
 
-        } catch (Exception e) {
-            DialogUtils.errorDialog("Failed to save transcript: " + e. getMessage());
+        } catch (Exception ex) {
+            DialogUtils.errorDialog("Failed: " + ex.getMessage());
         }
     }
 
     private double getGradePoint(String grade) {
-        if (grade == null) return 0.0;
+
         switch (grade.toUpperCase()) {
-            case "A": return 10.0;
-            case "A-": return 9.0;
-            case "B": return 8.0;
-            case "B-": return 7.0;
-            case "C": return 6.0;
-            case "C-": return 5.0;
-            case "D": return 4.0;
-            case "F": return 0.0;
-            default: return 0.0;
+            case "A": return 10;
+            case "A-": return 9;
+            case "B": return 8;
+            case "B-": return 7;
+            case "C": return 6;
+            case "C-": return 5;
+            case "D": return 4;
+            case "F": return 0;
         }
+
+        return 0;
     }
 
     public void refresh() {
