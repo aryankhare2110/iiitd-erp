@@ -32,25 +32,36 @@ public class StudentService {
     }
 
     public boolean registerForSection(int studentId, int sectionId) {
+        System.out.println("DEBUG: Attempting to register student " + studentId + " in section " + sectionId);
+
         if (settingsDAO.isMaintenanceMode()) {
+            System.out.println("DEBUG: Failed - Maintenance mode");
             return false;
         }
+
         LocalDate deadline = settingsDAO.getAddDropDeadline();
         if (deadline != null && LocalDate.now().isAfter(deadline)) {
+            System.out. println("DEBUG: Failed - Deadline passed");
             return false;
         }
-        if (enrollmentDAO.isEnrolledInSection(studentId, sectionId)) {
+
+        if (enrollmentDAO.isEnrolled(studentId, sectionId)) {
+            System.out.println("DEBUG: Failed - Already enrolled");
             return false;
         }
-        if (enrollmentDAO.isEnrolled(studentId, sectionId)){
-            return false;
-        }
+
         int cap = sectionDAO.getCapacity(sectionId);
         int filled = enrollmentDAO.countEnrollments(sectionId);
+        System.out.println("DEBUG: Capacity: " + cap + ", Filled: " + filled);
+
         if (filled >= cap) {
+            System.out.println("DEBUG: Failed - Section full");
             return false;
         }
-        return enrollmentDAO.enrollStudent(studentId, sectionId);
+
+        boolean result = enrollmentDAO.enrollStudent(studentId, sectionId);
+        System.out.println("DEBUG: Enrollment DAO result: " + result);
+        return result;
     }
 
     public boolean dropSection(int studentId, int sectionId) {
@@ -94,9 +105,12 @@ public class StudentService {
     public int getEnrolledCoursesCount() {
         Student student = getMyProfile();
         if (student == null) {
+            System.out.println("DEBUG: Student profile is null!");
             return 0;
         }
-        return enrollmentDAO.getEnrolledCoursesCount(student.getStudentId());
+        int count = enrollmentDAO.getEnrolledCoursesCount(student. getStudentId());
+        System.out.println("DEBUG: Enrolled courses count: " + count);
+        return count;
     }
 
     public int getTotalCredits() {
@@ -104,17 +118,19 @@ public class StudentService {
         if (student == null) return 0;
 
         int totalCredits = 0;
-        List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(student.getStudentId());
+        List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(student. getStudentId());
+        System.out.println("DEBUG: Total enrollments: " + enrollments.size());
 
         for (Enrollment e : enrollments) {
             Section section = sectionDAO.getSectionById(e.getSectionId());
             if (section != null) {
                 Course course = courseDAO.getCourseById(section.getCourseID());
                 if (course != null) {
-                    totalCredits += course.getCredits();
+                    totalCredits += course. getCredits();
                 }
             }
         }
+        System.out.println("DEBUG: Total credits: " + totalCredits);
         return totalCredits;
     }
 

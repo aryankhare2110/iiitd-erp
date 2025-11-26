@@ -202,16 +202,21 @@ public class DashboardPanel extends JPanel {
     }
 
     private JLabel findCountLabel(JPanel card) {
-        for (Component comp : card.getComponents()) {
-            if (comp instanceof JPanel) {
-                JPanel panel = (JPanel) comp;
-                for (Component innerComp : panel.getComponents()) {
-                    if (innerComp instanceof JLabel) {
-                        JLabel label = (JLabel) innerComp;
-                        if (label.getFont().getSize() >= 36) {
-                            return label;
-                        }
-                    }
+        return findCountLabelRecursive(card);
+    }
+
+    private JLabel findCountLabelRecursive(Container container) {
+        for (Component comp : container.getComponents()) {
+            if (comp instanceof JLabel) {
+                JLabel label = (JLabel) comp;
+                if (label.getFont().getSize() == 36 && label.getFont().isBold()) {
+                    return label;
+                }
+            }
+            if (comp instanceof Container) {
+                JLabel found = findCountLabelRecursive((Container) comp);
+                if (found != null) {
+                    return found;
                 }
             }
         }
@@ -219,16 +224,11 @@ public class DashboardPanel extends JPanel {
     }
 
     public void refresh() {
-        if (enrolledCountLabel != null) {
-            int enrolledCount = getValueOrZero(() -> studentService.getEnrolledCoursesCount());
-            enrolledCountLabel.setText(String.valueOf(enrolledCount));
-        }
-        if (totalCreditsLabel != null) {
-            int totalCredits = getValueOrZero(() -> studentService.getTotalCredits());
-            totalCreditsLabel.setText(String.valueOf(totalCredits));
-        }
+        int enrolledCount = getValueOrZero(() -> studentService.getEnrolledCoursesCount());
+        enrolledCountLabel.setText(String. valueOf(enrolledCount));;
+        int totalCredits = getValueOrZero(() -> studentService.getTotalCredits());
+        totalCreditsLabel.setText(String.valueOf(totalCredits));
         student = studentService.getMyProfile();
-
         revalidate();
         repaint();
     }

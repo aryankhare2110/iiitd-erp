@@ -100,7 +100,6 @@ public class StudentUI extends BaseFrame {
         }
 
         btn.setForeground(new Color(248, 249, 250));
-
         switch (panelName) {
             case "dashboard":
                 dashboardPanel.refresh();
@@ -119,7 +118,7 @@ public class StudentUI extends BaseFrame {
                 break;
         }
 
-        cardLayout. show(contentPanel, panelName);
+        cardLayout.show(contentPanel, panelName);
     }
 
     public static void main(String[] args) {

@@ -4,6 +4,7 @@ import edu.univ.erp.auth.session.UserSession;
 import edu.univ.erp.domain.Course;
 import edu.univ.erp.domain.Faculty;
 import edu.univ.erp.domain.Section;
+import edu.univ.erp.domain.Student;
 import edu.univ.erp.service.StudentService;
 import edu.univ.erp.ui.common.DialogUtils;
 import edu.univ.erp.ui.common.UIUtils;
@@ -83,7 +84,14 @@ public class BrowseCoursesPanel extends JPanel {
         }
 
         Course selected = courses.get(row);
-        int studentId = UserSession.getUserID();
+
+        // FIX: Get student_id from profile, not user_id from session
+        Student me = studentService.getMyProfile();
+        if (me == null) {
+            DialogUtils.errorDialog("Could not load student profile.");
+            return;
+        }
+        int studentId = me.getStudentId();  // CHANGED: Use student_id instead of user_id
 
         if (studentService.isEnrolled(studentId, selected.getCourseID())) {
             DialogUtils.errorDialog("You are already enrolled in this course.");
@@ -98,7 +106,7 @@ public class BrowseCoursesPanel extends JPanel {
         }
 
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setLayout(new BoxLayout(panel, BoxLayout. Y_AXIS));
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
@@ -140,7 +148,7 @@ public class BrowseCoursesPanel extends JPanel {
 
         JComboBox<String> sectionCombo = new JComboBox<>(sectionOptions);
         sectionCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        sectionCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sectionCombo. setAlignmentX(Component. LEFT_ALIGNMENT);
 
         panel.add(secLabel);
         panel.add(Box.createVerticalStrut(5));
@@ -160,10 +168,10 @@ public class BrowseCoursesPanel extends JPanel {
             return;
         }
 
-        if (studentService.registerForSection(studentId, chosen.getSectionID())) {
+        if (studentService. registerForSection(studentId, chosen. getSectionID())) {
             DialogUtils.infoDialog("Registered successfully!");
         } else {
-            DialogUtils.errorDialog("Registration failed. Already enrolled, full, or add/drop closed.");
+            DialogUtils. errorDialog("Registration failed. Already enrolled, full, or add/drop closed.");
         }
     }
 
