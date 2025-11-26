@@ -170,7 +170,11 @@ CREATE TABLE settings (
     value VARCHAR(50)
 );
 
-INSERT INTO settings (key, value) VALUES ('maintenance_mode', 'OFF');
+INSERT INTO settings (key, value)
+VALUES
+    ('maintenance_mode', 'OFF'),
+    ('add_drop_deadline', '2025-12-31')
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- NOTIFICATIONS
 CREATE TABLE notifications (
