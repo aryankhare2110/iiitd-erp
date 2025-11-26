@@ -1,18 +1,19 @@
-package edu.univ.erp. dao;
+package edu. univ.erp.dao;
 
 import edu.univ.erp.data.DBConnection;
+import edu.univ.erp.domain.ComponentType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java. sql.SQLException;
-import java. util.ArrayList;
-import java. util.List;
+import java.sql. SQLException;
+import java.util. ArrayList;
+import java.util. List;
 
 public class ComponentTypeDAO {
 
     public String getComponentTypeName(int id) {
-        String sql = "SELECT name FROM component_types WHERE type_id = ?";
+        String sql = "SELECT name FROM component_types WHERE type_id = ? ";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -21,9 +22,27 @@ public class ComponentTypeDAO {
                 return rs.getString("name");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e. printStackTrace();
         }
         return "Unknown";
+    }
+
+    public List<ComponentType> getAllComponentTypes() {
+        List<ComponentType> types = new ArrayList<>();
+        String sql = "SELECT type_id, name FROM component_types ORDER BY name";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                types.add(new ComponentType(
+                        rs.getInt("type_id"),
+                        rs. getString("name")
+                ));
+            }
+        } catch (SQLException e) {
+            e. printStackTrace();
+        }
+        return types;
     }
 
     public List<String> getAllComponentTypeNames() {
@@ -42,8 +61,8 @@ public class ComponentTypeDAO {
     }
 
     public int getComponentTypeIdByName(String typeName) {
-        String sql = "SELECT type_id FROM component_types WHERE name = ?";
-        try (Connection c = DBConnection. getErpConnection();
+        String sql = "SELECT type_id FROM component_types WHERE name = ? ";
+        try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, typeName);
             try (ResultSet rs = ps.executeQuery()) {

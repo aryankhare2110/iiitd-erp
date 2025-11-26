@@ -1,10 +1,9 @@
-package edu.univ.erp.ui.faculty;
+package edu. univ.erp.ui. faculty;
 
-import com.formdev.flatlaf.FlatIntelliJLaf;
-import edu.univ.erp.service.FacultyService;
-import edu.univ.erp.ui.faculty.panels.*;
+import com.formdev.flatlaf. FlatIntelliJLaf;
+import edu.univ.erp. ui.faculty.panels.*;
 import edu.univ.erp.ui.auth.LoginUI;
-import edu.univ.erp.ui.common.*;
+import edu.univ. erp.ui.common.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,107 +11,127 @@ import java.util.Objects;
 
 public class FacultyUI extends BaseFrame {
 
-      private CardLayout cardLayout;
-      private JPanel contentPanel;
-      private JPanel sidebar;
+    private CardLayout cardLayout;
+    private JPanel contentPanel;
+    private JPanel sidebar;
 
-      private DashboardPanel dashboardPanel;
-      private MySectionsPanel mySectionsPanel;
-      private ScoresPanel scoresPanel;
-      private StatisticsPanel statisticsPanel;
+    private DashboardPanel dashboardPanel;
+    private MySectionsPanel mySectionsPanel;
+    private ComponentsPanel componentsPanel;
+    private GradingPanel gradingPanel;
+    private StatisticsPanel statisticsPanel;
 
-      public FacultyUI() {
-          super("IIITD ERP – Faculty Dashboard");
-          setLayout(new BorderLayout());
+    public FacultyUI() {
+        super("IIITD ERP – Faculty Dashboard");
+        setLayout(new BorderLayout());
 
-          sidebar = UIUtils.createSidebar();
-          ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(edu.univ.erp.ui.faculty.FacultyUI.class.getResource("/Images/logo.png")));
-          Image scaled = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
-          sidebar.add(UIUtils. sidebarLogoPanel(new ImageIcon(scaled)));
-          sidebar.add(Box.createVerticalStrut(10));
+        // Sidebar
+        sidebar = UIUtils.createSidebar();
 
-          JButton btnDashboard = UIUtils.sidebarButton("Dashboard");
-          JButton btnMySections = UIUtils.sidebarButton("My Sections");
-          JButton btnScores = UIUtils. sidebarButton("Scores");
-          JButton btnStatistics = UIUtils.sidebarButton("Section Statistics");
-          JButton btnLogout = UIUtils.sidebarButton("Logout");
+        try {
+            ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(
+                    getClass().getResource("/Images/logo.png")));
+            Image scaled = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
+            sidebar.add(UIUtils.sidebarLogoPanel(new ImageIcon(scaled)));
+        } catch (Exception e) {
+            System.err.println("Logo not found");
+        }
 
-          sidebar.add(btnDashboard);
-          sidebar.add(Box.createVerticalStrut(5));
-          sidebar.add(btnMySections);
-          sidebar.add(Box.createVerticalStrut(5));
-          sidebar.add(btnScores);
-          sidebar.add(Box.createVerticalStrut(5));
-          sidebar.add(btnStatistics);
+        sidebar.add(Box.createVerticalStrut(10));
 
-          sidebar.add(Box.createVerticalGlue());
-          sidebar.add(btnLogout);
-          sidebar.add(Box.createVerticalStrut(15));
+        JButton btnDashboard = UIUtils. sidebarButton("Dashboard");
+        JButton btnMySections = UIUtils.sidebarButton("My Sections");
+        JButton btnComponents = UIUtils.sidebarButton("Components");
+        JButton btnGrading = UIUtils.sidebarButton("Grading");
+        JButton btnStatistics = UIUtils.sidebarButton("Section Statistics");
+        JButton btnLogout = UIUtils.sidebarButton("Logout");
 
-          add(sidebar, BorderLayout. WEST);
+        sidebar.add(btnDashboard);
+        sidebar.add(Box.createVerticalStrut(5));
+        sidebar.add(btnMySections);
+        sidebar.add(Box. createVerticalStrut(5));
+        sidebar.add(btnComponents);
+        sidebar.add(Box.createVerticalStrut(5));
+        sidebar.add(btnGrading);
+        sidebar. add(Box.createVerticalStrut(5));
+        sidebar. add(btnStatistics);
 
-          cardLayout = new CardLayout();
-          contentPanel = new JPanel(cardLayout);
-          contentPanel.setBackground(Color.WHITE);
+        sidebar.add(Box.createVerticalGlue());
+        sidebar.add(btnLogout);
+        sidebar.add(Box.createVerticalStrut(15));
 
-          FacultyService facultyService = new FacultyService();
+        add(sidebar, BorderLayout.WEST);
 
-          dashboardPanel = new DashboardPanel();
-          mySectionsPanel = new MySectionsPanel();
-          scoresPanel = new ScoresPanel();
-          statisticsPanel = new StatisticsPanel();
+        // Content panels
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
+        contentPanel.setBackground(Color.WHITE);
 
-          contentPanel.add(dashboardPanel, "dashboard");
-          contentPanel.add(mySectionsPanel, "mySections");
-          contentPanel.add(scoresPanel, "scores");
-          contentPanel.add(statisticsPanel, "statistics");
+        dashboardPanel = new DashboardPanel();
+        mySectionsPanel = new MySectionsPanel();
+        componentsPanel = new ComponentsPanel();
+        gradingPanel = new GradingPanel();
+        statisticsPanel = new StatisticsPanel();
 
-          add(contentPanel, BorderLayout.CENTER);
+        contentPanel.add(dashboardPanel, "dashboard");
+        contentPanel. add(mySectionsPanel, "mySections");
+        contentPanel. add(componentsPanel, "components");
+        contentPanel.add(gradingPanel, "grading");
+        contentPanel.add(statisticsPanel, "statistics");
 
-          btnDashboard.addActionListener(e -> switchPanel(btnDashboard,"dashboard"));
-          btnMySections.addActionListener(e -> switchPanel(btnMySections,"mySections"));
-          btnScores.addActionListener(e -> switchPanel(btnScores,"scores"));
-          btnStatistics.addActionListener(e -> switchPanel(btnStatistics,"statistics"));
+        add(contentPanel, BorderLayout.CENTER);
 
-          btnLogout.addActionListener(e -> {
-              dispose();
-              new LoginUI();
-          });
+        // Button actions
+        btnDashboard. addActionListener(e -> switchPanel(btnDashboard, "dashboard"));
+        btnMySections. addActionListener(e -> switchPanel(btnMySections, "mySections"));
+        btnComponents. addActionListener(e -> switchPanel(btnComponents, "components"));
+        btnGrading.addActionListener(e -> switchPanel(btnGrading, "grading"));
+        btnStatistics.addActionListener(e -> switchPanel(btnStatistics, "statistics"));
 
-          switchPanel(btnDashboard, "dashboard");
-          setVisible(true);
-      }
+        btnLogout.addActionListener(e -> {
+            dispose();
+            new LoginUI();
+        });
 
-      private void switchPanel(JButton btn, String panelName) {
-          for (Component c : sidebar.getComponents()) {
-              if (c instanceof JButton) {
-                  JButton button = (JButton) c;
-                  button.setForeground(new Color(180, 190, 210));
-              }
-          }
+        switchPanel(btnDashboard, "dashboard");
+        setVisible(true);
+    }
 
-          btn.setForeground(new Color(248, 249, 250));
+    private void switchPanel(JButton btn, String panelName) {
+        // Reset all button colors
+        for (Component c : sidebar.getComponents()) {
+            if (c instanceof JButton) {
+                ((JButton) c).setForeground(new Color(180, 190, 210));
+            }
+        }
 
-          switch (panelName) {
-              case "dashboard":
-                  dashboardPanel.refresh();
-                  break;
-              case "mySections":
-                  mySectionsPanel.refresh();
-                  break;
-              case "scores":
-                  scoresPanel.refresh();
-                  break;
-              case "statistics":
-                  statisticsPanel.refresh();
-                  break;
-          }
+        // Highlight selected button
+        btn.setForeground(new Color(248, 249, 250));
 
-          cardLayout. show(contentPanel, panelName);
-      }
+        // Refresh panel before showing
+        switch (panelName) {
+            case "dashboard":
+                dashboardPanel.refresh();
+                break;
+            case "mySections":
+                mySectionsPanel. refresh();
+                break;
+            case "components":
+                componentsPanel.refresh();
+                break;
+            case "grading":
+                gradingPanel.refresh();
+                break;
+            case "statistics":
+                statisticsPanel.refresh();
+                break;
+        }
 
-      public static void main(String[] args) {
-          FlatIntelliJLaf.setup();
-          SwingUtilities.invokeLater(edu.univ.erp.ui.faculty.FacultyUI::new);
-      }
+        cardLayout.show(contentPanel, panelName);
+    }
+
+    public static void main(String[] args) {
+        FlatIntelliJLaf. setup();
+        SwingUtilities.invokeLater(FacultyUI::new);
+    }
 }

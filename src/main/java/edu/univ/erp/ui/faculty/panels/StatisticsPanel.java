@@ -1,16 +1,8 @@
-package edu.univ.erp.ui.faculty.panels;
+package edu.univ.erp.ui. faculty. panels;
 
-import edu.univ.erp.dao.ComponentScoreDAO;
-import edu.univ.erp.dao.SectionComponentDAO;
-import edu.univ.erp.dao.EnrollmentDAO;
-import edu.univ.erp.domain.ComponentScore;
-import edu.univ.erp.domain.SectionComponent;
-import edu.univ.erp.domain.Section;
-import edu.univ.erp.domain.Enrollment;
+import edu.univ.erp.domain.*;
 import edu.univ.erp.service.FacultyService;
-import edu.univ.erp.ui.common.UIUtils;
-import edu.univ.erp.ui.common.DialogUtils;
-import edu.univ.erp.dao.CourseDAO;
+import edu.univ. erp.ui.common.UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,204 +10,331 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-/**
- * StatisticsPanel (faculty) — computes average score per component by calling
- * scoreDAO.getScore(enrollmentId, componentId) for each enrollment × component.
- */
 public class StatisticsPanel extends JPanel {
+
     private final FacultyService facultyService = new FacultyService();
-    private final SectionComponentDAO componentDAO = new SectionComponentDAO();
-    private final ComponentScoreDAO scoreDAO = new ComponentScoreDAO();
-    private final EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
+    private Faculty faculty;
 
-    private final JComboBox<String> sectionCombo;
-    private final ChartPanel chartPanel;
+    private JComboBox<String> sectionCombo;
+    private List<Section> sections;
 
-    private final List<Section> facultySections = new ArrayList<>();
+    private JPanel histogramPanel;
+    private JLabel avgScoreLabel;
+    private JLabel highestScoreLabel;
+    private JLabel lowestScoreLabel;
+    private JLabel passRateLabel;
 
     public StatisticsPanel() {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
-        add(UIUtils.createHeader("Section Statistics", "Average scores per component"), BorderLayout.NORTH);
 
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        top.setBackground(Color.WHITE);
-        top.setBorder(new EmptyBorder(8, 12, 8, 12));
-        top.add(new JLabel("Section:"));
+        faculty = facultyService.getMyProfile();
+
+        add(UIUtils.createHeaderWithBadge("Section Statistics",
+                        "View class performance statistics and grade distribution",
+                        facultyService.isMaintenanceMode(),
+                        " ⚠ MAINTENANCE MODE "),
+                BorderLayout.NORTH);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(new Color(248, 249, 250));
+        mainPanel.setBorder(new EmptyBorder(20, 50, 20, 50));
+
+        // Section Selector
+        JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        selectorPanel.setBackground(new Color(248, 249, 250));
+        selectorPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        selectorPanel.add(UIUtils.makeLabel("Select Section:", true));
         sectionCombo = new JComboBox<>();
-        sectionCombo.setPreferredSize(new Dimension(360, 28));
-        sectionCombo.addActionListener(e -> loadAndRender());
-        top.add(sectionCombo);
+        sectionCombo.setPreferredSize(new Dimension(400, 30));
+        sectionCombo.addActionListener(e -> loadStatistics());
+        selectorPanel. add(sectionCombo);
 
-        JButton refreshSectionsBtn = UIUtils.secondaryButton("Refresh Sections", e -> loadSections());
-        top.add(refreshSectionsBtn);
+        mainPanel.add(selectorPanel);
+        mainPanel.add(Box.createVerticalStrut(20));
 
-        add(top, BorderLayout.NORTH);
+        // Stats Cards Row
+        mainPanel.add(createStatsCards());
+        mainPanel.add(Box. createVerticalStrut(20));
 
-        chartPanel = new ChartPanel();
-        chartPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
-        add(new JScrollPane(chartPanel), BorderLayout.CENTER);
+        // Histogram
+        mainPanel.add(createHistogramSection());
 
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.secondaryButton("Refresh", e -> loadAndRender())
-        );
-        add(bottom, BorderLayout.SOUTH);
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Button
+        add(UIUtils.createButtonRow(
+                UIUtils.secondaryButton("Refresh", e -> loadStatistics())
+        ), BorderLayout.SOUTH);
 
         loadSections();
+    }
+
+    private JPanel createStatsCards() {
+        JPanel cardsRow = new JPanel(new GridLayout(1, 4, 15, 0));
+        cardsRow.setBackground(new Color(248, 249, 250));
+        cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+
+        JPanel avgCard = createMiniStatCard("Average Score", "0.00", new Color(13, 110, 253));
+        JPanel highCard = createMiniStatCard("Highest Score", "0.00", new Color(25, 135, 84));
+        JPanel lowCard = createMiniStatCard("Lowest Score", "0.00", new Color(220, 53, 69));
+        JPanel passCard = createMiniStatCard("Pass Rate", "0%", new Color(111, 66, 193));
+
+        avgScoreLabel = findStatLabel(avgCard);
+        highestScoreLabel = findStatLabel(highCard);
+        lowestScoreLabel = findStatLabel(lowCard);
+        passRateLabel = findStatLabel(passCard);
+
+        cardsRow.add(avgCard);
+        cardsRow.add(highCard);
+        cardsRow. add(lowCard);
+        cardsRow.add(passCard);
+
+        return cardsRow;
+    }
+
+    private JPanel createMiniStatCard(String title, String value, Color accentColor) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory. createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
+
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout. Y_AXIS));
+        content.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Helvetica Neue", Font. PLAIN, 12));
+        titleLabel.setForeground(new Color(108, 117, 125));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Helvetica Neue", Font. BOLD, 24));
+        valueLabel.setForeground(accentColor);
+        valueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        content.add(titleLabel);
+        content.add(Box.createVerticalStrut(8));
+        content.add(valueLabel);
+
+        card.add(content, BorderLayout.CENTER);
+        return card;
+    }
+
+    private JLabel findStatLabel(JPanel card) {
+        for (Component comp : card.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                for (Component innerComp : panel.getComponents()) {
+                    if (innerComp instanceof JLabel) {
+                        JLabel label = (JLabel) innerComp;
+                        if (label.getFont().getSize() >= 24) {
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private JPanel createHistogramSection() {
+        JPanel section = new JPanel(new BorderLayout());
+        section.setBackground(Color.WHITE);
+        section.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+        section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+        JLabel titleLabel = new JLabel("Grade Distribution");
+        titleLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
+        section.add(titleLabel, BorderLayout.NORTH);
+
+        histogramPanel = new JPanel();
+        histogramPanel.setBackground(Color.WHITE);
+        histogramPanel.setPreferredSize(new Dimension(0, 200));
+
+        section.add(histogramPanel, BorderLayout.CENTER);
+        return section;
     }
 
     private void loadSections() {
         sectionCombo.removeAllItems();
-        facultySections.clear();
-        try {
-            var me = facultyService.getMyProfile();
-            if (me == null) {
-                DialogUtils.errorDialog("Unable to load faculty profile.");
-                return;
+        if (faculty == null) return;
+
+        sections = facultyService.getMySections();
+        for (Section s : sections) {
+            Course c = facultyService.getCourseById(s.getCourseID());
+            if (c != null) {
+                sectionCombo.addItem(c.getCode() + " - " + s.getTerm() + " " + s. getYear());
             }
-            List<Section> my = facultyService.mySections(me.getFacultyId());
-            for (Section s : my) {
-                facultySections.add(s);
-                CourseDAO cd = new CourseDAO();
-                var c = cd.getCourseById(s.getCourseID());
-                String label = String.format("%d — %s (%s %d)", s.getSectionID(), c != null ? c.getCode() : "Unknown", s.getTerm(), s.getYear());
-                sectionCombo.addItem(label);
-            }
-            if (sectionCombo.getItemCount() > 0) sectionCombo.setSelectedIndex(0);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            DialogUtils.errorDialog("Failed to load sections: " + ex.getMessage());
+        }
+
+        if (! sections.isEmpty()) {
+            loadStatistics();
         }
     }
 
-    private void loadAndRender() {
+    private void loadStatistics() {
         int idx = sectionCombo.getSelectedIndex();
-        if (idx < 0 || idx >= facultySections.size()) {
-            chartPanel.setData(Collections.emptyMap());
+        if (idx == -1 || sections. isEmpty()) return;
+
+        Section section = sections. get(idx);
+        List<Enrollment> enrollments = facultyService.getEnrolledStudents(section.getSectionID());
+
+        if (enrollments.isEmpty()) {
+            resetStatistics();
             return;
         }
-        int sectionId = facultySections.get(idx).getSectionID();
-        try {
-            List<SectionComponent> comps = componentDAO.getComponentsBySection(sectionId);
-            Map<String, Double> averages = new LinkedHashMap<>();
 
-            // get all enrollments for this section
-            List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsBySection(sectionId);
+        // Collect all grades
+        List<Double> scores = new ArrayList<>();
+        Map<String, Integer> gradeDistribution = new LinkedHashMap<>();
+        gradeDistribution.put("A", 0);
+        gradeDistribution. put("A-", 0);
+        gradeDistribution.put("B", 0);
+        gradeDistribution.put("B-", 0);
+        gradeDistribution.put("C", 0);
+        gradeDistribution.put("C-", 0);
+        gradeDistribution. put("D", 0);
+        gradeDistribution.put("F", 0);
 
-            for (SectionComponent sc : comps) {
-                double sum = 0.0;
-                int cnt = 0;
-                int compId = sc.getComponentID();
+        for (Enrollment e : enrollments) {
+            Grade grade = facultyService.getGrade(e.getEnrollmentId());
 
-                // for each enrollment, fetch the score for this component using the requested method
-                for (Enrollment en : enrollments) {
-                    Double sVal = scoreDAO.getScore(en.getEnrollmentId(), compId).getScore(); // <-- requested method
-                    if (sVal != null) {
-                        sum += sVal;
-                        cnt++;
-                    }
-                }
+            if (grade != null) {
+                double score = grade.getTotalScore();
+                String gradeLabel = grade.getGradeLabel();
 
-                if (cnt > 0) {
-                    String name = (sc.getDescription() != null && !sc.getDescription().isBlank())
-                            ? sc.getDescription()
-                            : ("Comp " + sc.getComponentID());
-                    averages.put(name, sum / cnt);
-                }
+                scores.add(score);
+                gradeDistribution.put(gradeLabel, gradeDistribution.get(gradeLabel) + 1);
             }
-            chartPanel.setData(averages);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            DialogUtils.errorDialog("Failed to load statistics: " + ex.getMessage());
         }
+
+        if (scores.isEmpty()) {
+            resetStatistics();
+            return;
+        }
+
+        // Calculate statistics
+        double avg = scores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        double highest = scores.stream(). mapToDouble(Double::doubleValue).max().orElse(0.0);
+        double lowest = scores.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+        long passCount = scores.stream().filter(s -> s >= 60).count();
+        double passRate = (passCount * 100.0) / scores.size();
+
+        // Update stat cards
+        if (avgScoreLabel != null) avgScoreLabel.setText(String. format("%.2f", avg));
+        if (highestScoreLabel != null) highestScoreLabel.setText(String.format("%. 2f", highest));
+        if (lowestScoreLabel != null) lowestScoreLabel.setText(String.format("%.2f", lowest));
+        if (passRateLabel != null) passRateLabel.setText(String.format("%.1f%%", passRate));
+
+        // Draw histogram
+        drawHistogram(gradeDistribution, enrollments. size());
     }
 
-    // Simple bar-chart panel (same style as earlier)
-    private static class ChartPanel extends JPanel {
-        private Map<String, Double> data = Collections.emptyMap();
+    private void resetStatistics() {
+        if (avgScoreLabel != null) avgScoreLabel.setText("0.00");
+        if (highestScoreLabel != null) highestScoreLabel.setText("0.00");
+        if (lowestScoreLabel != null) lowestScoreLabel.setText("0.00");
+        if (passRateLabel != null) passRateLabel.setText("0%");
 
-        ChartPanel() {
-            setPreferredSize(new Dimension(700, 360));
-            setBackground(Color.WHITE);
+        histogramPanel.removeAll();
+        histogramPanel. revalidate();
+        histogramPanel.repaint();
+    }
+
+    private void drawHistogram(Map<String, Integer> distribution, int totalStudents) {
+        histogramPanel.removeAll();
+        histogramPanel.setLayout(new GridLayout(1, distribution.size(), 10, 0));
+
+        int maxCount = distribution.values().stream().max(Integer::compareTo).orElse(1);
+
+        Color[] colors = {
+                new Color(25, 135, 84),   // A - Green
+                new Color(40, 167, 69),   // A- - Light Green
+                new Color(13, 110, 253),  // B - Blue
+                new Color(23, 162, 184),  // B- - Cyan
+                new Color(255, 193, 7),   // C - Yellow
+                new Color(253, 126, 20),  // C- - Orange
+                new Color(220, 53, 69),   // D - Red
+                new Color(108, 117, 125)  // F - Gray
+        };
+
+        int colorIndex = 0;
+        for (Map.Entry<String, Integer> entry : distribution.entrySet()) {
+            String grade = entry.getKey();
+            int count = entry.getValue();
+            double percentage = (count * 100.0) / totalStudents;
+
+            histogramPanel.add(createHistogramBar(grade, count, percentage, maxCount, colors[colorIndex % colors.length]));
+            colorIndex++;
         }
 
-        void setData(Map<String, Double> data) {
-            this.data = data != null ? data : Collections.emptyMap();
-            int height = Math.max(360, 60 + data.size() * 60);
-            setPreferredSize(new Dimension(700, height));
-            revalidate();
-            repaint();
-        }
+        histogramPanel.revalidate();
+        histogramPanel.repaint();
+    }
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (data.isEmpty()) {
-                g.setColor(new Color(108,117,125));
-                g.setFont(new Font("Helvetica Neue", Font.ITALIC, 16));
-                g.drawString("No scores available to show statistics.", 20, 40);
-                return;
-            }
+    private JPanel createHistogramBar(String label, int count, double percentage, int maxCount, Color color) {
+        JPanel barContainer = new JPanel();
+        barContainer.setLayout(new BoxLayout(barContainer, BoxLayout.Y_AXIS));
+        barContainer.setBackground(Color.WHITE);
 
-            int padLeft = 80, padTop = 40, padBottom = 60;
-            int w = getWidth() - padLeft - 40;
-            int h = getHeight() - padTop - padBottom;
-            double maxVal = data.values().stream().mapToDouble(d -> d).max().orElse(100.0);
+        // Count label
+        JLabel countLabel = new JLabel(String.valueOf(count));
+        countLabel.setFont(new Font("Helvetica Neue", Font. BOLD, 12));
+        countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            int barCount = data.size();
-            int barWidth = Math.max(30, w / (barCount * 2));
-            int gap = Math.max(10, (w - barCount * barWidth) / (barCount + 1));
+        // Bar
+        JPanel barWrapper = new JPanel();
+        barWrapper.setLayout(new BorderLayout());
+        barWrapper.setBackground(Color.WHITE);
+        barWrapper. setPreferredSize(new Dimension(40, 120));
 
-            int x = padLeft + gap;
-            for (Map.Entry<String, Double> e : data.entrySet()) {
-                double val = e.getValue();
-                int barHeight = (int) Math.round((val / maxVal) * (h - 20));
-                int y = padTop + (h - barHeight);
+        int barHeight = maxCount > 0 ? (int) ((count * 100.0) / maxCount) : 0;
 
-                g.setColor(new Color(13,110,253));
-                g.fillRect(x, y, barWidth, barHeight);
+        JPanel spacer = new JPanel();
+        spacer.setBackground(Color.WHITE);
+        spacer.setPreferredSize(new Dimension(40, 100 - barHeight));
 
-                g.setColor(Color.BLACK);
-                g.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
-                String valStr = String.format("%.1f", val);
-                int strW = g.getFontMetrics().stringWidth(valStr);
-                g.drawString(valStr, x + (barWidth - strW) / 2, y - 6);
+        JPanel bar = new JPanel();
+        bar.setBackground(color);
+        bar.setPreferredSize(new Dimension(40, barHeight));
 
-                g.setFont(new Font("Helvetica Neue", Font.PLAIN, 11));
-                String label = e.getKey();
-                int labelY = padTop + h + 18;
-                g.drawString(label, x, labelY);
+        barWrapper. add(spacer, BorderLayout. NORTH);
+        barWrapper.add(bar, BorderLayout.CENTER);
 
-                x += barWidth + gap;
-            }
+        // Grade label
+        JLabel gradeLabel = new JLabel(label);
+        gradeLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        gradeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            g.setColor(Color.BLACK);
-            g.drawLine(padLeft, padTop, padLeft, padTop + h);
-            g.drawLine(padLeft, padTop + h, getWidth() - 20, padTop + h);
-        }
+        // Percentage label
+        JLabel percentLabel = new JLabel(String.format("%.1f%%", percentage));
+        percentLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 10));
+        percentLabel.setForeground(new Color(108, 117, 125));
+        percentLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        barContainer.add(countLabel);
+        barContainer.add(Box.createVerticalStrut(5));
+        barContainer.add(barWrapper);
+        barContainer. add(Box.createVerticalStrut(5));
+        barContainer.add(gradeLabel);
+        barContainer.add(percentLabel);
+
+        return barContainer;
     }
 
     public void refresh() {
         loadSections();
-        loadAndRender();
-    }
-
-    /**
-     * Programmatically select a section id (FacultyUI may call this when user selected a section in MySectionsPanel)
-     */
-    public void setSection(int sectionId) {
-        for (int i = 0; i < facultySections.size(); i++) {
-            if (facultySections.get(i).getSectionID() == sectionId) {
-                sectionCombo.setSelectedIndex(i);
-                return;
-            }
-        }
-        loadSections();
-        for (int i = 0; i < facultySections.size(); i++) {
-            if (facultySections.get(i).getSectionID() == sectionId) {
-                sectionCombo.setSelectedIndex(i);
-                return;
-            }
-        }
     }
 }
