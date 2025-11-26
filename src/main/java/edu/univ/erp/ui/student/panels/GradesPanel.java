@@ -60,7 +60,7 @@ public class GradesPanel extends JPanel {
         sgpaPanel.setBackground(new Color(248, 249, 250));
         sgpaPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        sgpaLabel = new JLabel("sgpa: 0.00");
+        sgpaLabel = new JLabel("SGPA: 0.00");
         sgpaLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
         sgpaLabel.setForeground(new Color(13, 110, 253));
 
@@ -90,7 +90,7 @@ public class GradesPanel extends JPanel {
 
         if (enrollments.isEmpty()) {
             model.addRow(new Object[]{"No grades available", "", "", "", ""});
-            sgpaLabel.setText("sgpa: 0.00");
+            sgpaLabel.setText("SGPA: 0.00");
             return;
         }
 
