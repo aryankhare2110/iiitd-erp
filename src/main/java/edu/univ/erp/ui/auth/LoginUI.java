@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoginUI extends BaseFrame {
 
@@ -19,10 +20,13 @@ public class LoginUI extends BaseFrame {
     public LoginUI() {
         super("IIITD - ERP Login");
 
+        final AtomicInteger attempts = new AtomicInteger(0);
+        final int MAX_ATTEMPTS = 5;
+
         //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(new Color(248, 249, 250));
-        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/LoginPage.png")));
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/Login_Photo.jpg")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
         imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
 
@@ -85,7 +89,6 @@ public class LoginUI extends BaseFrame {
         JButton loginButton = createButton();
 
         loginButton.addActionListener(e -> {
-
             String email = emailField.getText().trim().toLowerCase();
             String password = new String(passwordField.getPassword()).trim();
 
@@ -101,14 +104,26 @@ public class LoginUI extends BaseFrame {
             String role = authService.login(email, password);
 
             if (role == null) {
-                DialogUtils.errorDialog("Invalid Email Or Password, Please Try Again!");
+                int att = attempts.incrementAndGet();
+                if (att >= MAX_ATTEMPTS) {
+                    loginButton.setEnabled(false); // Disabling for temporary lockout
+                    DialogUtils.errorDialog("Too many incorrect attempts (" + att + "). Your account may be disabled. Please contact an administrator.");
+                } else {
+                    DialogUtils.errorDialog("Invalid Email Or Password, Please Try Again! (" + att + "/" + MAX_ATTEMPTS + ")");
+                }
                 return;
             }
 
+            // If AuthService returned "INACTIVE" it means account is disabled server-side
             if (role.equalsIgnoreCase("INACTIVE")) {
+                // disable login to prevent further attempts from UI
+                loginButton.setEnabled(false);
                 DialogUtils.errorDialog("Account Has Been Disabled, Please Contact Admin!");
                 return;
             }
+
+            // Successful login — reset attempt counter
+            attempts.set(0);
 
             if (role.equalsIgnoreCase("STUDENT")) {
                 new StudentUI();
