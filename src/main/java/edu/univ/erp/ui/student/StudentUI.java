@@ -91,14 +91,16 @@ public class StudentUI extends BaseFrame {
         setVisible(true);
     }
 
-    private void switchPanel(JButton button, String panelName) {
+    private void switchPanel(JButton btn, String panelName) {
         for (Component c : sidebar.getComponents()) {
             if (c instanceof JButton) {
-                ((JButton) c).setForeground(new Color(180, 190, 210));
+                JButton button = (JButton) c;
+                button.setForeground(new Color(180, 190, 210));
             }
         }
 
-        button. setForeground(new Color(13, 110, 253));
+        btn.setForeground(new Color(248, 249, 250));
+
         switch (panelName) {
             case "dashboard":
                 dashboardPanel.refresh();
@@ -116,7 +118,8 @@ public class StudentUI extends BaseFrame {
                 //gradesPanel.refresh();
                 break;
         }
-        cardLayout.show(contentPanel, panelName);
+
+        cardLayout. show(contentPanel, panelName);
     }
 
     public static void main(String[] args) {
