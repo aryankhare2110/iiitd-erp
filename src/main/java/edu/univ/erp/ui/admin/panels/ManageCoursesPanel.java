@@ -214,4 +214,8 @@ public class ManageCoursesPanel extends JPanel {
         DialogUtils.infoDialog("Course deleted successfully!");
         loadCourses();
     }
+
+    public void refresh() {
+        loadCourses();
+    }
 }

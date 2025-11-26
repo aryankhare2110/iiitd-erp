@@ -255,4 +255,8 @@ public class ManageSectionsPanel extends JPanel {
 
         return new FormData(courseId, facultyId, term, year, room, cap);
     }
+
+    public void refresh() {
+        loadSections();
+    }
 }

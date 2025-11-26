@@ -164,4 +164,8 @@ public class StudentService {
     public LocalDate getAddDropDeadline() {
         return settingsDAO. getAddDropDeadline();
     }
+
+    public List<Enrollment> getMyEnrollments(int studentId) {
+        return enrollmentDAO.getEnrollmentsByStudent(studentId);
+    }
 }

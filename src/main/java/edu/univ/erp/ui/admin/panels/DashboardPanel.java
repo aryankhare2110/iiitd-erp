@@ -16,6 +16,10 @@ public class DashboardPanel extends JPanel {
 
     private final AdminService adminService;
     private final AuthService authService;
+    private JPanel cardsRow;
+    private JLabel studentCountLabel;
+    private JLabel facultyCountLabel;
+    private JLabel courseCountLabel;
 
     public DashboardPanel() {
         adminService = new AdminService();
@@ -31,12 +35,22 @@ public class DashboardPanel extends JPanel {
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        JPanel cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
+        cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
         cardsRow.setBackground(new Color(248, 249, 250));
         cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-        cardsRow.add(statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253)));
-        cardsRow.add(statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193)));
-        cardsRow.add(statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20)));
+
+        JPanel studentCard = statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253));
+        JPanel facultyCard = statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193));
+        JPanel courseCard = statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20));
+
+// Store references to count labels for later updates
+        studentCountLabel = findCountLabel(studentCard);
+        facultyCountLabel = findCountLabel(facultyCard);
+        courseCountLabel = findCountLabel(courseCard);
+
+        cardsRow.add(studentCard);
+        cardsRow.add(facultyCard);
+        cardsRow.add(courseCard);
         center.add(cardsRow);
         center.add(Box.createVerticalStrut(35));
 
@@ -306,4 +320,37 @@ public class DashboardPanel extends JPanel {
             DialogUtils.errorDialog("Invalid date format.");
         }
     }
+
+    private JLabel findCountLabel(JPanel card) {
+        for (Component comp : card.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                for (Component innerComp : panel.getComponents()) {
+                    if (innerComp instanceof JLabel) {
+                        JLabel label = (JLabel) innerComp;
+                        // The count label has a large bold font
+                        if (label. getFont().getSize() == 48) {
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void refresh() {
+        if (studentCountLabel != null) {
+            studentCountLabel.setText(String.valueOf(adminService.getStudentCount()));
+        }
+        if (facultyCountLabel != null) {
+            facultyCountLabel.setText(String.valueOf(adminService.getFacultyCount()));
+        }
+        if (courseCountLabel != null) {
+            courseCountLabel.setText(String. valueOf(adminService.getCourseCount()));
+        }
+        revalidate();
+        repaint();
+    }
+
 }

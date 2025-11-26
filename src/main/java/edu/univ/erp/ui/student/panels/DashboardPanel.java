@@ -19,6 +19,8 @@ public class DashboardPanel extends JPanel {
     private final StudentService studentService;
     private final AuthService authService;
     private Student student;
+    private JLabel enrolledCountLabel;
+    private JLabel totalCreditsLabel;
 
     public DashboardPanel() {
         studentService = new StudentService();
@@ -36,16 +38,21 @@ public class DashboardPanel extends JPanel {
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        // Stats Cards
         JPanel cardsRow = new JPanel(new GridLayout(1, 2, 25, 0));
-        cardsRow.setBackground(new Color(248, 249, 250));
+        cardsRow. setBackground(new Color(248, 249, 250));
         cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
         int enrolledCount = getValueOrZero(() -> studentService.getEnrolledCoursesCount());
         int totalCredits = getValueOrZero(() -> studentService.getTotalCredits());
 
-        cardsRow.add(UIUtils.createStatCard("Courses Enrolled", String.valueOf(enrolledCount), new Color(13, 110, 253)));
-        cardsRow.add(UIUtils.createStatCard("Total Credits", String.valueOf(totalCredits), new Color(111, 66, 193)));
+        JPanel enrolledCard = UIUtils.createStatCard("Courses Enrolled", String.valueOf(enrolledCount), new Color(13, 110, 253));
+        JPanel creditsCard = UIUtils.createStatCard("Total Credits", String.valueOf(totalCredits), new Color(111, 66, 193));
+
+        enrolledCountLabel = findCountLabel(enrolledCard);
+        totalCreditsLabel = findCountLabel(creditsCard);
+
+        cardsRow.add(enrolledCard);
+        cardsRow.add(creditsCard);
         center.add(cardsRow);
         center.add(Box.createVerticalStrut(35));
 
@@ -195,5 +202,41 @@ public class DashboardPanel extends JPanel {
 
         boolean ok = authService.resetPassword(UserSession.getUserEmail(), newPass);
         DialogUtils.infoDialog(ok ? "Password changed successfully!" : "Failed to update password.");
+    }
+
+    private JLabel findCountLabel(JPanel card) {
+        for (Component comp : card.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                for (Component innerComp : panel.getComponents()) {
+                    if (innerComp instanceof JLabel) {
+                        JLabel label = (JLabel) innerComp;
+                        // The count label has a large bold font
+                        if (label.getFont().getSize() >= 36) {  // Adjust size if needed
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void refresh() {
+        // Update enrollment counts
+        if (enrolledCountLabel != null) {
+            int enrolledCount = getValueOrZero(() -> studentService.getEnrolledCoursesCount());
+            enrolledCountLabel.setText(String.valueOf(enrolledCount));
+        }
+        if (totalCreditsLabel != null) {
+            int totalCredits = getValueOrZero(() -> studentService.getTotalCredits());
+            totalCreditsLabel.setText(String.valueOf(totalCredits));
+        }
+
+        // Refresh profile in case data changed
+        student = studentService.getMyProfile();
+
+        revalidate();
+        repaint();
     }
 }

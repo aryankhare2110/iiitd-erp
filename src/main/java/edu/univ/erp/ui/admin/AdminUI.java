@@ -1,11 +1,10 @@
-package edu.univ.erp.ui.admin;
+package edu.univ.erp. ui.admin;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import edu.univ.erp.service.AdminService;
 import edu.univ.erp.ui.admin.panels.*;
 import edu.univ.erp.ui.auth.LoginUI;
-import edu.univ.erp.ui.common.BaseFrame;
-import edu.univ.erp.ui.common.UIUtils;
+import edu.univ.erp.ui.common.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,22 +14,28 @@ public class AdminUI extends BaseFrame {
 
     private CardLayout cardLayout;
     private JPanel contentPanel;
-    private JButton selectedButton = null;
+    private JPanel sidebar;
+
+    private DashboardPanel dashboardPanel;
+    private ManageStudentsPanel manageStudentsPanel;
+    private ManageFacultyPanel manageFacultyPanel;
+    private ManageAdminPanel manageAdminPanel;
+    private ManageCoursesPanel manageCoursesPanel;
+    private ManageSectionsPanel manageSectionsPanel;
 
     public AdminUI() {
         super("IIITD ERP – Admin Dashboard");
         setLayout(new BorderLayout());
 
-        JPanel sidebar = UIUtils.createSidebar();
-
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(AdminUI.class.getResource("/Images/img.png")));
+        sidebar = UIUtils.createSidebar();
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(AdminUI.class.getResource("/Images/logo.png")));
         Image scaled = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
-        sidebar.add(UIUtils.sidebarLogoPanel(new ImageIcon(scaled)));
+        sidebar.add(UIUtils. sidebarLogoPanel(new ImageIcon(scaled)));
         sidebar.add(Box.createVerticalStrut(10));
 
         JButton btnDashboard = UIUtils.sidebarButton("Dashboard");
         JButton btnStudents = UIUtils.sidebarButton("Manage Students");
-        JButton btnFaculty = UIUtils.sidebarButton("Manage Faculty");
+        JButton btnFaculty = UIUtils. sidebarButton("Manage Faculty");
         JButton btnAdmins = UIUtils.sidebarButton("Manage Admins");
         JButton btnCourses = UIUtils.sidebarButton("Manage Courses");
         JButton btnSections = UIUtils.sidebarButton("Manage Sections");
@@ -45,14 +50,14 @@ public class AdminUI extends BaseFrame {
         sidebar.add(btnAdmins);
         sidebar.add(Box.createVerticalStrut(5));
         sidebar.add(btnCourses);
-        sidebar.add(Box.createVerticalStrut(5));
-        sidebar.add(btnSections);
+        sidebar. add(Box.createVerticalStrut(5));
+        sidebar. add(btnSections);
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
         sidebar.add(Box.createVerticalStrut(15));
 
-        add(sidebar, BorderLayout.WEST);
+        add(sidebar, BorderLayout. WEST);
 
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
@@ -60,21 +65,28 @@ public class AdminUI extends BaseFrame {
 
         AdminService adminService = new AdminService();
 
-        contentPanel.add(new DashboardPanel(), "dashboard");
-        contentPanel.add(new ManageStudentsPanel(), "manageStudents");
-        contentPanel.add(new ManageFacultyPanel(), "manageFaculty");
-        contentPanel.add(new ManageAdminPanel(), "manageAdmins");
-        contentPanel.add(new ManageCoursesPanel(adminService), "manageCourses");
-        contentPanel.add(new ManageSectionsPanel(), "manageSections");
+        dashboardPanel = new DashboardPanel();
+        manageStudentsPanel = new ManageStudentsPanel();
+        manageFacultyPanel = new ManageFacultyPanel();
+        manageAdminPanel = new ManageAdminPanel();
+        manageCoursesPanel = new ManageCoursesPanel(adminService);
+        manageSectionsPanel = new ManageSectionsPanel();
+
+        contentPanel.add(dashboardPanel, "dashboard");
+        contentPanel.add(manageStudentsPanel, "manageStudents");
+        contentPanel.add(manageFacultyPanel, "manageFaculty");
+        contentPanel.add(manageAdminPanel, "manageAdmins");
+        contentPanel.add(manageCoursesPanel, "manageCourses");
+        contentPanel.add(manageSectionsPanel, "manageSections");
 
         add(contentPanel, BorderLayout.CENTER);
 
-        btnDashboard.addActionListener(e -> switchPanel(btnDashboard, "dashboard"));
-        btnStudents.addActionListener(e -> switchPanel(btnStudents,  "manageStudents"));
-        btnFaculty.addActionListener(e -> switchPanel(btnFaculty,   "manageFaculty"));
-        btnAdmins.addActionListener(e -> switchPanel(btnAdmins,    "manageAdmins"));
-        btnCourses.addActionListener(e -> switchPanel(btnCourses,   "manageCourses"));
-        btnSections.addActionListener(e -> switchPanel(btnSections,  "manageSections"));
+        btnDashboard.addActionListener(e -> switchPanel(btnDashboard,"dashboard"));
+        btnStudents.addActionListener(e -> switchPanel(btnStudents,"manageStudents"));
+        btnFaculty.addActionListener(e -> switchPanel(btnFaculty,"manageFaculty"));
+        btnAdmins.addActionListener(e -> switchPanel(btnAdmins,"manageAdmins"));
+        btnCourses.addActionListener(e -> switchPanel(btnCourses,"manageCourses"));
+        btnSections.addActionListener(e -> switchPanel(btnSections,"manageSections"));
 
         btnLogout.addActionListener(e -> {
             dispose();
@@ -85,10 +97,38 @@ public class AdminUI extends BaseFrame {
         setVisible(true);
     }
 
-    private void switchPanel(JButton button, String panelName) {
-        UIUtils.setSidebarSelected(selectedButton, button);
-        selectedButton = button;
-        cardLayout.show(contentPanel, panelName);
+    private void switchPanel(JButton btn, String panelName) {
+        for (Component c : sidebar.getComponents()) {
+            if (c instanceof JButton) {
+                JButton button = (JButton) c;
+                button.setForeground(new Color(180, 190, 210));
+            }
+        }
+
+        btn.setForeground(new Color(248, 249, 250));
+
+        switch (panelName) {
+            case "dashboard":
+                dashboardPanel.refresh();
+                break;
+            case "manageStudents":
+                manageStudentsPanel.refresh();
+                break;
+            case "manageFaculty":
+                manageFacultyPanel.refresh();
+                break;
+            case "manageAdmins":
+                manageAdminPanel.refresh();
+                break;
+            case "manageCourses":
+                manageCoursesPanel.refresh();
+                break;
+            case "manageSections":
+                manageSectionsPanel.refresh();
+                break;
+        }
+
+        cardLayout. show(contentPanel, panelName);
     }
 
     public static void main(String[] args) {

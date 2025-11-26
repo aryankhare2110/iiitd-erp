@@ -42,18 +42,27 @@ public class AdminService {
         return authDAO.registerNewUser(email.toLowerCase(), "ADMIN", hashed);
     }
 
+    public boolean createCourse(Course course) {
+        return courseDAO.insertCourse(course);
+    }
+
+    public boolean createSection(Section section) {
+        return sectionDAO.insertSection(section);
+    }
+
     public boolean updateFaculty(Faculty updated) {
-        if (updated == null) return false;
-
-        if (updated.getFullName() == null || updated.getFullName().trim().isEmpty())
+        if (updated == null){
             return false;
-
-        if (updated.getDepartmentId() <= 0)
+        }
+        if (updated.getFullName() == null || updated.getFullName().trim().isEmpty()){
             return false;
-
-        if (updated.getDesignation() == null || updated.getDesignation().trim().isEmpty())
+        }
+        if (updated.getDepartmentId() <= 0) {
             return false;
-
+        }
+        if (updated.getDesignation() == null || updated.getDesignation().trim().isEmpty()) {
+            return false;
+        }
         return facultyDAO.updateFaculty(updated);
     }
 
@@ -64,18 +73,24 @@ public class AdminService {
         return studentDAO.updateStudent(s);
     }
 
-    public boolean createCourse(Course course) {
-        return courseDAO.insertCourse(course);
-    }
-
     public boolean updateCourse(Course course) {
         return courseDAO.updateCourse(course);
+    }
+
+    public boolean updateSection(Section section) {
+        return sectionDAO.updateSection(section);
     }
 
     public boolean deleteCourse(int courseId) {
         if (courseDAO.hasEnrollments(courseId)) return false;
         if (courseDAO.hasSections(courseId)) return false;
         return courseDAO.deleteCourse(courseId);
+    }
+
+    public boolean deleteSection(int sectionId) {
+        EnrollmentDAO ed = new EnrollmentDAO();
+        if (ed.countEnrollments(sectionId) > 0) return false;
+        return sectionDAO.deleteSection(sectionId);
     }
 
     public List<Course> getAllCourses() {
@@ -90,25 +105,6 @@ public class AdminService {
         return sectionDAO.getAllSections();
     }
 
-    public boolean createSection(Section section) {
-        return sectionDAO.insertSection(section);
-    }
-
-    public boolean updateSection(Section section) {
-        return sectionDAO.updateSection(section);
-    }
-
-    public boolean deleteSection(int sectionId) {
-        EnrollmentDAO ed = new EnrollmentDAO();
-        if (ed.countEnrollments(sectionId) > 0) return false;
-        return sectionDAO.deleteSection(sectionId);
-    }
-
-    public boolean setAddDropDeadline(LocalDate date) {
-        SettingsDAO dao = new SettingsDAO();
-        return dao.setAddDropDeadline(date);
-    }
-
     public int getStudentCount() {
         return studentDAO.countStudents();
     }
@@ -119,6 +115,11 @@ public class AdminService {
 
     public int getCourseCount() {
         return courseDAO.countCourses();
+    }
+
+    public boolean setAddDropDeadline(LocalDate date) {
+        SettingsDAO dao = new SettingsDAO();
+        return dao.setAddDropDeadline(date);
     }
 
     public boolean setUserStatus(int userId, boolean active) {
@@ -137,7 +138,4 @@ public class AdminService {
         return notificationDAO.insertNotification(message, adminEmail);
     }
 
-    public List<Notification> getNotifications() {
-        return notificationDAO.getAllNotifications();
-    }
 }

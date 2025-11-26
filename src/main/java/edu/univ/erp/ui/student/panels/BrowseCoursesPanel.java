@@ -159,4 +159,8 @@ public class BrowseCoursesPanel extends JPanel {
             DialogUtils.errorDialog("Registration failed. Already enrolled, full, or add/drop closed.");
         }
     }
+
+    public void refresh() {
+        loadCourses();
+    }
 }

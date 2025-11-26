@@ -28,9 +28,12 @@ public class ManageFacultyPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeader("Manage Faculty", "Add, edit, and manage faculty accounts"), BorderLayout.NORTH);
+        add(UIUtils.createHeader("Manage Faculty", "Add, edit, and manage faculty accounts"),
+                BorderLayout.NORTH);
 
-        model = new DefaultTableModel(new String[]{"Name", "Email", "Department", "Designation", "Status"}, 0) {
+        model = new DefaultTableModel(
+                new String[]{"Name", "Email", "Department", "Designation", "Status"}, 0
+        ) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
@@ -47,14 +50,19 @@ public class ManageFacultyPanel extends JPanel {
                 UIUtils.primaryButton("Edit Faculty", e -> openEditDialog()),
                 UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus())
         );
+
         add(bottom, BorderLayout.SOUTH);
 
         loadFaculty();
+
+        add(bottom, BorderLayout.SOUTH);
     }
 
     private void loadFaculty() {
         model.setRowCount(0);
-        for (Faculty f : facultyDAO.getAllFaculty()) {
+        List<Faculty> list = facultyDAO.getAllFaculty();
+
+        for (Faculty f : list) {
             model.addRow(new Object[]{
                     f.getFullName(),
                     authDAO.getEmailByUserId(f.getUserId()),
@@ -68,14 +76,21 @@ public class ManageFacultyPanel extends JPanel {
     private void openCreateDialog() {
         JPanel panel = buildForm(null);
 
-        if (showDialog(panel, "Create Faculty")) {
-            FormData d = extract(panel);
-            if (d == null) return;
+        if (!showDialog(panel, "Create Faculty")) return;
 
-            if (adminService.createFaculty(d.email, d.password, new Faculty(0, 0, d.deptId, d.designation, d.name))) {
-                DialogUtils.infoDialog("Faculty created successfully!");
-                loadFaculty();
-            } else DialogUtils.errorDialog("Failed to create faculty.");
+        FormData d = extract(panel);
+        if (d == null) {
+            DialogUtils.errorDialog("Please fill all required fields.");
+            return;
+        }
+
+        if (adminService.createFaculty(d.email, d.password,
+                new Faculty(0, 0, d.deptId, d.designation, d.name))) {
+
+            DialogUtils.infoDialog("Faculty created successfully!");
+            loadFaculty();
+        } else {
+            DialogUtils.errorDialog("Failed to create faculty. Email may already exist.");
         }
     }
 
@@ -91,16 +106,27 @@ public class ManageFacultyPanel extends JPanel {
 
         JPanel panel = buildForm(f);
 
-        if (showDialog(panel, "Edit Faculty")) {
-            FormData d = extract(panel);
-            if (d == null) return;
+        if (!showDialog(panel, "Edit Faculty")) return;
 
-            Faculty updated = new Faculty(f.getFacultyId(), f.getUserId(), d.deptId, d.designation, d.name);
+        FormData d = extract(panel);
+        if (d == null) {
+            DialogUtils.errorDialog("Please fill all required fields.");
+            return;
+        }
 
-            if (adminService.updateFaculty(updated)) {
-                DialogUtils.infoDialog("Faculty updated!");
-                loadFaculty();
-            } else DialogUtils.errorDialog("Failed to update faculty.");
+        Faculty updated = new Faculty(
+                f.getFacultyId(),
+                f.getUserId(),
+                d.deptId,
+                d.designation,
+                d.name
+        );
+
+        if (adminService.updateFaculty(updated)) {
+            DialogUtils.infoDialog("Faculty updated successfully!");
+            loadFaculty();
+        } else {
+            DialogUtils.errorDialog("Failed to update faculty.");
         }
     }
 
@@ -113,38 +139,51 @@ public class ManageFacultyPanel extends JPanel {
 
         String email = model.getValueAt(r, 1).toString();
         String status = model.getValueAt(r, 4).toString();
-
         Integer userId = authDAO.getUserId(email);
+
         boolean newStatus = !"ACTIVE".equalsIgnoreCase(status);
 
         if (adminService.setUserStatus(userId, newStatus)) {
             DialogUtils.infoDialog("Status updated.");
             loadFaculty();
-        } else DialogUtils.errorDialog("Failed to update status.");
+        } else {
+            DialogUtils.errorDialog("Failed to update status.");
+        }
     }
 
     private static class FormData {
         String email, password, name, designation;
         int deptId;
 
-        FormData(String e, String p, String n, int dpt, String des) {
-            email = e; password = p; name = n; deptId = dpt; designation = des;
+        FormData(String e, String p, String n, int dept, String des) {
+            email = e; password = p; name = n; deptId = dept; designation = des;
         }
     }
 
     private JPanel buildForm(Faculty existing) {
+
         JPanel p = new JPanel(new GridLayout(0, 2, 10, 10));
         p.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JTextField emailF = new JTextField();
-        JPasswordField pwdF = new JPasswordField();
-        JTextField nameF = new JTextField();
+        emailF.setName("email");
 
-        JComboBox<String> deptF = new JComboBox<>(departmentDAO.getAllDepartmentNames().toArray(new String[0]));
+        JPasswordField pwdF = new JPasswordField();
+        pwdF.setName("pwd");
+
+        JTextField nameF = new JTextField();
+        nameF.setName("name");
+
+        JComboBox<String> deptF =
+                new JComboBox<>(departmentDAO.getAllDepartmentNames().toArray(new String[0]));
+        deptF.setName("dept");
+
         JComboBox<String> desigF = new JComboBox<>(new String[]{
                 "Professor", "Associate Professor", "Assistant Professor",
-                "Visiting Professor", "Adjunct Faculty", "Emeritus Professor", "Department Head"
+                "Visiting Professor", "Adjunct Faculty",
+                "Emeritus Professor", "Department Head"
         });
+        desigF.setName("desig");
 
         if (existing != null) {
             emailF.setText(authDAO.getEmailByUserId(existing.getUserId()));
@@ -155,9 +194,11 @@ public class ManageFacultyPanel extends JPanel {
         }
 
         p.add(new JLabel("Email:")); p.add(emailF);
+
         if (existing == null) {
             p.add(new JLabel("Password:")); p.add(pwdF);
         }
+
         p.add(new JLabel("Full Name:")); p.add(nameF);
         p.add(new JLabel("Department:")); p.add(deptF);
         p.add(new JLabel("Designation:")); p.add(desigF);
@@ -166,29 +207,44 @@ public class ManageFacultyPanel extends JPanel {
     }
 
     private FormData extract(JPanel p) {
-        Component[] c = p.getComponents();
 
-        JTextField email = (JTextField) c[1];
-        String emailStr = email.getText().trim().toLowerCase();
+        JTextField email = (JTextField) find(p, "email");
+        JTextField name = (JTextField) find(p, "name");
+        JComboBox<?> dept = (JComboBox<?>) find(p, "dept");
+        JComboBox<?> desig = (JComboBox<?>) find(p, "desig");
+
+        if (email == null || name == null) return null;
 
         String pwd = "";
-        if (c[2] instanceof JPasswordField)
-            pwd = new String(((JPasswordField) c[3]).getPassword()).trim();
+        JPasswordField pwdField = (JPasswordField) find(p, "pwd");
+        if (pwdField != null) pwd = new String(pwdField.getPassword()).trim();
 
-        JTextField name = (JTextField) c[c.length - 4];
-        JComboBox<?> dept = (JComboBox<?>) c[c.length - 2];
-        JComboBox<?> desig = (JComboBox<?>) c[c.length - 1];
+        int deptId = departmentDAO.getDepartmentIdByName((String) dept.getSelectedItem());
 
-        if (emailStr.isEmpty() || name.getText().trim().isEmpty())
-            return null;
+        return new FormData(
+                email.getText().trim().toLowerCase(),
+                pwd,
+                name.getText().trim(),
+                deptId,
+                (String) desig.getSelectedItem()
+        );
+    }
 
-        int deptId = new DepartmentDAO().getDepartmentIdByName((String) dept.getSelectedItem());
-
-        return new FormData(emailStr, pwd, name.getText().trim(), deptId, (String) desig.getSelectedItem());
+    private Component find(JPanel p, String name) {
+        for (Component c : p.getComponents())
+            if (name.equals(c.getName())) return c;
+        return null;
     }
 
     private boolean showDialog(JPanel panel, String title) {
-        return JOptionPane.showConfirmDialog(this, panel, title,
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION;
+        return JOptionPane.showConfirmDialog(
+                this, panel, title,
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        ) == JOptionPane.OK_OPTION;
+    }
+
+    public void refresh() {
+        loadFaculty();
     }
 }

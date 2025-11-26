@@ -28,9 +28,7 @@ public class ManageStudentsPanel extends JPanel {
 
         add(UIUtils.createHeader("Manage Students", "Add, edit, and manage student accounts"), BorderLayout.NORTH);
 
-        model = new DefaultTableModel(
-                new String[]{"Roll No", "Name", "Email", "Branch", "Year", "Term", "Status"}, 0
-        ) {
+        model = new DefaultTableModel(new String[]{"Roll No", "Name", "Email", "Branch", "Year", "Term", "Status"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
@@ -58,14 +56,7 @@ public class ManageStudentsPanel extends JPanel {
         for (Student s : students) {
             String email = authDAO.getEmailByUserId(s.getUserId());
             String status = authDAO.getStatusByUserId(s.getUserId());
-            model.addRow(new Object[]{
-                    s.getRollNo(),
-                    s.getFullName(),
-                    email,
-                    s.getBranch(),
-                    s.getYear(),
-                    s.getTerm(),
-                    status
+            model.addRow(new Object[]{s.getRollNo(), s.getFullName(), email, s.getBranch(), s.getYear(), s.getTerm(), status
             });
         }
     }
@@ -111,8 +102,17 @@ public class ManageStudentsPanel extends JPanel {
             return;
         }
 
-        boolean ok = adminService.createStudent(email, pwd,
-                new Student(0, 0, degree, branch, year, term, roll, name));
+        if (authDAO.emailChecker(email)) {
+            DialogUtils.errorDialog("Email already exists.");
+            return;
+        }
+
+        if (studentDAO.getStudentByRollNo(roll) != null) {
+            DialogUtils.errorDialog("Roll number already exists.");
+            return;
+        }
+
+        boolean ok = adminService.createStudent(email, pwd, new Student(0, 0, degree, branch, year, term, roll, name));
 
         if (ok) {
             DialogUtils.infoDialog("Student created successfully!");
@@ -162,8 +162,9 @@ public class ManageStudentsPanel extends JPanel {
         panel.add(new JLabel("Year:")); panel.add(yearF);
         panel.add(new JLabel("Term:")); panel.add(termF);
 
-        if (JOptionPane.showConfirmDialog(this, panel, "Edit Student",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
+        if (JOptionPane.showConfirmDialog(this, panel, "Edit Student", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
+            return;
+        }
 
         String newRoll = rollF.getText().trim();
         String newName = nameF.getText().trim();
@@ -177,16 +178,13 @@ public class ManageStudentsPanel extends JPanel {
             return;
         }
 
-        Student updated = new Student(
-                existing.getStudentId(),
-                existing.getUserId(),
-                newDegree,
-                newBranch,
-                newYear,
-                newTerm,
-                newRoll,
-                newName
-        );
+        Student rollCheck = studentDAO.getStudentByRollNo(newRoll);
+        if (rollCheck != null && rollCheck.getStudentId() != existing.getStudentId()) {
+            DialogUtils.errorDialog("Roll number already exists.");
+            return;
+        }
+
+        Student updated = new Student(existing.getStudentId(), existing.getUserId(), newDegree, newBranch, newYear, newTerm, newRoll, newName);
 
         boolean ok = adminService.updateStudent(updated);
 
@@ -194,7 +192,7 @@ public class ManageStudentsPanel extends JPanel {
             DialogUtils.infoDialog("Student updated successfully!");
             loadStudents();
         } else {
-            DialogUtils.errorDialog("Failed to update student. Roll no may already exist.");
+            DialogUtils.errorDialog("Failed to update student.");
         }
     }
 
@@ -216,5 +214,9 @@ public class ManageStudentsPanel extends JPanel {
         } else {
             DialogUtils.errorDialog("Failed to update status.");
         }
+    }
+
+    public void refresh() {
+        loadStudents();
     }
 }

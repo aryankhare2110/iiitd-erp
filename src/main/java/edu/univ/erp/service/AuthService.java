@@ -31,14 +31,6 @@ public class AuthService {
         return role;
     }
 
-    public boolean register (String email, String role, String plainPassword) { //Registers new user
-        if (authDAO.emailChecker(email)) { //Ensures no duplicates
-            return false;
-        }
-        String newHash = PasswordHasher.hash(plainPassword);
-        return authDAO.registerNewUser(email, role, newHash);
-    }
-
     public boolean resetPassword (String email, String plainPassword) { //To reset user password
         if (!authDAO.emailChecker(email)) {
             return false;

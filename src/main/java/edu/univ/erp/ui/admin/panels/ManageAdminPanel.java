@@ -105,4 +105,8 @@ public class ManageAdminPanel extends JPanel {
             DialogUtils.errorDialog("Failed to update status.");
         }
     }
+
+    public void refresh() {
+        loadAdmins();
+    }
 }

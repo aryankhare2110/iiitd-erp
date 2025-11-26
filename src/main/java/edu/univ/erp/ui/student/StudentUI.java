@@ -14,15 +14,22 @@ public class StudentUI extends BaseFrame {
 
     private CardLayout cardLayout;
     private JPanel contentPanel;
+    private JPanel sidebar;
     private JButton selectedButton = null;
+
+    private DashboardPanel dashboardPanel;
+    private BrowseCoursesPanel browseCoursesPanel;
+    private EnrollmentPanel enrollmentPanel;
+    private TimetablePanel timetablePanel;
+    private GradesPanel gradesPanel;
 
     public StudentUI() {
         super("IIITD ERP – Student Dashboard");
         setLayout(new BorderLayout());
 
-        JPanel sidebar = UIUtils.createSidebar();
+        sidebar = UIUtils.createSidebar();
 
-        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(StudentUI.class.getResource("/Images/img.png")));
+        ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(StudentUI.class.getResource("/Images/logo.png")));
         Image scaled = logoIcon.getImage().getScaledInstance(90, 52, Image.SCALE_SMOOTH);
         sidebar.add(UIUtils.sidebarLogoPanel(new ImageIcon(scaled)));
         sidebar.add(Box.createVerticalStrut(10));
@@ -78,8 +85,30 @@ public class StudentUI extends BaseFrame {
     }
 
     private void switchPanel(JButton button, String panelName) {
-        UIUtils.setSidebarSelected(selectedButton, button);
-        selectedButton = button;
+        for (Component c : sidebar.getComponents()) {
+            if (c instanceof JButton) {
+                ((JButton) c).setForeground(new Color(180, 190, 210));
+            }
+        }
+
+        button. setForeground(new Color(13, 110, 253));
+        switch (panelName) {
+            case "dashboard":
+                dashboardPanel.refresh();
+                break;
+            case "courses":
+                browseCoursesPanel.refresh();
+                break;
+            case "enrollments":
+                enrollmentPanel.refresh();
+                break;
+            case "timetable":
+                //timetablePanel.refresh();
+                break;
+            case "grades":
+                //gradesPanel.refresh();
+                break;
+        }
         cardLayout.show(contentPanel, panelName);
     }
 
