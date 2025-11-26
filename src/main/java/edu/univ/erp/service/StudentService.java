@@ -143,16 +143,6 @@ public class StudentService {
         return settingsDAO.isMaintenanceMode();
     }
 
-    public boolean changePassword(String oldPassword, String newPassword) {
-        AuthService authService = new AuthService();
-        String email = UserSession.getUserEmail();
-
-        if (authService.login(email, oldPassword) == null) {
-            return false;
-        }
-        return authService.resetPassword(email, newPassword);
-    }
-
     public boolean isEnrolled(int studentId, int courseId) {
         return enrollmentDAO.isEnrolled(studentId, courseId);
     }

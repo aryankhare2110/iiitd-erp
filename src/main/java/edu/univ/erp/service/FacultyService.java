@@ -9,6 +9,7 @@ public class FacultyService {
 
     private CourseDAO courseDAO = new CourseDAO();
     private StudentDAO studentDAO = new StudentDAO();
+    private DepartmentDAO departmentDAO = new DepartmentDAO();
     private SectionDAO sectionDAO = new SectionDAO();
     private SectionComponentDAO sectionComponentDAO = new SectionComponentDAO();
     private GradesDAO gradesDAO = new GradesDAO();
@@ -26,6 +27,9 @@ public class FacultyService {
         return sectionDAO.getSectionsByInstructor(instructorId);
     }
 
+    public String DepartNameById(int id) {
+        return departmentDAO.getDepartmentNameById(id);
+    }
     public List<SectionComponent> getComponents(int sectionId) {
         return sectionComponentDAO.getComponentsBySection(sectionId);
     }
@@ -65,5 +69,14 @@ public class FacultyService {
             }
         }
         return map;
+    }
+
+    public List<Notification> getRecentNotifications(int limit) {
+        NotificationDAO notificationDAO = new NotificationDAO();
+        return notificationDAO.getRecentNotifications(limit);
+    }
+
+    public boolean isMaintenanceMode() {
+        return settingsDAO.isMaintenanceMode();
     }
 }
