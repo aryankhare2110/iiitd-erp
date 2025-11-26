@@ -1,11 +1,11 @@
-package edu.univ.erp.service;
+package edu.univ.erp. service;
 
-import edu.univ.erp.auth.session.UserSession;
+import edu.univ.erp.auth.session. UserSession;
 import edu.univ.erp.dao.*;
 import edu.univ.erp.domain.*;
 
-import java.time.LocalDate;
-import java.util.*;
+import java. time.LocalDate;
+import java. util.*;
 
 public class StudentService {
 
@@ -41,12 +41,13 @@ public class StudentService {
 
         LocalDate deadline = settingsDAO.getAddDropDeadline();
         if (deadline != null && LocalDate.now().isAfter(deadline)) {
-            System.out. println("DEBUG: Failed - Deadline passed");
+            System.out.println("DEBUG: Failed - Deadline passed");
             return false;
         }
 
-        if (enrollmentDAO.isEnrolled(studentId, sectionId)) {
-            System.out.println("DEBUG: Failed - Already enrolled");
+        // FIX: Use isEnrolledInSection instead of isEnrolled
+        if (enrollmentDAO.isEnrolledInSection(studentId, sectionId)) {
+            System.out.println("DEBUG: Failed - Already enrolled in this section");
             return false;
         }
 
@@ -59,19 +60,22 @@ public class StudentService {
             return false;
         }
 
-        boolean result = enrollmentDAO.enrollStudent(studentId, sectionId);
-        System.out.println("DEBUG: Enrollment DAO result: " + result);
+        boolean result = enrollmentDAO. enrollStudent(studentId, sectionId);
+        System.out. println("DEBUG: Enrollment DAO result: " + result);
         return result;
     }
 
     public boolean dropSection(int studentId, int sectionId) {
-        if (settingsDAO.isMaintenanceMode())
+        if (settingsDAO. isMaintenanceMode())
             return false;
         LocalDate deadline = settingsDAO.getAddDropDeadline();
         if (deadline != null && LocalDate.now().isAfter(deadline))
             return false;
-        if (!enrollmentDAO.isEnrolled(studentId, sectionId))
+
+        // FIX: Use isEnrolledInSection instead of isEnrolled
+        if (! enrollmentDAO.isEnrolledInSection(studentId, sectionId))
             return false;
+
         return enrollmentDAO.dropEnrollment(studentId, sectionId);
     }
 
@@ -79,7 +83,7 @@ public class StudentService {
         List<TimetableEntry> list = new ArrayList<>();
         List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(studentId);
         for (Enrollment e : enrollments) {
-            Section section = sectionDAO.getSectionById(e.getSectionId());
+            Section section = sectionDAO. getSectionById(e.getSectionId());
             if (section == null) continue;
             Course course = courseDAO.getCourseById(section.getCourseID());
             if (course == null) continue;
@@ -95,7 +99,7 @@ public class StudentService {
                         course.getCode(), type, instructor,
                         section.getRoom(), sc.getDay(),
                         sc.getStartTime(), sc.getEndTime(),
-                        sc.getDescription()
+                        sc. getDescription()
                 ));
             }
         }
@@ -108,7 +112,7 @@ public class StudentService {
             System.out.println("DEBUG: Student profile is null!");
             return 0;
         }
-        int count = enrollmentDAO.getEnrolledCoursesCount(student. getStudentId());
+        int count = enrollmentDAO.getEnrolledCoursesCount(student.getStudentId());
         System.out.println("DEBUG: Enrolled courses count: " + count);
         return count;
     }
@@ -119,7 +123,7 @@ public class StudentService {
 
         int totalCredits = 0;
         List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(student. getStudentId());
-        System.out.println("DEBUG: Total enrollments: " + enrollments.size());
+        System.out.println("DEBUG: Total enrollments: " + enrollments. size());
 
         for (Enrollment e : enrollments) {
             Section section = sectionDAO.getSectionById(e.getSectionId());
@@ -163,7 +167,7 @@ public class StudentService {
 
     public String getDepartmentName(int deptId) {
         DepartmentDAO deptDAO = new DepartmentDAO();
-        return deptDAO.getDepartmentNameById(deptId);
+        return deptDAO. getDepartmentNameById(deptId);
     }
 
     public List<Grade> getGrades(int studentId) {
@@ -177,7 +181,7 @@ public class StudentService {
     }
 
     public LocalDate getAddDropDeadline() {
-        return settingsDAO. getAddDropDeadline();
+        return settingsDAO.getAddDropDeadline();
     }
 
     public List<Enrollment> getMyEnrollments(int studentId) {
