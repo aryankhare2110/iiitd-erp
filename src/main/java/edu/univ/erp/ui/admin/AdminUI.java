@@ -22,6 +22,7 @@ public class AdminUI extends BaseFrame {
     private ManageAdminPanel manageAdminPanel;
     private ManageCoursesPanel manageCoursesPanel;
     private ManageSectionsPanel manageSectionsPanel;
+    private BackupRestorePanel backupRestorePanel;
 
     public AdminUI() {
         super("IIITD ERP – Admin Dashboard");
@@ -39,6 +40,7 @@ public class AdminUI extends BaseFrame {
         JButton btnAdmins = UIUtils.sidebarButton("Manage Admins");
         JButton btnCourses = UIUtils.sidebarButton("Manage Courses");
         JButton btnSections = UIUtils.sidebarButton("Manage Sections");
+        JButton btnBackup = UIUtils.sidebarButton("Backup");
         JButton btnLogout = UIUtils.sidebarButton("Logout");
 
         sidebar.add(btnDashboard);
@@ -52,6 +54,8 @@ public class AdminUI extends BaseFrame {
         sidebar.add(btnCourses);
         sidebar. add(Box.createVerticalStrut(5));
         sidebar. add(btnSections);
+        sidebar. add(Box.createVerticalStrut(5));
+        sidebar. add(btnBackup);
 
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
@@ -71,6 +75,7 @@ public class AdminUI extends BaseFrame {
         manageAdminPanel = new ManageAdminPanel();
         manageCoursesPanel = new ManageCoursesPanel(adminService);
         manageSectionsPanel = new ManageSectionsPanel();
+        backupRestorePanel = new BackupRestorePanel();
 
         contentPanel.add(dashboardPanel, "dashboard");
         contentPanel.add(manageStudentsPanel, "manageStudents");
@@ -78,6 +83,7 @@ public class AdminUI extends BaseFrame {
         contentPanel.add(manageAdminPanel, "manageAdmins");
         contentPanel.add(manageCoursesPanel, "manageCourses");
         contentPanel.add(manageSectionsPanel, "manageSections");
+        contentPanel.add(backupRestorePanel, "backupRestorePanel");
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -87,6 +93,7 @@ public class AdminUI extends BaseFrame {
         btnAdmins.addActionListener(e -> switchPanel(btnAdmins,"manageAdmins"));
         btnCourses.addActionListener(e -> switchPanel(btnCourses,"manageCourses"));
         btnSections.addActionListener(e -> switchPanel(btnSections,"manageSections"));
+        btnBackup.addActionListener(e -> switchPanel(btnBackup,"backup"));
 
         btnLogout.addActionListener(e -> {
             dispose();
@@ -125,6 +132,9 @@ public class AdminUI extends BaseFrame {
                 break;
             case "manageSections":
                 manageSectionsPanel.refresh();
+                break;
+            case "backupRestorePanel":
+                backupRestorePanel.refresh();
                 break;
         }
 
