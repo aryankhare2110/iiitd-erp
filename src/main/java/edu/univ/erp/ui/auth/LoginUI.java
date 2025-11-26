@@ -126,8 +126,7 @@ public class LoginUI extends BaseFrame {
         //Support Info
         gbc.gridy++;
         gbc.insets = new Insets(15, 0, 0, 0);
-        JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>",
-                SwingConstants.CENTER);
+        JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>", SwingConstants.CENTER);
         infoLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 11));
         infoLabel.setForeground(new Color(108, 117, 125));
         loginPanel.add(infoLabel, gbc);
