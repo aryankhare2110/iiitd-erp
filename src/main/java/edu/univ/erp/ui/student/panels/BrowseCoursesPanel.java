@@ -23,7 +23,6 @@ public class BrowseCoursesPanel extends JPanel {
     private List<Course> courses;
 
     public BrowseCoursesPanel() {
-
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
@@ -36,12 +35,7 @@ public class BrowseCoursesPanel extends JPanel {
             badgeText = closed ? "Add/Drop Closed" : "Add/Drop until " + ddl;
         }
 
-        add(UIUtils.createHeaderWithBadge(
-                "Browse Courses",
-                "Select a course and register for sections",
-                showBadge,
-                badgeText
-        ), BorderLayout.NORTH);
+        add(UIUtils.createHeaderWithBadge("Browse Courses", "Select a course and register for sections", showBadge, badgeText), BorderLayout.NORTH);
 
         JPanel center = new JPanel(new BorderLayout());
         center.setBackground(new Color(248, 249, 250));
@@ -58,10 +52,7 @@ public class BrowseCoursesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        JPanel btnRow = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Register", e -> openRegisterDialog()),
-                UIUtils.secondaryButton("Refresh", e -> loadCourses())
-        );
+        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()), UIUtils.secondaryButton("Refresh", e -> loadCourses()));
         add(btnRow, BorderLayout.SOUTH);
 
         loadCourses();
@@ -76,18 +67,11 @@ public class BrowseCoursesPanel extends JPanel {
             String prereq = (c.getPrerequisites() == null || c.getPrerequisites().isEmpty())
                     ? "None" : c.getPrerequisites();
 
-            model.addRow(new Object[]{
-                    c.getCode(),
-                    c.getTitle(),
-                    c.getCredits(),
-                    prereq,
-                    deptName
-            });
+            model.addRow(new Object[]{c.getCode(), c.getTitle(), c.getCredits(), prereq, deptName});
         }
     }
 
     private void openRegisterDialog() {
-
         int row = table.getSelectedRow();
         if (row == -1) {
             DialogUtils.errorDialog("Please select a course first.");

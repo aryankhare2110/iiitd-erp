@@ -30,7 +30,6 @@ public class EnrollmentPanel extends JPanel {
     private final DefaultTableModel model;
 
     public EnrollmentPanel() {
-
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
@@ -43,16 +42,9 @@ public class EnrollmentPanel extends JPanel {
             badgeText = closed ? "Add/Drop Closed" : "Add/Drop until " + ddl;
         }
 
-        add(UIUtils.createHeaderWithBadge(
-                "My Enrollments",
-                "View and manage your course enrollments",
-                showBadge,
-                badgeText
-        ), BorderLayout.NORTH);
+        add(UIUtils.createHeaderWithBadge("My Enrollments", "View and manage your course enrollments", showBadge, badgeText), BorderLayout.NORTH);
 
-        model = new DefaultTableModel(
-                new String[]{"Course Code", "Course Title", "Credits", "Instructor", "Term", "Year"}, 0
-        ) {
+        model = new DefaultTableModel(new String[]{"Course Code", "Course Title", "Credits", "Instructor", "Term", "Year"}, 0) {
             @Override public boolean isCellEditable(int r, int c) {
                 return false;
             }
@@ -67,16 +59,12 @@ public class EnrollmentPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        add(UIUtils.createButtonRow(
-                UIUtils.primaryButton("Drop Course", e -> dropCourse()),
-                UIUtils.secondaryButton("Refresh", e -> loadEnrollments())
-        ), BorderLayout.SOUTH);
+        add(UIUtils.createButtonRow(UIUtils.primaryButton("Drop Course", e -> dropCourse()), UIUtils.secondaryButton("Refresh", e -> loadEnrollments())), BorderLayout.SOUTH);
 
         loadEnrollments();
     }
 
     private void loadEnrollments() {
-
         model.setRowCount(0);
 
         Student student = studentService.getMyProfile();
@@ -101,19 +89,11 @@ public class EnrollmentPanel extends JPanel {
 
             Faculty faculty = facultyDAO.getFacultyById(section.getInstructorID());
 
-            model.addRow(new Object[]{
-                    course.getCode(),
-                    course.getTitle(),
-                    course.getCredits(),
-                    faculty != null ? faculty.getFullName() : "TBA",
-                    section.getTerm(),
-                    section.getYear()
-            });
+            model.addRow(new Object[]{course.getCode(), course.getTitle(), course.getCredits(), faculty != null ? faculty.getFullName() : "TBA", section.getTerm(), section.getYear()});
         }
     }
 
     private void dropCourse() {
-
         int r = table.getSelectedRow();
         if (r == -1 || model.getValueAt(r, 0).toString().equals("No enrollments")) {
             DialogUtils.errorDialog("Please select a course to drop.");
@@ -128,12 +108,7 @@ public class EnrollmentPanel extends JPanel {
 
         String courseCode = model.getValueAt(r, 0).toString();
 
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to drop " + courseCode + "?",
-                "Confirm Drop",
-                JOptionPane.YES_NO_OPTION
-        );
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to drop " + courseCode + "?", "Confirm Drop", JOptionPane.YES_NO_OPTION);
 
         if (confirm != JOptionPane.YES_OPTION) return;
 

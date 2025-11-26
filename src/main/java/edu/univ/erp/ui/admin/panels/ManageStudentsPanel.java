@@ -40,11 +40,7 @@ public class ManageStudentsPanel extends JPanel {
         center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout.CENTER);
 
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Add Student", e -> openCreateDialog()),
-                UIUtils.primaryButton("Edit Student", e -> openEditDialog()),
-                UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus())
-        );
+        JPanel bottom = UIUtils.createButtonRow(UIUtils.primaryButton("Add Student", e -> openCreateDialog()), UIUtils.primaryButton("Edit Student", e -> openEditDialog()), UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus()));
         add(bottom, BorderLayout.SOUTH);
 
         loadStudents();

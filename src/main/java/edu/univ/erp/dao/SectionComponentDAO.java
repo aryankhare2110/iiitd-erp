@@ -84,5 +84,4 @@ public class SectionComponentDAO {
             return false;
         }
     }
-
 }

@@ -30,8 +30,7 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        add(UIUtils.createHeaderWithBadge("Student Dashboard", "Welcome to IIITD ERP System",
-                studentService.isMaintenanceMode(), " ⚠ MAINTENANCE MODE "), BorderLayout.NORTH);
+        add(UIUtils.createHeaderWithBadge("Student Dashboard", "Welcome to IIITD ERP System", studentService.isMaintenanceMode(), " ⚠ MAINTENANCE MODE "), BorderLayout.NORTH);
 
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));

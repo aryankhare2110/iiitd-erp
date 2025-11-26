@@ -38,15 +38,24 @@ public class AdminService {
     }
 
     public boolean createAdmin(String email, String pwd) {
+        if (email == null || email.isEmpty() || pwd == null || pwd.isEmpty()) {
+            return false;
+        }
         String hashed = PasswordHasher.hash(pwd);
         return authDAO.registerNewUser(email.toLowerCase(), "ADMIN", hashed);
     }
 
     public boolean createCourse(Course course) {
+        if (course == null){
+            return false;
+        }
         return courseDAO.insertCourse(course);
     }
 
     public boolean createSection(Section section) {
+        if (section == null){
+            return false;
+        }
         return sectionDAO.insertSection(section);
     }
 

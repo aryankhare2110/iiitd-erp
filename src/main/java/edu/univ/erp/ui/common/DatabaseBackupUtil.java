@@ -7,32 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Helper utility to perform PostgreSQL database backup and restore using pg_dump / pg_restore.
- *
- * Notes:
- * - This utility calls external binaries (pg_dump / pg_restore). Ensure they are installed and available in PATH,
- *   or provide full path to binaries when calling methods.
- * - Password handling: The utility sets the PGPASSWORD environment variable for the child process so password is not
- *   passed on the command line. On some systems you might prefer to use a .pgpass file instead.
- * - Backup format: this uses custom (-F c) format by default (recommended) so pg_restore is used to restore.
- */
 public class DatabaseBackupUtil {
 
-    /**
-     * Run pg_dump to create a backup file in custom format (-Fc).
-     *
-     * @param pgDumpPath   path to pg_dump binary (or "pg_dump" if in PATH)
-     * @param host         database host
-     * @param port         database port
-     * @param database     database name
-     * @param user         database user
-     * @param password     database password
-     * @param outFilePath  destination file path (recommended extension: .dump)
-     * @param timeoutSec   process timeout in seconds (0 = no timeout)
-     * @return result object with success, stdout, stderr
-     * @throws IOException if process cannot be started
-     */
     public static Result backupDatabase(String pgDumpPath,
                                         String host,
                                         int port,
@@ -85,21 +61,6 @@ public class DatabaseBackupUtil {
         }
     }
 
-    /**
-     * Restore a custom-format dump into the target database using pg_restore.
-     * This runs pg_restore --clean --no-owner -d database dumpfile
-     *
-     * @param pgRestorePath path to pg_restore binary (or "pg_restore")
-     * @param host          database host
-     * @param port          database port
-     * @param database      database name
-     * @param user          database user
-     * @param password      database password
-     * @param dumpFilePath  path to dump file created by pg_dump -F c
-     * @param timeoutSec    process timeout in seconds (0 = no timeout)
-     * @return result wrapper with stdout/stderr and success flag
-     * @throws IOException if process cannot be started
-     */
     public static Result restoreDatabase(String pgRestorePath,
                                          String host,
                                          int port,

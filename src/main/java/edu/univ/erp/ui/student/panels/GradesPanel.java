@@ -34,15 +34,12 @@ public class GradesPanel extends JPanel {
     private List<Enrollment> enrollments;
 
     public GradesPanel() {
-
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
         add(UIUtils.createHeader("My Grades", "View your academic performance"), BorderLayout.NORTH);
 
-        model = new DefaultTableModel(
-                new String[]{"Course Code", "Course Title", "Credits", "Grade", "Grade Points"}, 0
-        ) {
+        model = new DefaultTableModel(new String[]{"Course Code", "Course Title", "Credits", "Grade", "Grade Points"}, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
                 return false;
@@ -69,10 +66,7 @@ public class GradesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        add(UIUtils.createButtonRow(
-                UIUtils.primaryButton("View Component Scores", e -> viewComponentScores()),
-                UIUtils.secondaryButton("Download Transcript", e -> downloadTranscript())
-        ), BorderLayout.SOUTH);
+        add(UIUtils.createButtonRow(UIUtils.primaryButton("View Component Scores", e -> viewComponentScores()), UIUtils.secondaryButton("Download Transcript", e -> downloadTranscript())), BorderLayout.SOUTH);
 
         loadGrades();
     }
@@ -141,18 +135,12 @@ public class GradesPanel extends JPanel {
 
         if (course == null) return;
 
-        JDialog dialog = new JDialog(
-                (Frame) SwingUtilities.getWindowAncestor(this),
-                "Component Scores - " + course.getCode(),
-                true
-        );
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Component Scores - " + course.getCode(), true);
 
         dialog.setLayout(new BorderLayout());
         dialog.setSize(700, 500);
 
-        DefaultTableModel scoreModel = new DefaultTableModel(
-                new String[]{"Component", "Weight (%)", "Score", "Weighted Score"}, 0
-        ) {
+        DefaultTableModel scoreModel = new DefaultTableModel(new String[]{"Component", "Weight (%)", "Score", "Weighted Score"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return false;
@@ -170,12 +158,7 @@ public class GradesPanel extends JPanel {
 
             double weighted = (score != null) ? (score.getScore() * sc.getWeight() / 100) : 0;
 
-            scoreModel.addRow(new Object[]{
-                    typeName + (sc.getDescription() != null ? " - " + sc.getDescription() : ""),
-                    sc.getWeight(),
-                    score != null ? String.format("%.2f", score.getScore()) : "N/A",
-                    score != null ? String.format("%.2f", weighted) : "N/A"
-            });
+            scoreModel.addRow(new Object[]{typeName + (sc.getDescription() != null ? " - " + sc.getDescription() : ""), sc.getWeight(), score != null ? String.format("%.2f", score.getScore()) : "N/A", score != null ? String.format("%.2f", weighted) : "N/A"});
         }
 
         dialog.add(new JScrollPane(scoreTable), BorderLayout.CENTER);
@@ -189,7 +172,6 @@ public class GradesPanel extends JPanel {
     }
 
     private void downloadTranscript() {
-
         Student student = studentService.getMyProfile();
         if (student == null) {
             DialogUtils.errorDialog("Unable to load student profile.");
@@ -247,7 +229,6 @@ public class GradesPanel extends JPanel {
     }
 
     private double getGradePoint(String grade) {
-
         switch (grade.toUpperCase()) {
             case "A": return 10;
             case "A-": return 9;

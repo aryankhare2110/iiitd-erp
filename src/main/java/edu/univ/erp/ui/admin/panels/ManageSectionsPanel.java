@@ -39,13 +39,7 @@ public class ManageSectionsPanel extends JPanel {
         center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout. CENTER);
 
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Add Section", e -> openCreateDialog()),
-                UIUtils.primaryButton("Edit Section", e -> openEditDialog()),
-                UIUtils.primaryButton("Manage Schedule", e -> openScheduleDialog()),
-                UIUtils.secondaryButton("Delete Section", e -> deleteSection()),
-                UIUtils.secondaryButton("Refresh", e -> loadSections())
-        );
+        JPanel bottom = UIUtils.createButtonRow(UIUtils.primaryButton("Add Section", e -> openCreateDialog()), UIUtils.primaryButton("Edit Section", e -> openEditDialog()), UIUtils.primaryButton("Manage Schedule", e -> openScheduleDialog()), UIUtils.secondaryButton("Delete Section", e -> deleteSection()), UIUtils.secondaryButton("Refresh", e -> loadSections()));
         add(bottom, BorderLayout. SOUTH);
 
         loadSections();
@@ -139,8 +133,7 @@ public class ManageSectionsPanel extends JPanel {
         }
 
         Section section = sectionList.get(table.convertRowIndexToModel(r));
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Schedule - " + model.getValueAt(r, 0), true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Schedule - " + model.getValueAt(r, 0), true);
         dialog. setLayout(new BorderLayout());
         dialog.setSize(700, 500);
 

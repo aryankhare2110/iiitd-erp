@@ -143,10 +143,7 @@ public class DashboardPanel extends JPanel {
 
         JPanel notifSection = new JPanel(new BorderLayout(0, 15));
         notifSection.setBackground(Color.WHITE);
-        notifSection.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
-                new EmptyBorder(25, 25, 25, 25)
-        ));
+        notifSection.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(222, 226, 230), 1), new EmptyBorder(25, 25, 25, 25)));
 
         JLabel notifTitle = new JLabel("Send Notification");
         notifTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
@@ -351,5 +348,4 @@ public class DashboardPanel extends JPanel {
         revalidate();
         repaint();
     }
-
 }

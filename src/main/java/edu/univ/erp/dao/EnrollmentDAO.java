@@ -10,9 +10,7 @@ import java.util.List;
 public class EnrollmentDAO {
 
     public boolean isEnrolled(int studentId, int courseId) {
-        String sql = "SELECT 1 FROM enrollments e " +
-                "JOIN sections s ON e.section_id = s.section_id " +
-                "WHERE e.student_id = ? AND s.course_id = ?";
+        String sql = "SELECT 1 FROM enrollments e JOIN sections s ON e.section_id = s.section_id WHERE e.student_id = ? AND s.course_id = ?";
         try (Connection c = DBConnection.getErpConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, studentId);

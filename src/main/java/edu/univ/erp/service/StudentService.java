@@ -45,7 +45,6 @@ public class StudentService {
             return false;
         }
 
-        // FIX: Use isEnrolledInSection instead of isEnrolled
         if (enrollmentDAO.isEnrolledInSection(studentId, sectionId)) {
             System.out.println("DEBUG: Failed - Already enrolled in this section");
             return false;
@@ -53,7 +52,6 @@ public class StudentService {
 
         int cap = sectionDAO.getCapacity(sectionId);
         int filled = enrollmentDAO.countEnrollments(sectionId);
-        System.out.println("DEBUG: Capacity: " + cap + ", Filled: " + filled);
 
         if (filled >= cap) {
             System.out.println("DEBUG: Failed - Section full");
@@ -72,7 +70,6 @@ public class StudentService {
         if (deadline != null && LocalDate.now().isAfter(deadline))
             return false;
 
-        // FIX: Use isEnrolledInSection instead of isEnrolled
         if (! enrollmentDAO.isEnrolledInSection(studentId, sectionId))
             return false;
 

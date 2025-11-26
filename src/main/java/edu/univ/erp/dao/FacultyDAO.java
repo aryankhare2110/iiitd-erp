@@ -121,5 +121,4 @@ public class FacultyDAO {
             return false;
         }
     }
-
 }

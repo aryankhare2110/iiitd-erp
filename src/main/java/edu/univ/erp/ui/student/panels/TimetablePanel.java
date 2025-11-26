@@ -85,9 +85,7 @@ public class TimetablePanel extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
-                new EmptyBorder(20, 20, 20, 20)));
+        panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(222, 226, 230), 1), new EmptyBorder(20, 20, 20, 20)));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
@@ -109,9 +107,7 @@ public class TimetablePanel extends JPanel {
         JPanel card = new JPanel();
         card. setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(new Color(248, 249, 250));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(206, 212, 218), 1),
-                new EmptyBorder(12, 15, 12, 15)));
+        card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1), new EmptyBorder(12, 15, 12, 15)));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 

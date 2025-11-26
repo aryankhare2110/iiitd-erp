@@ -45,11 +45,7 @@ public class ManageCoursesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Add Course", e -> openCreateDialog()),
-                UIUtils.primaryButton("Edit Course", e -> openEditDialog()),
-                UIUtils.secondaryButton("Delete Course", e -> deleteCourse())
-        );
+        JPanel bottom = UIUtils.createButtonRow(UIUtils.primaryButton("Add Course", e -> openCreateDialog()), UIUtils.primaryButton("Edit Course", e -> openEditDialog()), UIUtils.secondaryButton("Delete Course", e -> deleteCourse()));
         add(bottom, BorderLayout.SOUTH);
 
         loadCourses();
@@ -148,10 +144,10 @@ public class ManageCoursesPanel extends JPanel {
         deptF.setSelectedItem(deptDAO.getDepartmentNameById(existing.getDepartmentID()));
 
         panel.add(new JLabel("Course Code:"));    panel.add(codeF);
-        panel.add(new JLabel("Title:"));          panel.add(titleF);
-        panel.add(new JLabel("Credits:"));        panel.add(creditsF);
-        panel.add(new JLabel("Department:"));     panel.add(deptF);
-        panel.add(new JLabel("Prerequisites:"));  panel.add(prereqF);
+        panel.add(new JLabel("Title:"));    panel.add(titleF);
+        panel.add(new JLabel("Credits:"));    panel.add(creditsF);
+        panel.add(new JLabel("Department:"));   panel.add(deptF);
+        panel.add(new JLabel("Prerequisites:"));    panel.add(prereqF);
 
         if (JOptionPane.showConfirmDialog(this, panel, "Edit Course",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {

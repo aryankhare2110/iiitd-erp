@@ -26,7 +26,6 @@ public class ComponentTypeDAO {
         return "Unknown";
     }
 
-    // ADD THIS METHOD
     public List<String> getAllComponentTypeNames() {
         List<String> names = new ArrayList<>();
         String sql = "SELECT name FROM component_types ORDER BY name";
@@ -42,7 +41,6 @@ public class ComponentTypeDAO {
         return names;
     }
 
-    // ADD THIS METHOD
     public int getComponentTypeIdByName(String typeName) {
         String sql = "SELECT type_id FROM component_types WHERE name = ?";
         try (Connection c = DBConnection. getErpConnection();

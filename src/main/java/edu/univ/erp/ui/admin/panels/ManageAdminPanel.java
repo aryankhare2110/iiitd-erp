@@ -38,10 +38,7 @@ public class ManageAdminPanel extends JPanel {
         center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout.CENTER);
 
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Add Admin", e -> openCreateDialog()),
-                UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus())
-        );
+        JPanel bottom = UIUtils.createButtonRow(UIUtils.primaryButton("Add Admin", e -> openCreateDialog()), UIUtils.secondaryButton("Enable / Disable", e -> toggleStatus()));
         add(bottom, BorderLayout.SOUTH);
 
         loadAdmins();

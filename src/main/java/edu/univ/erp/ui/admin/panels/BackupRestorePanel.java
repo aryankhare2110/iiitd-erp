@@ -11,19 +11,7 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Admin panel to backup and restore a PostgreSQL database using pg_dump/pg_restore.
- *
- * Usage:
- * - Enter DB connection details (host/port/database/user/password)
- * - Optionally provide full path to pg_dump / pg_restore binaries (if not in PATH)
- * - Click "Choose Backup File" to pick destination (for backup) or source (for restore)
- * - Click Backup or Restore. Progress and logs will show in the text area.
- *
- * Security note:
- * - This panel uses PGPASSWORD environment variable for the child process. Consider using .pgpass
- *   for production or avoid storing password in UI if security is a concern.
- */
+
 public class BackupRestorePanel extends JPanel {
 
     private final JTextField hostField = new JTextField("localhost");
@@ -67,11 +55,7 @@ public class BackupRestorePanel extends JPanel {
 
         add(form, BorderLayout.CENTER);
 
-        JPanel btnRow = UIUtils.createButtonRow(
-                UIUtils.primaryButton("Backup", e -> onBackup()),
-                UIUtils.primaryButton("Restore", e -> onRestore()),
-                UIUtils.secondaryButton("Auto name & choose file", e -> autoChooseBackupFile())
-        );
+        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Backup", e -> onBackup()), UIUtils.primaryButton("Restore", e -> onRestore()), UIUtils.secondaryButton("Auto name & choose file", e -> autoChooseBackupFile()));
         add(btnRow, BorderLayout.SOUTH);
 
         logArea.setEditable(false);
