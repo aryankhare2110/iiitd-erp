@@ -26,7 +26,7 @@ public class LoginUI extends BaseFrame {
         //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(new Color(248, 249, 250));
-        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/Login_Photo.jpg")));
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/LoginPage.png")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
         imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
 
