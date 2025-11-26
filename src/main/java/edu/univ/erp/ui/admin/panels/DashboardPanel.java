@@ -43,7 +43,6 @@ public class DashboardPanel extends JPanel {
         JPanel facultyCard = statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193));
         JPanel courseCard = statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20));
 
-// Store references to count labels for later updates
         studentCountLabel = findCountLabel(studentCard);
         facultyCountLabel = findCountLabel(facultyCard);
         courseCountLabel = findCountLabel(courseCard);

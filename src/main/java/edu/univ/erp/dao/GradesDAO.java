@@ -1,7 +1,7 @@
 package edu.univ.erp.dao;
 
 import edu.univ.erp.data.DBConnection;
-import edu.univ.erp.domain.Grade;
+import edu.univ.erp.domain.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -84,4 +84,23 @@ public class GradesDAO {
         if (weightSum == 0) return null;
         return total;
     }
+
+    public boolean insertOrUpdateGrade(int enrollmentId, double totalScore, String gradeLabel) {
+        String sql = "INSERT INTO grades (enrollment_id, total_score, grade_label) VALUES (?, ?, ?) " +
+                "ON CONFLICT (enrollment_id) DO UPDATE SET total_score = ?, grade_label = ?, computed_at = CURRENT_TIMESTAMP";
+        try (Connection c = DBConnection.getErpConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, enrollmentId);
+            ps.setDouble(2, totalScore);
+            ps.setString(3, gradeLabel);
+            ps. setDouble(4, totalScore);
+            ps.setString(5, gradeLabel);
+            return ps.executeUpdate() >= 1;
+        } catch (SQLException e) {
+            e. printStackTrace();
+            return false;
+        }
+    }
+
+
 }

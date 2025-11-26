@@ -79,4 +79,37 @@ public class FacultyService {
     public boolean isMaintenanceMode() {
         return settingsDAO.isMaintenanceMode();
     }
+
+    public boolean calculateAndStoreGrade(int enrollmentId, int sectionId, int courseId) {
+        SectionComponentDAO componentDAO = new SectionComponentDAO();
+        ComponentScoreDAO scoreDAO = new ComponentScoreDAO();
+        GradeSlabDAO slabDAO = new GradeSlabDAO();
+        GradesDAO gradesDAO = new GradesDAO();
+
+        // Calculate weighted total
+        List<SectionComponent> components = componentDAO.getComponentsBySection(sectionId);
+        double totalScore = 0;
+        double totalWeight = 0;
+
+        for (SectionComponent sc : components) {
+            if (sc.getWeight() == 0) continue;
+
+            ComponentScore score = scoreDAO.getScore(enrollmentId, sc.getComponentID());
+            if (score != null) {
+                totalScore += (score.getScore() * sc.getWeight() / 100);
+                totalWeight += sc.getWeight();
+            }
+        }
+
+        // If not all components graded, don't calculate yet
+        if (totalWeight < 100) {
+            return false;
+        }
+
+        // Get letter grade from slabs
+        String letterGrade = slabDAO.getGradeForScore(courseId, totalScore);
+
+        // Store in grades table
+        return gradesDAO.insertOrUpdateGrade(enrollmentId, totalScore, letterGrade);
+    }
 }
