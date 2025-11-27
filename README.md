@@ -1,5 +1,3 @@
-<div align="center">
-
 # IIITD University ERP System
 
 <img src="https://img.shields.io/badge/Java-21-007396?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21"/>
@@ -343,8 +341,6 @@ This project is licensed under the MIT License. See the LICENSE file for details
 - Apache Software Foundation for various libraries
 
 ---
-
-<div align="center">
 
 **Built by Aryan Khare and Rigzin Gyalpo**
 
