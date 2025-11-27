@@ -130,8 +130,8 @@ public class FacultyUI extends BaseFrame {
         cardLayout.show(contentPanel, panelName);
     }
 
-    public static void main(String[] args) {
-        FlatIntelliJLaf. setup();
-        SwingUtilities.invokeLater(FacultyUI::new);
-    }
+//    public static void main(String[] args) {
+//        FlatIntelliJLaf. setup();
+//        SwingUtilities.invokeLater(FacultyUI::new);
+//    }
 }

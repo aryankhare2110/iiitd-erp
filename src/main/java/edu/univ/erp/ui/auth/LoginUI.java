@@ -195,8 +195,8 @@ public class LoginUI extends BaseFrame {
         });
     }
 
-    public static void main(String[] args) {
-        FlatIntelliJLaf.setup();
-        new LoginUI();
-    }
+//    public static void main(String[] args) {
+//        FlatIntelliJLaf.setup();
+//        new LoginUI();
+//    }
 }

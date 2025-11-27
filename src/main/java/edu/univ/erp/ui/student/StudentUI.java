@@ -121,8 +121,8 @@ public class StudentUI extends BaseFrame {
         cardLayout.show(contentPanel, panelName);
     }
 
-    public static void main(String[] args) {
-        FlatIntelliJLaf.setup();
-        SwingUtilities.invokeLater(StudentUI::new);
-    }
+//    public static void main(String[] args) {
+//        FlatIntelliJLaf.setup();
+//        SwingUtilities.invokeLater(StudentUI::new);
+//    }
 }

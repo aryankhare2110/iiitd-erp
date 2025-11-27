@@ -133,8 +133,8 @@ public class AdminUI extends BaseFrame {
         cardLayout. show(contentPanel, panelName);
     }
 
-    public static void main(String[] args) {
-        FlatIntelliJLaf.setup();
-        SwingUtilities.invokeLater(AdminUI::new);
-    }
+//    public static void main(String[] args) {
+//        FlatIntelliJLaf.setup();
+//        SwingUtilities.invokeLater(AdminUI::new);
+//    }
 }
