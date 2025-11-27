@@ -35,7 +35,7 @@ public class ComponentsPanel extends JPanel {
         faculty = facultyService.getMyProfile();
 
         add(UIUtils.createHeaderWithBadge("Assessment Components",
-                        "Define grading components with weights (must total 100%).  Grade scale: A: 90+, A-: 85+, B: 80+, B-: 75+, C: 70+, C-: 65+, D: 60+, F: <60",
+                        "Define grading components with weights (must total 100%).",
                         facultyService.isMaintenanceMode(),
                         " ⚠ MAINTENANCE MODE "),
                 BorderLayout.NORTH);
@@ -45,7 +45,6 @@ public class ComponentsPanel extends JPanel {
         mainPanel.setBackground(new Color(248, 249, 250));
         mainPanel.setBorder(new EmptyBorder(20, 50, 20, 50));
 
-        // Section Selector
         JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         selectorPanel.setBackground(new Color(248, 249, 250));
         selectorPanel. setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -59,12 +58,10 @@ public class ComponentsPanel extends JPanel {
         mainPanel.add(selectorPanel);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Total Weight Card
         JPanel weightCard = createWeightCard();
         mainPanel.add(weightCard);
         mainPanel.add(Box. createVerticalStrut(20));
 
-        // Components Table
         componentsModel = new DefaultTableModel(
                 new String[]{"Component Type", "Description", "Weight (%)"}, 0) {
             @Override
@@ -82,7 +79,6 @@ public class ComponentsPanel extends JPanel {
         mainPanel.add(tablePanel);
         add(mainPanel, BorderLayout.CENTER);
 
-        // Buttons
         addButton = UIUtils.primaryButton("Add Component", e -> addComponent());
         editButton = UIUtils. secondaryButton("Edit Component", e -> editComponent());
         deleteButton = UIUtils.secondaryButton("Delete Component", e -> deleteComponent());

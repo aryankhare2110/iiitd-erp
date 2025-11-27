@@ -8,7 +8,7 @@ public class AuthService {
 
     private final AuthDAO authDAO = new AuthDAO();
 
-    public String login (String email, String password) { //For user login, updates lastLogin and returns the user role
+    public String login (String email, String password) {
         if (!authDAO.emailChecker(email)) {
             return null;
         }
@@ -31,7 +31,7 @@ public class AuthService {
         return role;
     }
 
-    public boolean resetPassword (String email, String plainPassword) { //To reset user password
+    public boolean resetPassword (String email, String plainPassword) {
         if (!authDAO.emailChecker(email)) {
             return false;
         }

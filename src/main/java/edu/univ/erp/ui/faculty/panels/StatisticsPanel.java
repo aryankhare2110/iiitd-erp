@@ -191,7 +191,6 @@ public class StatisticsPanel extends JPanel {
             return;
         }
 
-        // Collect all grades
         List<Double> scores = new ArrayList<>();
         Map<String, Integer> gradeDistribution = new LinkedHashMap<>();
         gradeDistribution.put("A", 0);
@@ -220,20 +219,17 @@ public class StatisticsPanel extends JPanel {
             return;
         }
 
-        // Calculate statistics
         double avg = scores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
         double highest = scores.stream(). mapToDouble(Double::doubleValue).max().orElse(0.0);
         double lowest = scores.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
         long passCount = scores.stream().filter(s -> s >= 60).count();
         double passRate = (passCount * 100.0) / scores.size();
 
-        // Update stat cards
         if (avgScoreLabel != null) avgScoreLabel.setText(String. format("%.2f", avg));
-        if (highestScoreLabel != null) highestScoreLabel.setText(String.format("%. 2f", highest));
+        if (highestScoreLabel != null) highestScoreLabel.setText(String.format("%.2f", highest));
         if (lowestScoreLabel != null) lowestScoreLabel.setText(String.format("%.2f", lowest));
         if (passRateLabel != null) passRateLabel.setText(String.format("%.1f%%", passRate));
 
-        // Draw histogram
         drawHistogram(gradeDistribution, enrollments. size());
     }
 
@@ -284,12 +280,10 @@ public class StatisticsPanel extends JPanel {
         barContainer.setLayout(new BoxLayout(barContainer, BoxLayout.Y_AXIS));
         barContainer.setBackground(Color.WHITE);
 
-        // Count label
         JLabel countLabel = new JLabel(String.valueOf(count));
         countLabel.setFont(new Font("Helvetica Neue", Font. BOLD, 12));
         countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Bar
         JPanel barWrapper = new JPanel();
         barWrapper.setLayout(new BorderLayout());
         barWrapper.setBackground(Color.WHITE);
@@ -308,12 +302,10 @@ public class StatisticsPanel extends JPanel {
         barWrapper. add(spacer, BorderLayout. NORTH);
         barWrapper.add(bar, BorderLayout.CENTER);
 
-        // Grade label
         JLabel gradeLabel = new JLabel(label);
         gradeLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         gradeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Percentage label
         JLabel percentLabel = new JLabel(String.format("%.1f%%", percentage));
         percentLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 10));
         percentLabel.setForeground(new Color(108, 117, 125));

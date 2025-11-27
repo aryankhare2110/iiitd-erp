@@ -23,14 +23,12 @@ public class LoginUI extends BaseFrame {
         final AtomicInteger attempts = new AtomicInteger(0);
         final int MAX_ATTEMPTS = 5;
 
-        //Panel - Image
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(new Color(248, 249, 250));
         ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(LoginUI.class.getResource("/Images/LoginPage.png")));
         Image scaled = imageIcon.getImage().getScaledInstance(800, 700, Image.SCALE_SMOOTH);
         imagePanel.add(new JLabel(new ImageIcon(scaled)), BorderLayout.CENTER);
 
-        //Panel - Login
         JPanel loginPanel = new JPanel(new GridBagLayout());
         loginPanel.setBackground(Color.WHITE);
         loginPanel.setBorder(new EmptyBorder(40, 60, 40, 60));
@@ -43,7 +41,6 @@ public class LoginUI extends BaseFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.weightx = 1.0;
 
-        //Title
         gbc.gridy++;
         JLabel heading = new JLabel("Welcome!", SwingConstants.CENTER);
         heading.setFont(new Font("Helvetica Neue", Font.BOLD, 28));
@@ -57,7 +54,6 @@ public class LoginUI extends BaseFrame {
         subheading.setForeground(new Color(108, 117, 125));
         loginPanel.add(subheading, gbc);
 
-        //Email Box
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         loginPanel.add(createLabel("Email"), gbc);
@@ -70,7 +66,6 @@ public class LoginUI extends BaseFrame {
         emailField.putClientProperty("JTextField.placeholderText", "Enter your email");
         loginPanel.add(emailField, gbc);
 
-        //Password Box
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 5, 0);
         loginPanel.add(createLabel("Password"), gbc);
@@ -83,7 +78,6 @@ public class LoginUI extends BaseFrame {
         passwordField.putClientProperty("JTextField.placeholderText", "Enter your password");
         loginPanel.add(passwordField, gbc);
 
-        //Login Button
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 15, 0);
         JButton loginButton = createButton();
@@ -114,15 +108,12 @@ public class LoginUI extends BaseFrame {
                 return;
             }
 
-            // If AuthService returned "INACTIVE" it means account is disabled server-side
             if (role.equalsIgnoreCase("INACTIVE")) {
-                // disable login to prevent further attempts from UI
                 loginButton.setEnabled(false);
                 DialogUtils.errorDialog("Account Has Been Disabled, Please Contact Admin!");
                 return;
             }
 
-            // Successful login — reset attempt counter
             attempts.set(0);
 
             if (role.equalsIgnoreCase("STUDENT")) {
@@ -138,7 +129,6 @@ public class LoginUI extends BaseFrame {
 
         loginPanel.add(loginButton, gbc);
 
-        //Support Info
         gbc.gridy++;
         gbc.insets = new Insets(15, 0, 0, 0);
         JLabel infoLabel = new JLabel("<html><center>Need help? Contact Admin<br/>admin@iiitd.ac.in</center></html>", SwingConstants.CENTER);
@@ -146,7 +136,6 @@ public class LoginUI extends BaseFrame {
         infoLabel.setForeground(new Color(108, 117, 125));
         loginPanel.add(infoLabel, gbc);
 
-        //Combine panels
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel, loginPanel);
         splitPane.setDividerLocation(800);
         splitPane.setEnabled(false);

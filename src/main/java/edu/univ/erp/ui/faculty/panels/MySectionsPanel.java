@@ -31,7 +31,6 @@ public class MySectionsPanel extends JPanel {
 
         add(UIUtils.createHeader("My Sections", "Sections you are teaching"), BorderLayout.NORTH);
 
-        // Removed Section ID column per request
         model = new DefaultTableModel(new String[]{
                 "Course Code", "Course Title", "Term", "Year", "Room", "Capacity", "Enrolled"
         }, 0) {
@@ -44,6 +43,8 @@ public class MySectionsPanel extends JPanel {
         center.setBackground(new Color(248, 249, 250));
         center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout.CENTER);
+
+        add(UIUtils.createButtonRow(), BorderLayout.SOUTH);
 
         loadSections();
     }

@@ -31,21 +31,17 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(248, 249, 250));
 
-        // Header
         add(UIUtils.createHeaderWithBadge("Faculty Dashboard", "Welcome to IIITD ERP System",
                 facultyService.isMaintenanceMode(), " ⚠ MAINTENANCE MODE "), BorderLayout.NORTH);
 
-        // Main content
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout. Y_AXIS));
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        // Stat Cards Row
         center.add(createStatCards());
         center.add(Box.createVerticalStrut(35));
 
-        // Profile and Notifications Row
         center.add(createInfoRow());
 
         add(center, BorderLayout.CENTER);

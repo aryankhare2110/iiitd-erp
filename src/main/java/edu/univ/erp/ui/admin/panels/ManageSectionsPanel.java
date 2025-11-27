@@ -235,7 +235,7 @@ public class ManageSectionsPanel extends JPanel {
             DialogUtils.infoDialog("Deleted!");
             loadSections();
         } else {
-            DialogUtils.errorDialog("Cannot delete.  Students may be enrolled.");
+            DialogUtils.errorDialog("Cannot delete. Students may be enrolled.");
         }
     }
 

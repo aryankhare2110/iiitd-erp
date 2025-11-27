@@ -1,23 +1,23 @@
-package edu.univ.erp.ui.student.panels;
+package edu.univ. erp.ui.student.panels;
 
-import edu.univ.erp.dao.CourseDAO;
+import edu.univ. erp.dao.CourseDAO;
 import edu.univ.erp.dao.FacultyDAO;
-import edu.univ.erp.dao.SectionDAO;
-import edu.univ.erp.domain.Course;
-import edu.univ.erp.domain.Enrollment;
+import edu. univ.erp.dao. SectionDAO;
+import edu. univ.erp.domain. Course;
+import edu.univ.erp.domain. Enrollment;
 import edu.univ.erp.domain.Faculty;
 import edu.univ.erp.domain.Section;
-import edu.univ.erp.domain.Student;
+import edu.univ.erp. domain.Student;
 import edu.univ.erp.service.StudentService;
-import edu.univ.erp.ui.common.DialogUtils;
+import edu.univ.erp.ui.common. DialogUtils;
 import edu.univ.erp.ui.common.UIUtils;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax. swing.*;
+import javax.swing. border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util. List;
 
 public class EnrollmentPanel extends JPanel {
 
@@ -28,6 +28,7 @@ public class EnrollmentPanel extends JPanel {
 
     private final JTable table;
     private final DefaultTableModel model;
+    private JButton dropButton;  // ADD THIS
 
     public EnrollmentPanel() {
         setLayout(new BorderLayout());
@@ -38,11 +39,11 @@ public class EnrollmentPanel extends JPanel {
         String badgeText = "";
 
         if (showBadge) {
-            boolean closed = LocalDate.now().isAfter(ddl);
+            boolean closed = LocalDate. now().isAfter(ddl);
             badgeText = closed ? "Add/Drop Closed" : "Add/Drop until " + ddl;
         }
 
-        add(UIUtils.createHeaderWithBadge("My Enrollments", "View and manage your course enrollments", showBadge, badgeText), BorderLayout.NORTH);
+        add(UIUtils.createHeaderWithBadge("My Enrollments", "View and manage your course enrollments", showBadge, badgeText), BorderLayout. NORTH);
 
         model = new DefaultTableModel(new String[]{"Course Code", "Course Title", "Credits", "Instructor", "Term", "Year"}, 0) {
             @Override public boolean isCellEditable(int r, int c) {
@@ -59,9 +60,16 @@ public class EnrollmentPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        add(UIUtils.createButtonRow(UIUtils.primaryButton("Drop Course", e -> dropCourse())), BorderLayout.SOUTH);
+        dropButton = UIUtils.primaryButton("Drop Course", e -> dropCourse());
+        add(UIUtils.createButtonRow(dropButton), BorderLayout.SOUTH);
 
         loadEnrollments();
+        updateButtonStates();
+    }
+
+    private void updateButtonStates() {
+        boolean maintenanceMode = studentService.isMaintenanceMode();
+        dropButton.setEnabled(!maintenanceMode);
     }
 
     private void loadEnrollments() {
@@ -94,8 +102,14 @@ public class EnrollmentPanel extends JPanel {
     }
 
     private void dropCourse() {
+        // ADD THIS CHECK
+        if (studentService.isMaintenanceMode()) {
+            DialogUtils.errorDialog("Cannot drop courses during maintenance mode.");
+            return;
+        }
+
         int r = table.getSelectedRow();
-        if (r == -1 || model.getValueAt(r, 0).toString().equals("No enrollments")) {
+        if (r == -1 || model.getValueAt(r, 0). toString().equals("No enrollments")) {
             DialogUtils.errorDialog("Please select a course to drop.");
             return;
         }
@@ -108,7 +122,7 @@ public class EnrollmentPanel extends JPanel {
 
         String courseCode = model.getValueAt(r, 0).toString();
 
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to drop " + courseCode + "?", "Confirm Drop", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to drop " + courseCode + "?", "Confirm Drop", JOptionPane. YES_NO_OPTION);
 
         if (confirm != JOptionPane.YES_OPTION) return;
 
@@ -121,7 +135,7 @@ public class EnrollmentPanel extends JPanel {
         List<Enrollment> enrollments = studentService.getMyEnrollments(student.getStudentId());
 
         for (Enrollment e : enrollments) {
-            Section section = sectionDAO.getSectionById(e.getSectionId());
+            Section section = sectionDAO.getSectionById(e. getSectionId());
             if (section == null) continue;
 
             Course course = courseDAO.getCourseById(section.getCourseID());
@@ -131,7 +145,7 @@ public class EnrollmentPanel extends JPanel {
 
                 boolean ok = studentService.dropSection(student.getStudentId(), e.getSectionId());
                 if (ok) {
-                    DialogUtils.infoDialog("Successfully dropped " + courseCode + "!");
+                    DialogUtils.successDialog("Successfully dropped " + courseCode + "!");
                     loadEnrollments();
                 } else {
                     DialogUtils.errorDialog("Failed to drop course.");
@@ -143,5 +157,6 @@ public class EnrollmentPanel extends JPanel {
 
     public void refresh() {
         loadEnrollments();
+        updateButtonStates();  // ADD THIS
     }
 }

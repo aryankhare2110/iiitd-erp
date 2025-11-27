@@ -1,12 +1,12 @@
-package edu.univ.erp.ui.student.panels;
+package edu.univ.erp.ui.student. panels;
 
 import edu.univ.erp.domain.Course;
 import edu.univ.erp.domain.Faculty;
-import edu.univ.erp.domain.Section;
-import edu.univ.erp.domain.Student;
+import edu.univ.erp. domain.Section;
+import edu. univ.erp.domain. Student;
 import edu.univ.erp.service.StudentService;
-import edu.univ.erp.ui.common.DialogUtils;
-import edu.univ.erp.ui.common.UIUtils;
+import edu.univ. erp.ui.common.DialogUtils;
+import edu.univ.erp.ui.common. UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,6 +21,7 @@ public class BrowseCoursesPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private List<Course> courses;
+    private JButton registerButton;
 
     public BrowseCoursesPanel() {
         setLayout(new BorderLayout());
@@ -52,10 +53,17 @@ public class BrowseCoursesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()));
+        registerButton = UIUtils.primaryButton("Register", e -> openRegisterDialog());
+        JPanel btnRow = UIUtils.createButtonRow(registerButton);
         add(btnRow, BorderLayout.SOUTH);
 
         loadCourses();
+        updateButtonStates();
+    }
+
+    private void updateButtonStates() {
+        boolean maintenanceMode = studentService.isMaintenanceMode();
+        registerButton.setEnabled(!maintenanceMode);
     }
 
     private void loadCourses() {
@@ -63,8 +71,8 @@ public class BrowseCoursesPanel extends JPanel {
         courses = studentService.browseCourses();
 
         for (Course c : courses) {
-            String deptName = studentService.getDepartmentName(c.getDepartmentID());
-            String prereq = (c.getPrerequisites() == null || c.getPrerequisites().isEmpty())
+            String deptName = studentService. getDepartmentName(c.getDepartmentID());
+            String prereq = (c.getPrerequisites() == null || c. getPrerequisites().isEmpty())
                     ? "None" : c.getPrerequisites();
 
             model.addRow(new Object[]{c.getCode(), c.getTitle(), c.getCredits(), prereq, deptName});
@@ -72,6 +80,11 @@ public class BrowseCoursesPanel extends JPanel {
     }
 
     private void openRegisterDialog() {
+        if (studentService.isMaintenanceMode()) {
+            DialogUtils.errorDialog("Cannot register for courses during maintenance mode.");
+            return;
+        }
+
         int row = table.getSelectedRow();
         if (row == -1) {
             DialogUtils.errorDialog("Please select a course first.");
@@ -93,19 +106,19 @@ public class BrowseCoursesPanel extends JPanel {
 
         int studentId = me.getStudentId();
 
-        if (studentService.isEnrolled(studentId, selected.getCourseID())) {
+        if (studentService.isEnrolled(studentId, selected. getCourseID())) {
             DialogUtils.errorDialog("You are already enrolled in " + selected.getCode() + ".");
             return;
         }
 
-        List<Section> sections = studentService.getSectionsForCourse(selected.getCourseID());
+        List<Section> sections = studentService. getSectionsForCourse(selected.getCourseID());
         if (sections.isEmpty()) {
             DialogUtils.errorDialog("No sections available for " + selected.getCode() + ".");
             return;
         }
 
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setLayout(new BoxLayout(panel, BoxLayout. Y_AXIS));
         panel.setBackground(Color.WHITE);
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
@@ -150,7 +163,7 @@ public class BrowseCoursesPanel extends JPanel {
 
         JComboBox<String> sectionCombo = new JComboBox<>(sectionOptions);
         sectionCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        sectionCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sectionCombo. setAlignmentX(Component.LEFT_ALIGNMENT);
 
         panel.add(secLabel);
         panel.add(Box.createVerticalStrut(5));
@@ -167,20 +180,21 @@ public class BrowseCoursesPanel extends JPanel {
 
         int enrolled = studentService.getEnrollmentCount(chosen.getSectionID());
         if (enrolled >= chosen.getCapacity()) {
-            DialogUtils.errorDialog("This section is full (" + enrolled + "/" + chosen.getCapacity() + ").");
+            DialogUtils.errorDialog("This section is full (" + enrolled + "/" + chosen. getCapacity() + ").");
             return;
         }
 
         boolean ok = studentService.registerForSection(studentId, chosen.getSectionID());
         if (ok) {
-            DialogUtils.infoDialog("Successfully registered for " + selected.getCode() + "!");
+            DialogUtils.successDialog("Successfully registered for " + selected.getCode() + "!");
             loadCourses();
         } else {
-            DialogUtils.errorDialog("Registration failed.");
+            DialogUtils. errorDialog("Registration failed.");
         }
     }
 
     public void refresh() {
         loadCourses();
+        updateButtonStates();
     }
 }

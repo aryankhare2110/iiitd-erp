@@ -63,7 +63,6 @@ public class GradingPanel extends JPanel {
         mainPanel.add(selectorPanel);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Students Table
         studentsModel = new DefaultTableModel(
                 new String[]{"Roll No", "Student Name", "Component Scores", "Total Score", "Grade"}, 0) {
             @Override
@@ -80,7 +79,6 @@ public class GradingPanel extends JPanel {
         mainPanel.add(tablePanel);
         add(mainPanel, BorderLayout.CENTER);
 
-        // Buttons
         uploadButton = UIUtils.primaryButton("Upload CSV", e -> uploadCSV());
         enterScoresButton = UIUtils.primaryButton("Enter Scores (Manual)", e -> enterScores());
         finalizeButton = UIUtils. primaryButton("Finalize Grades", e -> finalizeGrades());
@@ -214,7 +212,6 @@ public class GradingPanel extends JPanel {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
 
-        // Read header
         String headerLine = br.readLine();
         if (headerLine == null) {
             br.close();
@@ -223,13 +220,11 @@ public class GradingPanel extends JPanel {
 
         String[] headers = headerLine. split(",");
 
-        // Validate header format: Roll No, Component1, Component2, ...
         if (headers.length < 2 || ! headers[0].trim().equalsIgnoreCase("Roll No")) {
             br.close();
             throw new Exception("Invalid CSV format.  First column must be 'Roll No'");
         }
 
-        // Map component names to component IDs
         Map<Integer, Integer> columnToComponentId = new HashMap<>();
         for (int i = 1; i < headers.length; i++) {
             String componentName = headers[i].trim();
@@ -250,7 +245,6 @@ public class GradingPanel extends JPanel {
             }
         }
 
-        // Get all enrollments for this section
         List<Enrollment> enrollments = facultyService.getEnrolledStudents(sectionId);
         Map<String, Integer> rollNoToEnrollmentId = new HashMap<>();
 
@@ -264,7 +258,6 @@ public class GradingPanel extends JPanel {
         int successCount = 0;
         int lineNumber = 1;
 
-        // Process data rows
         while ((line = br. readLine()) != null) {
             lineNumber++;
             if (line.trim().isEmpty()) continue;
@@ -282,7 +275,6 @@ public class GradingPanel extends JPanel {
 
             int enrollmentId = rollNoToEnrollmentId.get(rollNo);
 
-            // Process each score
             for (int i = 1; i < values.length && i < headers.length; i++) {
                 if (! columnToComponentId.containsKey(i)) continue;
 
@@ -353,7 +345,6 @@ public class GradingPanel extends JPanel {
 
         File file = fileChooser.getSelectedFile();
 
-        // Ensure . csv extension
         if (!file. getName().toLowerCase().endsWith(".csv")) {
             file = new File(file. getAbsolutePath() + ".csv");
         }
@@ -370,7 +361,6 @@ public class GradingPanel extends JPanel {
     private void generateTemplate(File file, int sectionId, List<SectionComponent> components) throws Exception {
         java.io.PrintWriter writer = new java.io. PrintWriter(file);
 
-        // Write header
         writer. print("Roll No");
         for (SectionComponent sc : components) {
             String typeName = facultyService.getComponentTypeName(sc.getTypeID());
@@ -378,7 +368,6 @@ public class GradingPanel extends JPanel {
         }
         writer.println();
 
-        // Write student rows with existing scores
         List<Enrollment> enrollments = facultyService.getEnrolledStudents(sectionId);
 
         for (Enrollment e : enrollments) {
@@ -404,7 +393,7 @@ public class GradingPanel extends JPanel {
 
     private void enterScores() {
         if (facultyService.isMaintenanceMode()) {
-            DialogUtils.errorDialog("Cannot enter scores during maintenance mode.");
+            DialogUtils. errorDialog("Cannot enter scores during maintenance mode.");
             return;
         }
 
@@ -420,31 +409,53 @@ public class GradingPanel extends JPanel {
         Enrollment enrollment = enrollments.get(r);
 
         Student student = facultyService.getStudentById(enrollment.getStudentId());
-        List<SectionComponent> components = facultyService.getComponents(section.getSectionID());
+        List<SectionComponent> components = facultyService. getComponents(section.getSectionID());
 
         if (components.isEmpty()) {
             DialogUtils.errorDialog("No components defined for this section. Please add components first.");
             return;
         }
 
-        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        panel.add(new JLabel("Student: " + student.getFullName()));
-        panel.add(new JLabel("Roll No: " + student.getRollNo()));
+        JPanel headerPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        headerPanel.setBackground(new Color(255, 243, 205));
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 193, 7), 1),
+                new EmptyBorder(10, 10, 10, 10)
+        ));
 
-        JTextField[] scoreFields = new JTextField[components. size()];
+        JLabel instructionLabel = new JLabel("<html><b>Enter scores out of 100</b><br>Weighted grades will be calculated automatically based on component weights. </html>");
+        instructionLabel. setFont(new Font("Helvetica Neue", Font.PLAIN, 13));
+        headerPanel.add(instructionLabel);
+
+        JLabel studentInfoLabel = new JLabel("<html>Student: <b>" + student.getFullName() + "</b> | Roll No: <b>" + student.getRollNo() + "</b></html>");
+        studentInfoLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 13));
+        headerPanel.add(studentInfoLabel);
+
+        panel. add(headerPanel, BorderLayout. NORTH);
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        fieldsPanel.setBorder(new EmptyBorder(15, 0, 0, 0));
+
+        JTextField[] scoreFields = new JTextField[components.size()];
 
         for (int i = 0; i < components.size(); i++) {
             SectionComponent c = components.get(i);
             ComponentScore existing = facultyService.getScore(enrollment.getEnrollmentId(), c.getComponentID());
 
-            scoreFields[i] = new JTextField(existing != null ? String.valueOf(existing.getScore()) : "");
+            scoreFields[i] = new JTextField(existing != null ?  String.valueOf(existing.getScore()) : "");
 
             String typeName = facultyService.getComponentTypeName(c.getTypeID());
-            panel.add(new JLabel(typeName + " (Weight: " + c.getWeight() + "%):"));
-            panel.add(scoreFields[i]);
+            JLabel label = new JLabel(typeName + " (Weight: " + c.getWeight() + "%) / 100:");
+            label.setFont(new Font("Helvetica Neue", Font.PLAIN, 13));
+
+            fieldsPanel.add(label);
+            fieldsPanel.add(scoreFields[i]);
         }
+
+        panel.add(fieldsPanel, BorderLayout.CENTER);
 
         if (JOptionPane.showConfirmDialog(this, panel, "Enter Scores for " + student.getRollNo(),
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
@@ -453,7 +464,7 @@ public class GradingPanel extends JPanel {
 
         try {
             for (int i = 0; i < components.size(); i++) {
-                String scoreText = scoreFields[i].getText(). trim();
+                String scoreText = scoreFields[i].getText().trim();
                 if (scoreText.isEmpty()) continue;
 
                 SectionComponent c = components.get(i);
@@ -464,15 +475,15 @@ public class GradingPanel extends JPanel {
                     return;
                 }
 
-                ComponentScore existing = facultyService.getScore(enrollment.getEnrollmentId(), c.getComponentID());
+                ComponentScore existing = facultyService. getScore(enrollment.getEnrollmentId(), c.getComponentID());
 
                 if (existing != null) {
                     ComponentScore updated = new ComponentScore(existing.getScoreId(),
-                            enrollment.getEnrollmentId(), c.getComponentID(), score);
+                            enrollment. getEnrollmentId(), c. getComponentID(), score);
                     facultyService.updateScore(updated);
                 } else {
                     ComponentScore newScore = new ComponentScore(0,
-                            enrollment.getEnrollmentId(), c.getComponentID(), score);
+                            enrollment. getEnrollmentId(), c. getComponentID(), score);
                     facultyService.enterScore(newScore);
                 }
             }
@@ -481,7 +492,7 @@ public class GradingPanel extends JPanel {
             loadStudents();
 
         } catch (NumberFormatException e) {
-            DialogUtils. errorDialog("Invalid score format. Please enter a valid number.");
+            DialogUtils.errorDialog("Invalid score format. Please enter a valid number.");
         }
     }
 

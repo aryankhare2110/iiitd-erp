@@ -34,7 +34,6 @@ public class DashboardPanel extends JPanel {
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        // Stats Cards
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
         cardsRow. setBackground(new Color(248, 249, 250));
         cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
@@ -53,15 +52,12 @@ public class DashboardPanel extends JPanel {
         center. add(cardsRow);
         center.add(Box.createVerticalStrut(35));
 
-        // Two Column Section
         JPanel twoCol = new JPanel(new GridLayout(1, 2, 30, 0));
         twoCol.setBackground(new Color(248, 249, 250));
         twoCol. setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-        // System Status Section
         twoCol.add(createStatusSection());
 
-        // Notification Section
         twoCol.add(createNotificationSection());
 
         center.add(twoCol);
@@ -86,7 +82,6 @@ public class DashboardPanel extends JPanel {
         statusContent.add(statusTitle);
         statusContent.add(Box.createVerticalStrut(20));
 
-        // Logged in as
         JPanel loginRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         loginRow.setBackground(Color.WHITE);
         loginRow. setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -95,7 +90,6 @@ public class DashboardPanel extends JPanel {
         statusContent.add(loginRow);
         statusContent.add(Box. createVerticalStrut(12));
 
-        // Maintenance Mode Toggle
         boolean isOn = adminService.isMaintenanceMode();
         JLabel statusBadge = makeStatusBadge(isOn);
 
@@ -135,7 +129,6 @@ public class DashboardPanel extends JPanel {
         statusContent.add(maintenanceRow);
         statusContent.add(Box. createVerticalStrut(12));
 
-        // Timestamp
         JPanel timestampRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         timestampRow.setBackground(Color. WHITE);
         timestampRow. setAlignmentX(Component. LEFT_ALIGNMENT);
@@ -145,7 +138,6 @@ public class DashboardPanel extends JPanel {
 
         statusSection.add(statusContent, BorderLayout.CENTER);
 
-        // Action Buttons
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btnPanel.setBackground(Color.WHITE);
         btnPanel.add(UIUtils.secondaryButton("Change Password", e -> openPasswordDialog()));
@@ -350,7 +342,6 @@ public class DashboardPanel extends JPanel {
         }
         return null;
     }
-
     public void refresh() {
         if (studentCountLabel != null) {
             studentCountLabel.setText(String. valueOf(adminService.getStudentCount()));

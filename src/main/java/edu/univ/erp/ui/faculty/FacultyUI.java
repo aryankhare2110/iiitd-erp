@@ -25,7 +25,6 @@ public class FacultyUI extends BaseFrame {
         super("IIITD ERP – Faculty Dashboard");
         setLayout(new BorderLayout());
 
-        // Sidebar
         sidebar = UIUtils.createSidebar();
 
         try {
@@ -62,7 +61,6 @@ public class FacultyUI extends BaseFrame {
 
         add(sidebar, BorderLayout.WEST);
 
-        // Content panels
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         contentPanel.setBackground(Color.WHITE);
@@ -81,7 +79,6 @@ public class FacultyUI extends BaseFrame {
 
         add(contentPanel, BorderLayout.CENTER);
 
-        // Button actions
         btnDashboard. addActionListener(e -> switchPanel(btnDashboard, "dashboard"));
         btnMySections. addActionListener(e -> switchPanel(btnMySections, "mySections"));
         btnComponents. addActionListener(e -> switchPanel(btnComponents, "components"));
@@ -98,17 +95,14 @@ public class FacultyUI extends BaseFrame {
     }
 
     private void switchPanel(JButton btn, String panelName) {
-        // Reset all button colors
         for (Component c : sidebar.getComponents()) {
             if (c instanceof JButton) {
                 ((JButton) c).setForeground(new Color(180, 190, 210));
             }
         }
 
-        // Highlight selected button
         btn.setForeground(new Color(248, 249, 250));
 
-        // Refresh panel before showing
         switch (panelName) {
             case "dashboard":
                 dashboardPanel.refresh();
