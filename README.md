@@ -76,12 +76,6 @@ private static final String url1 = "jdbc:postgresql://localhost:5432/auth_db";
 private static final String url2 = "jdbc:postgresql://localhost:5432/erp_db";
 ```
 
-For production environments, use environment variables:
-
-```java
-private static final String username = System.getenv("DB_USER");
-private static final String password = System.getenv("DB_PASSWORD");
-```
 
 ### Build the Application
 
