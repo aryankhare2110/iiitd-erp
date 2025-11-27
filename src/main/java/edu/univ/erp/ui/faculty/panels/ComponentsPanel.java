@@ -90,9 +90,7 @@ public class ComponentsPanel extends JPanel {
         add(UIUtils.createButtonRow(
                 addButton,
                 editButton,
-                deleteButton,
-                UIUtils.secondaryButton("Refresh", e -> loadComponents())
-        ), BorderLayout.SOUTH);
+                deleteButton), BorderLayout.SOUTH);
 
         loadSections();
         updateButtonStates();

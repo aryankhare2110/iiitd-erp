@@ -59,7 +59,7 @@ public class EnrollmentPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        add(UIUtils.createButtonRow(UIUtils.primaryButton("Drop Course", e -> dropCourse()), UIUtils.secondaryButton("Refresh", e -> loadEnrollments())), BorderLayout.SOUTH);
+        add(UIUtils.createButtonRow(UIUtils.primaryButton("Drop Course", e -> dropCourse())), BorderLayout.SOUTH);
 
         loadEnrollments();
     }

@@ -67,11 +67,6 @@ public class StatisticsPanel extends JPanel {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Button
-        add(UIUtils.createButtonRow(
-                UIUtils.secondaryButton("Refresh", e -> loadStatistics())
-        ), BorderLayout.SOUTH);
-
         loadSections();
     }
 

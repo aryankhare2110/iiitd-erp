@@ -89,8 +89,7 @@ public class GradingPanel extends JPanel {
                 uploadButton,
                 enterScoresButton,
                 finalizeButton,
-                UIUtils.secondaryButton("Download Template", e -> downloadTemplate()),
-                UIUtils.secondaryButton("Refresh", e -> loadStudents())
+                UIUtils.secondaryButton("Download Template", e -> downloadTemplate())
         ), BorderLayout.SOUTH);
 
         loadSections();

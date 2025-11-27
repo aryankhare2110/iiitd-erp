@@ -52,7 +52,7 @@ public class BrowseCoursesPanel extends JPanel {
 
         add(center, BorderLayout.CENTER);
 
-        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()), UIUtils.secondaryButton("Refresh", e -> loadCourses()));
+        JPanel btnRow = UIUtils.createButtonRow(UIUtils.primaryButton("Register", e -> openRegisterDialog()));
         add(btnRow, BorderLayout.SOUTH);
 
         loadCourses();

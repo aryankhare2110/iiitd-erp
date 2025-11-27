@@ -1,22 +1,21 @@
-package edu.univ.erp.ui.admin.panels;
+package edu.univ.erp.ui. admin. panels;
 
-import edu.univ.erp.auth.session.UserSession;
-import edu.univ.erp.service.AdminService;
-import edu.univ.erp.service.AuthService;
+import edu.univ. erp.auth.session.UserSession;
+import edu. univ.erp.service.AdminService;
+import edu. univ.erp.service. AuthService;
 import edu.univ.erp.ui.common.DialogUtils;
-import edu.univ.erp.ui.common.UIUtils;
+import edu.univ.erp.ui.common. UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java. time.format.DateTimeFormatter;
 
 public class DashboardPanel extends JPanel {
 
     private final AdminService adminService;
     private final AuthService authService;
-    private JPanel cardsRow;
     private JLabel studentCountLabel;
     private JLabel facultyCountLabel;
     private JLabel courseCountLabel;
@@ -31,34 +30,47 @@ public class DashboardPanel extends JPanel {
         add(UIUtils.createHeader("Admin Dashboard", "Overview of the IIITD ERP System"), BorderLayout.NORTH);
 
         JPanel center = new JPanel();
-        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        center.setLayout(new BoxLayout(center, BoxLayout. Y_AXIS));
         center.setBackground(new Color(248, 249, 250));
         center.setBorder(new EmptyBorder(30, 50, 40, 50));
 
-        cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
-        cardsRow.setBackground(new Color(248, 249, 250));
+        // Stats Cards
+        JPanel cardsRow = new JPanel(new GridLayout(1, 3, 25, 0));
+        cardsRow. setBackground(new Color(248, 249, 250));
         cardsRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
         JPanel studentCard = statCard("Total Students", String.valueOf(adminService.getStudentCount()), new Color(13, 110, 253));
-        JPanel facultyCard = statCard("Total Faculty", String.valueOf(adminService.getFacultyCount()), new Color(111, 66, 193));
+        JPanel facultyCard = statCard("Total Faculty", String. valueOf(adminService.getFacultyCount()), new Color(111, 66, 193));
         JPanel courseCard = statCard("Total Courses", String.valueOf(adminService.getCourseCount()), new Color(253, 126, 20));
 
         studentCountLabel = findCountLabel(studentCard);
         facultyCountLabel = findCountLabel(facultyCard);
         courseCountLabel = findCountLabel(courseCard);
 
-        cardsRow.add(studentCard);
+        cardsRow. add(studentCard);
         cardsRow.add(facultyCard);
         cardsRow.add(courseCard);
-        center.add(cardsRow);
+        center. add(cardsRow);
         center.add(Box.createVerticalStrut(35));
 
+        // Two Column Section
         JPanel twoCol = new JPanel(new GridLayout(1, 2, 30, 0));
         twoCol.setBackground(new Color(248, 249, 250));
-        twoCol.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+        twoCol. setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
+        // System Status Section
+        twoCol.add(createStatusSection());
+
+        // Notification Section
+        twoCol.add(createNotificationSection());
+
+        center.add(twoCol);
+        add(center, BorderLayout. CENTER);
+    }
+
+    private JPanel createStatusSection() {
         JPanel statusSection = new JPanel(new BorderLayout(0, 15));
-        statusSection.setBackground(Color.WHITE);
+        statusSection. setBackground(Color.WHITE);
         statusSection.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
                 new EmptyBorder(25, 25, 25, 25)
@@ -69,81 +81,88 @@ public class DashboardPanel extends JPanel {
         statusContent.setBackground(Color.WHITE);
 
         JLabel statusTitle = new JLabel("System Status");
-        statusTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        statusTitle. setFont(new Font("Helvetica Neue", Font.BOLD, 18));
         statusTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
         statusContent.add(statusTitle);
         statusContent.add(Box.createVerticalStrut(20));
 
+        // Logged in as
         JPanel loginRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         loginRow.setBackground(Color.WHITE);
-        loginRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        loginRow. setAlignmentX(Component.LEFT_ALIGNMENT);
         loginRow.add(UIUtils.makeLabel("Logged in as:", false));
-        loginRow.add(UIUtils.makeLabel(" " + UserSession.getUserEmail(), true));
+        loginRow. add(UIUtils.makeLabel(" " + UserSession.getUserEmail(), true));
         statusContent.add(loginRow);
-        statusContent.add(Box.createVerticalStrut(12));
+        statusContent.add(Box. createVerticalStrut(12));
 
+        // Maintenance Mode Toggle
         boolean isOn = adminService.isMaintenanceMode();
         JLabel statusBadge = makeStatusBadge(isOn);
 
         JCheckBox toggle = new JCheckBox();
         toggle.setSelected(isOn);
         toggle.setOpaque(false);
-        toggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        toggle. setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        toggle.addActionListener(e -> {
+        toggle. addActionListener(e -> {
             boolean newState = toggle.isSelected();
-            String msg = newState ? "Enable maintenance mode?\nThis will restrict student & faculty access." : "Disable maintenance mode?";
-            int choice = JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION);
-            if (choice != JOptionPane.YES_OPTION) {
+            String msg = newState
+                    ?  "Enable maintenance mode?\nThis will restrict student & faculty access."
+                    : "Disable maintenance mode?";
+
+            if (JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                 toggle.setSelected(!newState);
                 return;
             }
-            boolean ok = adminService.setMaintenanceMode(newState);
-            if (!ok) {
+
+            if (adminService.setMaintenanceMode(newState)) {
+                updateBadge(statusBadge, newState);
+                DialogUtils.successDialog("Maintenance mode is now " + (newState ? "ON" : "OFF"));
+            } else {
                 toggle.setSelected(!newState);
                 DialogUtils.errorDialog("Failed to update maintenance mode.");
-                return;
             }
-            updateBadge(statusBadge, newState);
-            DialogUtils.infoDialog("Maintenance mode is now " + (newState ? "ON" : "OFF") + ".");
         });
 
         JPanel maintenanceRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
-        maintenanceRow.setBackground(Color.WHITE);
+        maintenanceRow. setBackground(Color.WHITE);
         maintenanceRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        maintenanceRow.add(UIUtils.makeLabel("Maintenance:", false));
+        maintenanceRow.add(UIUtils.makeLabel("Maintenance Mode:", false));
         maintenanceRow.add(Box.createHorizontalStrut(10));
         maintenanceRow.add(toggle);
-        maintenanceRow.add(Box.createHorizontalStrut(10));
-        maintenanceRow.add(statusBadge);
+        maintenanceRow.add(Box. createHorizontalStrut(10));
+        maintenanceRow. add(statusBadge);
         statusContent.add(maintenanceRow);
-        statusContent.add(Box.createVerticalStrut(12));
+        statusContent.add(Box. createVerticalStrut(12));
 
+        // Timestamp
         JPanel timestampRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        timestampRow.setBackground(Color.WHITE);
-        timestampRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        timestampRow.add(UIUtils.makeLabel("Logged in since:", false));
-        timestampRow.add(UIUtils.makeLabel(" " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
+        timestampRow.setBackground(Color. WHITE);
+        timestampRow. setAlignmentX(Component. LEFT_ALIGNMENT);
+        timestampRow.add(UIUtils. makeLabel("Session started:", false));
+        timestampRow.add(UIUtils.makeLabel(" " + LocalDateTime.now(). format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), false));
         statusContent.add(timestampRow);
 
         statusSection.add(statusContent, BorderLayout.CENTER);
 
+        // Action Buttons
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btnPanel.setBackground(Color.WHITE);
-
-        JButton changePwdBtn = UIUtils.secondaryButton("Change Password", e -> openPasswordDialog());
-        JButton changeDeadlineBtn = UIUtils.secondaryButton("Set Add/Drop Deadline", e -> openDeadlineDialog());
-
-        btnPanel.add(changePwdBtn);
-        btnPanel.add(changeDeadlineBtn);
+        btnPanel.add(UIUtils.secondaryButton("Change Password", e -> openPasswordDialog()));
+        btnPanel.add(UIUtils.secondaryButton("Set Add/Drop Deadline", e -> openDeadlineDialog()));
 
         statusSection.add(btnPanel, BorderLayout.SOUTH);
 
-        twoCol.add(statusSection);
+        return statusSection;
+    }
 
+    private JPanel createNotificationSection() {
         JPanel notifSection = new JPanel(new BorderLayout(0, 15));
         notifSection.setBackground(Color.WHITE);
-        notifSection.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(222, 226, 230), 1), new EmptyBorder(25, 25, 25, 25)));
+        notifSection.setBorder(BorderFactory. createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(222, 226, 230), 1),
+                new EmptyBorder(25, 25, 25, 25)
+        ));
 
         JLabel notifTitle = new JLabel("Send Notification");
         notifTitle.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
@@ -151,38 +170,37 @@ public class DashboardPanel extends JPanel {
 
         JTextArea notifArea = new JTextArea(6, 20);
         notifArea.setLineWrap(true);
-        notifArea.setWrapStyleWord(true);
+        notifArea. setWrapStyleWord(true);
         notifArea.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-        notifArea.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1), new EmptyBorder(8, 8, 8, 8)));
+        notifArea. setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(206, 212, 218), 1),
+                new EmptyBorder(8, 8, 8, 8)
+        ));
+
         JScrollPane scrollPane = new JScrollPane(notifArea);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(206, 212, 218), 1));
         notifSection.add(scrollPane, BorderLayout.CENTER);
+
         JPanel sendPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        JButton sendBtn = UIUtils.primaryButton("Send", e -> {
+        sendPanel.setBackground(Color.WHITE);
+        sendPanel. add(UIUtils.primaryButton("Send Notification", e -> {
             String message = notifArea.getText().trim();
             if (message.isEmpty()) {
                 DialogUtils.errorDialog("Notification cannot be empty.");
                 return;
             }
 
-            boolean ok = adminService.sendNotification(message, UserSession.getUserEmail());
-            if (ok) {
-                DialogUtils.infoDialog("Notification sent successfully!");
+            if (adminService.sendNotification(message, UserSession.getUserEmail())) {
+                DialogUtils.successDialog("Notification sent successfully!");
                 notifArea.setText("");
             } else {
                 DialogUtils.errorDialog("Failed to send notification.");
             }
-        });
-        sendPanel.add(sendBtn);
-        sendPanel.setBackground(Color.WHITE);
-        sendPanel.add(sendBtn);
+        }));
+
         notifSection.add(sendPanel, BorderLayout.SOUTH);
 
-        twoCol.add(notifSection);
-
-        center.add(twoCol);
-
-        add(center, BorderLayout.CENTER);
+        return notifSection;
     }
 
     private JPanel statCard(String title, String count, Color accentColor) {
@@ -199,7 +217,7 @@ public class DashboardPanel extends JPanel {
         card.add(accentBar, BorderLayout.WEST);
 
         JPanel content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setLayout(new BoxLayout(content, BoxLayout. Y_AXIS));
         content.setBackground(Color.WHITE);
         content.setBorder(new EmptyBorder(0, 20, 0, 0));
 
@@ -209,7 +227,7 @@ public class DashboardPanel extends JPanel {
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel countLabel = new JLabel(count);
-        countLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 48));
+        countLabel.setFont(new Font("Helvetica Neue", Font. BOLD, 48));
         countLabel.setForeground(new Color(33, 37, 41));
         countLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -217,7 +235,7 @@ public class DashboardPanel extends JPanel {
         content.add(Box.createVerticalStrut(10));
         content.add(countLabel);
 
-        card.add(content, BorderLayout.CENTER);
+        card.add(content, BorderLayout. CENTER);
         return card;
     }
 
@@ -226,9 +244,9 @@ public class DashboardPanel extends JPanel {
         badge.setFont(new Font("Helvetica Neue", Font.BOLD, 11));
         badge.setForeground(Color.WHITE);
         badge.setOpaque(true);
-        badge.setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
+        badge. setBackground(on ? new Color(40, 167, 69) : new Color(220, 53, 69));
         badge.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        badge.setHorizontalAlignment(SwingConstants.CENTER);
+        badge.setHorizontalAlignment(SwingConstants. CENTER);
         return badge;
     }
 
@@ -253,12 +271,14 @@ public class DashboardPanel extends JPanel {
         panel.add(new JLabel("Confirm New Password:"));
         panel.add(confirmPF);
 
-        int result = JOptionPane.showConfirmDialog(this, panel, "Change Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) return;
+        if (JOptionPane.showConfirmDialog(this, panel, "Change Password",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
+            return;
+        }
 
-        String oldPass = new String(oldPF.getPassword()).trim();
+        String oldPass = new String(oldPF.getPassword()). trim();
         String newPass = new String(newPF.getPassword()).trim();
-        String confirm = new String(confirmPF.getPassword()).trim();
+        String confirm = new String(confirmPF. getPassword()).trim();
 
         if (oldPass.isEmpty() || newPass.isEmpty() || confirm.isEmpty()) {
             DialogUtils.errorDialog("All fields must be filled.");
@@ -270,23 +290,23 @@ public class DashboardPanel extends JPanel {
             return;
         }
 
-        if (!newPass.equals(confirm)) {
+        if (! newPass.equals(confirm)) {
             DialogUtils.errorDialog("New passwords do not match.");
             return;
         }
 
-        boolean ok = authService.resetPassword(UserSession.getUserEmail(), newPass);
-        if (ok) DialogUtils.infoDialog("Password changed successfully!");
-        else DialogUtils.errorDialog("Incorrect old password or update failed.");
+        if (authService.resetPassword(UserSession.getUserEmail(), newPass)) {
+            DialogUtils.successDialog("Password changed successfully!");
+        } else {
+            DialogUtils.errorDialog("Failed to update password.");
+        }
     }
 
     private void openDeadlineDialog() {
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
-        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panel. setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JTextField dateField = new JTextField();
-        dateField.setText("2025-01-31"); // optional default format
-
+        JTextField dateField = new JTextField("2025-01-31");
         panel.add(new JLabel("Add/Drop Deadline (YYYY-MM-DD):"));
         panel.add(dateField);
 
@@ -297,21 +317,19 @@ public class DashboardPanel extends JPanel {
 
         String dateStr = dateField.getText().trim();
 
-        if (!dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+        if (! dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
             DialogUtils.errorDialog("Please enter date in format YYYY-MM-DD.");
             return;
         }
 
         try {
-            java.time.LocalDate parsed = java.time.LocalDate.parse(dateStr);
+            java.time.LocalDate parsed = java.time.LocalDate. parse(dateStr);
 
-            boolean ok = new AdminService().setAddDropDeadline(parsed);
-            if (ok) {
-                DialogUtils.infoDialog("Add/Drop Deadline updated successfully!");
+            if (adminService.setAddDropDeadline(parsed)) {
+                DialogUtils.successDialog("Add/Drop Deadline updated to " + dateStr);
             } else {
                 DialogUtils.errorDialog("Failed to update deadline.");
             }
-
         } catch (Exception ex) {
             DialogUtils.errorDialog("Invalid date format.");
         }
@@ -320,12 +338,10 @@ public class DashboardPanel extends JPanel {
     private JLabel findCountLabel(JPanel card) {
         for (Component comp : card.getComponents()) {
             if (comp instanceof JPanel) {
-                JPanel panel = (JPanel) comp;
-                for (Component innerComp : panel.getComponents()) {
+                for (Component innerComp : ((JPanel) comp).getComponents()) {
                     if (innerComp instanceof JLabel) {
                         JLabel label = (JLabel) innerComp;
-                        // The count label has a large bold font
-                        if (label. getFont().getSize() == 48) {
+                        if (label.getFont(). getSize() == 48) {
                             return label;
                         }
                     }
@@ -337,13 +353,13 @@ public class DashboardPanel extends JPanel {
 
     public void refresh() {
         if (studentCountLabel != null) {
-            studentCountLabel.setText(String.valueOf(adminService.getStudentCount()));
+            studentCountLabel.setText(String. valueOf(adminService.getStudentCount()));
         }
         if (facultyCountLabel != null) {
-            facultyCountLabel.setText(String.valueOf(adminService.getFacultyCount()));
+            facultyCountLabel. setText(String.valueOf(adminService.getFacultyCount()));
         }
         if (courseCountLabel != null) {
-            courseCountLabel.setText(String. valueOf(adminService.getCourseCount()));
+            courseCountLabel.setText(String.valueOf(adminService.getCourseCount()));
         }
         revalidate();
         repaint();

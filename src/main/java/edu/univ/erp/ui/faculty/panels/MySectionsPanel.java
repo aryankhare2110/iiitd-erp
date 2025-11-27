@@ -16,12 +16,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Shows the list of sections for the logged-in faculty.
- * The table no longer shows section_id as a column (keeps internal mapping).
- * Selecting a section here is NOT required to load ScoresPanel / StatisticsPanel;
- * those panels rely solely on their own section dropdowns.
- */
 public class MySectionsPanel extends JPanel {
     private final FacultyService facultyService = new FacultyService();
     private final CourseDAO courseDAO = new CourseDAO();
@@ -50,11 +44,6 @@ public class MySectionsPanel extends JPanel {
         center.setBackground(new Color(248, 249, 250));
         center.add(new JScrollPane(table), BorderLayout.CENTER);
         add(center, BorderLayout.CENTER);
-
-        JPanel bottom = UIUtils.createButtonRow(
-                UIUtils.secondaryButton("Refresh", e -> loadSections())
-        );
-        add(bottom, BorderLayout.SOUTH);
 
         loadSections();
     }
@@ -85,10 +74,6 @@ public class MySectionsPanel extends JPanel {
         }
     }
 
-    /**
-     * Keep the internal sections list available for potential future use,
-     * but don't require other panels to read selection from this panel.
-     */
     public List<Section> getSections() {
         return new ArrayList<>(sections);
     }

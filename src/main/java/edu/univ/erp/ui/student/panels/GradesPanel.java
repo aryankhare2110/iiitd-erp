@@ -118,7 +118,7 @@ public class GradesPanel extends JPanel {
         }
 
         double sgpa = (totalCredits > 0) ? (totalGradePoints / totalCredits) : 0.0;
-        sgpaLabel.setText("sgpa: " + String.format("%.2f", sgpa));
+        sgpaLabel.setText("SGPA: " + String.format("%.2f", sgpa));
     }
 
     private void viewComponentScores() {
