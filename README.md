@@ -52,7 +52,7 @@ CREATE DATABASE auth_db;
 CREATE DATABASE erp_db;
 ```
 
-### Initialize Database Schemas
+### Initialise Database Schemas
 
 Run the SQL schema files to create the required tables:
 
@@ -61,8 +61,8 @@ psql -U postgres -d auth_db -f db/auth_schema.sql
 psql -U postgres -d erp_db -f db/erp_schema. sql
 ```
 
-The schema files will initialize:
-- **auth_db**: User authentication and authorization tables
+The schema files will initialise:
+- **auth_db**: User authentication and authorisation tables
 - **erp_db**: Academic records including students, faculty, courses, enrollments, and grades
 
 ### Configure Database Connection
@@ -88,7 +88,7 @@ mvn clean install
 Using Maven:
 
 ```bash
-mvn clean compile exec:java
+mvn clean compile exec: java
 ```
 
 Or build and run the JAR file:
@@ -107,11 +107,11 @@ The system includes pre-configured accounts for testing:
 | Role | Email | Password |
 |------|-------|----------|
 | Administrator | admin@iiitd.ac.in | Admin123 |
-| Faculty | ravi.sharma@iiitd.ac. in | password |
-| Faculty | meera.bansal@iiitd.ac. in | password |
+| Faculty | ravi.sharma@iiitd.ac.in | Ravi&123 |
+| Faculty | meera.bansal@iiitd.ac.in | Meera123$ |
 | Student | aryan24124@iiitd.ac.in | Aryan123 |
-| Student | ananya23104@iiitd.ac. in | password |
-| Student | rohan22457@iiitd.ac. in | password |
+| Student | ananya23104@iiitd.ac.in | AnanyaVerma#123 |
+| Student | rohan22457@iiitd.ac.in | Mehra@789 |
 
 **Important**: Change all default passwords after first login. 
 
