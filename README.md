@@ -113,8 +113,6 @@ The system includes pre-configured accounts for testing:
 | Student | ananya23104@iiitd.ac.in | AnanyaVerma#123 |
 | Student | rohan22457@iiitd.ac.in | Mehra@789 |
 
-**Important**: Change all default passwords after first login. 
-
 ### Login Process
 
 1. Launch the application
@@ -122,32 +120,6 @@ The system includes pre-configured accounts for testing:
 3. Enter your password
 4. Click "Sign In"
 5. Access the portal corresponding to your role
-
-## Features
-
-### Administrator Portal
-
-- User Management: Create, update, and manage student and faculty accounts
-- Course Management: Define courses, sections, and prerequisites
-- System Configuration: Toggle maintenance mode and set academic deadlines
-- Notifications: Broadcast system-wide announcements
-- Dashboard Analytics: Real-time statistics on students, faculty, and courses
-
-### Faculty Portal
-
-- Course Sections: View assigned sections and enrolled students
-- Grade Management: Input and update component scores and final grades
-- Student Performance: Track individual student progress
-- Academic Calendar: View important dates and deadlines
-- Profile Management: Update personal information
-
-### Student Portal
-
-- Course Enrollment: Browse and register for available sections
-- Grade Viewing: Access current grades and component scores
-- Academic Records: View enrollment history
-- Schedule Management: Track class timings
-- Notifications: Receive announcements from administration
 
 ## Project Structure
 
@@ -206,16 +178,6 @@ All passwords are hashed using Argon2id algorithm with the following parameters:
 Default HikariCP settings configured in `DBConnection.java`:
 - Maximum pool size: 10 connections per database
 - Pool names: authDBPool and erpDBPool
-
-## Contributing
-
-Contributions are welcome.  Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Submit a pull request
 
 ## License
 
