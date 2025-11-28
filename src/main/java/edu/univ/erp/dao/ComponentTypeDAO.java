@@ -45,21 +45,6 @@ public class ComponentTypeDAO {
         return types;
     }
 
-    public List<String> getAllComponentTypeNames() {
-        List<String> names = new ArrayList<>();
-        String sql = "SELECT name FROM component_types ORDER BY name";
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps. executeQuery()) {
-            while (rs.next()) {
-                names.add(rs.getString("name"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return names;
-    }
-
     public int getComponentTypeIdByName(String typeName) {
         String sql = "SELECT type_id FROM component_types WHERE name = ? ";
         try (Connection c = DBConnection.getErpConnection();

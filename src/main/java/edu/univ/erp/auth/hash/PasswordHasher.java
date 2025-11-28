@@ -4,7 +4,7 @@ import com.password4j.*;
 
 public class PasswordHasher {
 
-    public static String hash(String plain) { //To hash the password
+    public static String hash(String plain) {
         Hash h = Password.hash(plain).addRandomSalt().withArgon2();
         return h.getResult();
     }

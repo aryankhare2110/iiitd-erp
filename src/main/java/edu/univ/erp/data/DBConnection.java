@@ -7,19 +7,16 @@ import java.sql.SQLException;
 
 public class DBConnection {
 
-    //PostgreSQL details
     private static final String username = "postgres";
     private static final String password = "123456";
     private static final String url1 = "jdbc:postgresql://localhost:5432/auth_db";
     private static final String url2 = "jdbc:postgresql://localhost:5432/erp_db";
 
-    //Actual connection pools (Separate)
     private static final HikariDataSource authDS; //Auth Data Source
     private static final HikariDataSource erpDS; //ERP Data Source
 
-    static { //Runs once
+    static {
 
-        //auth_db connection config
         HikariConfig authConfig = new HikariConfig();
         authConfig.setJdbcUrl(url1);
         authConfig.setUsername(username);
@@ -28,7 +25,6 @@ public class DBConnection {
         authConfig.setPoolName("authDBPool");
         authDS = new HikariDataSource(authConfig);
 
-        //erp_db connection config
         HikariConfig erpConfig = new HikariConfig();
         erpConfig.setJdbcUrl(url2);
         erpConfig.setUsername(username);
@@ -39,22 +35,12 @@ public class DBConnection {
 
     }
 
-    //Getter function for authConnection
     public static Connection getAuthConnection() throws SQLException {
         return authDS.getConnection();
     }
 
-    //Getter function for erpConnection
     public static Connection getErpConnection() throws SQLException {
         return erpDS.getConnection();
     }
-
-    public static void close() {
-        if (authDS != null) {
-            authDS.close();
-        }
-        if (erpDS != null) {
-            erpDS.close();
-        }
-    }
+    
 }

@@ -84,15 +84,4 @@ public class ComponentScoreDAO {
         }
     }
 
-    public boolean deleteScore(int scoreId) {
-        String sql = "DELETE FROM component_scores WHERE score_id = ?";
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, scoreId);
-            return ps.executeUpdate() == 1;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

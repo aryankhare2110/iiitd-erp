@@ -107,19 +107,6 @@ public class SectionDAO {
         return list;
     }
 
-    public boolean updateInstructor(int sectionId, int instructorId) {
-        String sql = "UPDATE sections SET instructor_id = ? WHERE section_id = ?";
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, instructorId);
-            ps.setInt(2, sectionId);
-            return ps.executeUpdate() == 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public int getCapacity(int sectionId) {
         String sql = "SELECT capacity FROM sections WHERE section_id = ?";
         try (Connection c = DBConnection.getErpConnection();

@@ -19,12 +19,10 @@ public class FacultyService {
     private ComponentScoreDAO componentScoreDAO = new ComponentScoreDAO();
     private SettingsDAO settingsDAO = new SettingsDAO();
 
-    // Profile
     public Faculty getMyProfile() {
         return facultyDAO.getFacultyByUserId(UserSession.getUserID());
     }
 
-    // Sections
     public List<Section> getMySections() {
         Faculty faculty = getMyProfile();
         if (faculty == null) return new ArrayList<>();
@@ -35,7 +33,6 @@ public class FacultyService {
         return sectionDAO.getSectionsByInstructor(instructorId);
     }
 
-    // Stats
     public int getTotalSections() {
         Faculty faculty = getMyProfile();
         if (faculty == null) return 0;
@@ -54,12 +51,10 @@ public class FacultyService {
         return total;
     }
 
-    // Department
     public String getDepartmentName(int id) {
         return departmentDAO.getDepartmentNameById(id);
     }
 
-    // Components
     public List<SectionComponent> getComponents(int sectionId) {
         return sectionComponentDAO.getComponentsBySection(sectionId);
     }
@@ -76,7 +71,6 @@ public class FacultyService {
         return sectionComponentDAO.deleteComponent(componentId);
     }
 
-    // Scores
     public boolean enterScore(ComponentScore componentScore) {
         return componentScoreDAO.insertScore(componentScore);
     }
@@ -98,7 +92,6 @@ public class FacultyService {
         return L;
     }
 
-    // Grades
     public boolean finalizeGrade(int enrollmentId, double score, String gradeLabel) {
         return gradesDAO.insertGrade(enrollmentId, score, gradeLabel);
     }
@@ -107,7 +100,6 @@ public class FacultyService {
         return gradesDAO. getGradeByEnrollment(enrollmentId);
     }
 
-    // Statistics
     public Map<Integer, Double> classStatistics(int sectionId) {
         Map<Integer, Double> map = new HashMap<>();
         List<Enrollment> list = enrollmentDAO.getEnrollmentsBySection(sectionId);
@@ -120,7 +112,6 @@ public class FacultyService {
         return map;
     }
 
-    // Calculate and store grade with hardcoded slabs
     public boolean calculateAndStoreGrade(int enrollmentId, int sectionId) {
         List<SectionComponent> components = sectionComponentDAO.getComponentsBySection(sectionId);
         double totalScore = 0;
@@ -155,7 +146,6 @@ public class FacultyService {
         return "F";
     }
 
-    // Helper methods
     public Course getCourseById(int courseId) {
         return courseDAO.getCourseById(courseId);
     }
@@ -172,13 +162,11 @@ public class FacultyService {
         return studentDAO. getStudentById(studentId);
     }
 
-    // Notifications
     public List<Notification> getRecentNotifications(int limit) {
         NotificationDAO notificationDAO = new NotificationDAO();
         return notificationDAO.getRecentNotifications(limit);
     }
 
-    // Maintenance
     public boolean isMaintenanceMode() {
         return settingsDAO.isMaintenanceMode();
     }

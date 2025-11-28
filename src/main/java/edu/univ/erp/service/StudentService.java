@@ -157,24 +157,9 @@ public class StudentService {
         return facultyDAO.getFacultyById(facultyId);
     }
 
-    public int getMyStudentId() {
-        Student s = getMyProfile();
-        return (s == null) ? -1 : s.getStudentId();
-    }
-
     public String getDepartmentName(int deptId) {
         DepartmentDAO deptDAO = new DepartmentDAO();
         return deptDAO. getDepartmentNameById(deptId);
-    }
-
-    public List<Grade> getGrades(int studentId) {
-        List<Grade> grades = new ArrayList<>();
-        List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByStudent(studentId);
-        for (Enrollment e : enrollments) {
-            Grade g = gradesDAO.getGradeByEnrollment(e.getEnrollmentId());
-            if (g != null) grades.add(g);
-        }
-        return grades;
     }
 
     public LocalDate getAddDropDeadline() {

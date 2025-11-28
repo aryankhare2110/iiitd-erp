@@ -62,29 +62,6 @@ public class GradesDAO {
         }
     }
 
-    public Double computeTotalScore(int enrollmentId) {
-        String sql = "SELECT sc.weight AS weight, cs.score AS score FROM section_components sc JOIN component_scores cs ON sc.component_id = cs.component_id WHERE cs.enrollment_id = ? ";
-        double total = 0;
-        double weightSum = 0;
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, enrollmentId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    double weight = rs.getDouble("weight");    // e.g. 30 (30%)
-                    double score = rs.getDouble("score");      // e.g. 78
-                    total += score * (weight / 100.0);
-                    weightSum += weight;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-        if (weightSum == 0) return null;
-        return total;
-    }
-
     public boolean insertOrUpdateGrade(int enrollmentId, double totalScore, String gradeLabel) {
         String sql = "INSERT INTO grades (enrollment_id, total_score, grade_label) VALUES (?, ?, ?) " +
                 "ON CONFLICT (enrollment_id) DO UPDATE SET total_score = ?, grade_label = ?, computed_at = CURRENT_TIMESTAMP";

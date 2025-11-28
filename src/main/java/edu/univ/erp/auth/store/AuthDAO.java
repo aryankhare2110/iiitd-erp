@@ -6,8 +6,6 @@ import edu.univ.erp.domain.Admin;
 import java.sql.*;
 import java.util.*;
 
-//authDAO is ONLY for auth_db SQL!!
-
 public class AuthDAO {
 
     public boolean emailChecker (String email) {

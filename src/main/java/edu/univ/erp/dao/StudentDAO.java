@@ -166,18 +166,5 @@ public class StudentDAO {
         return null;
     }
 
-    public boolean rollExists(String rollNo) {
-        String sql = "SELECT 1 FROM students WHERE roll_no = ?";
-        try (Connection c = DBConnection.getErpConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, rollNo);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // true if found
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }
 
