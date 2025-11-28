@@ -4,7 +4,7 @@ import edu.univ. erp.auth.session.UserSession;
 import edu. univ.erp.service.AdminService;
 import edu. univ.erp.service. AuthService;
 import edu.univ.erp.ui.common.DialogUtils;
-import edu.univ.erp.ui.common. UIUtils;
+import edu.univ.erp.ui.common.UIUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
