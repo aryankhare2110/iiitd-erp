@@ -5,7 +5,7 @@
 ![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36?style=flat-square&logo=apache-maven&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-A comprehensive Enterprise Resource Planning system for IIITD built with Java Swing and PostgreSQL.
+A comprehensive Enterprise Resource Planning system for IIITD built with Java, Swing and PostgreSQL.
 
 ## Technology Stack
 
