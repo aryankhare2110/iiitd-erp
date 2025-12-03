@@ -5,11 +5,7 @@
 ![Maven](https://img.shields.io/badge/Maven-3.6+-C71A36?style=flat-square&logo=apache-maven&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-A comprehensive Enterprise Resource Planning system for academic institutions built with Java Swing and PostgreSQL.
-
-## Overview
-
-IIITD University ERP is an academic management system that provides role-based access control for administrators, faculty members, and students. It enables efficient management of courses, enrollments, grades, and academic records through a modern desktop interface.
+A comprehensive Enterprise Resource Planning system for IIITD built with Java Swing and PostgreSQL.
 
 ## Technology Stack
 
